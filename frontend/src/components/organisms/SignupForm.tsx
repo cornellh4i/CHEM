@@ -1,8 +1,6 @@
 import React from "react";
-import Button from "../atoms/Button";
-import Input from "../atoms/Input";
-import Checkbox from "../atoms/Checkbox";
 import { useForm } from "react-hook-form";
+import { Button, Input, Checkbox } from "@/components";
 
 type FormInputs = {
   firstName: string;
@@ -23,6 +21,7 @@ const SignupForm = () => {
     console.log(data);
   };
 
+  /** React hook form */
   const {
     register,
     handleSubmit,
@@ -32,7 +31,7 @@ const SignupForm = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="grid gap-6 mb-6 md:grid-cols-2">
+      <div className="grid gap-6 mb-6 sm:grid-cols-2">
         <Input
           label="First name"
           type="text"
@@ -130,7 +129,7 @@ const SignupForm = () => {
           {...register("agree")}
         />
       </div>
-      <Button type="submit">Submit</Button>
+      <Button type="submit">Sign up</Button>
     </form>
   );
 };

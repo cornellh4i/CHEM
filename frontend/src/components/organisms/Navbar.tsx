@@ -1,5 +1,5 @@
 import React from "react";
-import Appbar from "../molecules/Appbar";
+import { Appbar } from "@/components";
 
 const Navbar = () => {
   /** Handles user sign out */
