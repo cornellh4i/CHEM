@@ -1,14 +1,14 @@
 "use client";
 
 import React from "react";
-import DefaultTemplate from "@/components/templates/DefaultTemplate";
-import SignupForm from "@/components/organisms/SignupForm";
+import { LoginTemplate, SignupForm } from "@/components";
 
 const SignupPage = () => {
   return (
-    <DefaultTemplate>
+    <LoginTemplate>
+      <div className="mb-8 text-4xl">Sign Up</div>
       <SignupForm />
-    </DefaultTemplate>
+    </LoginTemplate>
   );
 };
 

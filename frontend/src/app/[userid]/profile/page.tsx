@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import DefaultTemplate from "@/components/templates/DefaultTemplate";
 import { useParams } from "next/navigation";
+import { DefaultTemplate } from "@/components";
 
 const ProfilePage = () => {
   const params = useParams();
