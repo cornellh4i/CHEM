@@ -16,7 +16,7 @@ const LoginTemplate = ({ children }: LoginTemplateProps) => {
       {/* Right */}
       <div className="flex-1 bg-gray-300 overflow-hidden relative">
         <img
-          className="min-h-full absolute object-cover"
+          className="min-h-full min-w-full absolute object-cover"
           alt="splash"
           src="https://upload.wikimedia.org/wikipedia/commons/6/65/Adirondacks_in_May_2008.jpg"
         />
