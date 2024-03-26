@@ -14,7 +14,7 @@ type FormInputs = {
 
 const LoginForm = () => {
   /** Handles form submission */
-  const onSubmit = async (data: FormInputs) => {
+  const onSubmit = async (data: FormInputs): Promise<void> => {
     await signInWithEmailAndPassword(data.email, data.password);
   };
 

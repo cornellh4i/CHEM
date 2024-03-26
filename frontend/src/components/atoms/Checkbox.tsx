@@ -1,8 +1,8 @@
 import React, { ReactNode, forwardRef, Ref } from "react";
 
 interface CheckboxProps {
-  label: ReactNode;
-  error: string;
+  label?: ReactNode;
+  error?: string;
   [key: string]: any;
 }
 

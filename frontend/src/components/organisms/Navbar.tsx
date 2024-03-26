@@ -3,7 +3,7 @@ import { Appbar } from "@/components";
 
 const Navbar = () => {
   /** Handles user sign out */
-  const handleSignOut = async () => {
+  const handleSignOut = (): void => {
     console.log("Handles sign out");
   };
 

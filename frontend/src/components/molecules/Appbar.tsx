@@ -3,14 +3,14 @@ import Link from "next/link";
 
 interface AppbarProps {
   /** List of nav labels and links in order of display */
-  navs: { label: string; link: string }[];
+  navs?: { label: string; link: string }[];
   /** List of action labels and actions in order of display */
-  actions: { label: string; onClick: () => void }[];
+  actions?: { label: string; onClick: () => void }[];
 }
 
 const Appbar = ({ navs, actions }: AppbarProps) => {
   /** Handles clicking the hamburger menu */
-  const onClick = () => {
+  const onClick = (): void => {
     setOpen(!open);
   };
 
@@ -64,7 +64,7 @@ const Appbar = ({ navs, actions }: AppbarProps) => {
         >
           <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
             {/* Nav items */}
-            {navs.map((nav, index) => (
+            {navs?.map((nav, index) => (
               <li key={index}>
                 <Link
                   href={nav.link}
@@ -76,7 +76,7 @@ const Appbar = ({ navs, actions }: AppbarProps) => {
             ))}
 
             {/* Action items */}
-            {actions.map((action, index) => (
+            {actions?.map((action, index) => (
               <li key={index}>
                 <div
                   onClick={action.onClick}

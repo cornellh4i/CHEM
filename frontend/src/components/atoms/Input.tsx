@@ -1,8 +1,8 @@
 import React, { forwardRef, Ref } from "react";
 
 interface InputProps {
-  label: string;
-  error: string;
+  label?: string;
+  error?: string;
   [key: string]: any;
 }
 
