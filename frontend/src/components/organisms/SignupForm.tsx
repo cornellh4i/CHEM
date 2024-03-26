@@ -1,5 +1,7 @@
 import React from "react";
+import api from "@/utils/api";
 import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
 import { Button, Input, Checkbox } from "@/components";
 
 type FormInputs = {
@@ -17,8 +19,9 @@ type FormInputs = {
 
 const SignupForm = () => {
   /** Handles form submission */
-  const onSubmit = (data: FormInputs) => {
+  const onSubmit = async (data: FormInputs): Promise<void> => {
     console.log(data);
+    await mutation.mutateAsync(data);
   };
 
   /** React hook form */
@@ -28,6 +31,32 @@ const SignupForm = () => {
     watch,
     formState: { errors },
   } = useForm<FormInputs>();
+
+  /** Tanstack mutation for signing up a user */
+  const mutation = useMutation({
+    mutationFn: async (form: FormInputs) => {
+      const data = {
+        email: form.email,
+        password: form.password,
+        profile: {
+          firstName: form.firstName,
+          lastName: form.lastName,
+          company: form.company,
+          phone: form.phone,
+          website: form.website,
+          visitors: form.visitors,
+        },
+      };
+      const response = await api.post("/users", data, false);
+      return response;
+    },
+    retry: false,
+  });
+
+  // Handles API errors
+  if (mutation.isError) {
+    return <div>{mutation.error.message}</div>;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
