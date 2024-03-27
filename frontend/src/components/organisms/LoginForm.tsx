@@ -35,11 +35,16 @@ const LoginForm = () => {
       <div className="mb-6">
         <Input
           label="Email address"
-          type="email"
           placeholder="john.doe@company.com"
-          required
-          error={errors.email}
-          {...register("email")}
+          error={errors.email?.message}
+          {...register("email", {
+            required: { value: true, message: "Required" },
+            pattern: {
+              value:
+                /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+              message: "Invalid email address",
+            },
+          })}
         />
       </div>
       <div className="mb-6">
@@ -47,9 +52,10 @@ const LoginForm = () => {
           label="Password"
           type="password"
           placeholder="•••••••••"
-          required
-          error={errors.password}
-          {...register("password")}
+          error={errors.password?.message}
+          {...register("password", {
+            required: { value: true, message: "Required" },
+          })}
         />
       </div>
       <Button type="submit">Log in</Button>

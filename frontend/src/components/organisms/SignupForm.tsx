@@ -63,52 +63,62 @@ const SignupForm = () => {
       <div className="grid gap-6 mb-6 sm:grid-cols-2">
         <Input
           label="First name"
-          type="text"
           placeholder="John"
-          required
-          error={errors.firstName}
-          {...register("firstName")}
+          error={errors.firstName?.message}
+          {...register("firstName", {
+            required: { value: true, message: "Required" },
+          })}
         />
         <Input
           label="Last name"
-          type="text"
           placeholder="Doe"
-          required
-          error={errors.lastName}
-          {...register("lastName")}
+          error={errors.lastName?.message}
+          {...register("lastName", {
+            required: { value: true, message: "Required" },
+          })}
         />
         <Input
           label="Company"
-          type="text"
           placeholder="Flowbite"
-          required
-          error={errors.company}
-          {...register("company")}
+          error={errors.company?.message}
+          {...register("company", {
+            required: { value: true, message: "Required" },
+          })}
         />
         <Input
           label="Phone number"
-          type="tel"
           placeholder="123-456-7890"
-          pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-          required
-          error={errors.phone}
-          {...register("phone")}
+          error={errors.phone?.message}
+          {...register("phone", {
+            required: { value: true, message: "Required" },
+            pattern: {
+              value: /[0-9]{3}-[0-9]{3}-[0-9]{4}/,
+              message: "Invalid phone number",
+            },
+          })}
         />
         <Input
           label="Website URL"
-          type="url"
           placeholder="flowbite.com"
-          required
-          error={errors.website}
-          {...register("website")}
+          error={errors.website?.message}
+          {...register("website", {
+            required: { value: true, message: "Required" },
+            pattern: {
+              value:
+                /^((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/[a-zA-Z0-9#]+\/?)*$/,
+              message: "Invalid URL",
+            },
+          })}
         />
         <Select
           label="Location"
-          required
-          error={errors.location}
-          {...register("location")}
+          defaultValue=""
+          error={errors.location?.message}
+          {...register("location", {
+            required: { value: true, message: "Required" },
+          })}
         >
-          <option selected>Choose a country</option>
+          <option value="">Choose a country</option>
           <option value="US">United States</option>
           <option value="CA">Canada</option>
           <option value="FR">France</option>
@@ -118,11 +128,16 @@ const SignupForm = () => {
       <div className="mb-6">
         <Input
           label="Email address"
-          type="email"
           placeholder="john.doe@company.com"
-          required
-          error={errors.email}
-          {...register("email")}
+          error={errors.email?.message}
+          {...register("email", {
+            required: { value: true, message: "Required" },
+            pattern: {
+              value:
+                /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+              message: "Invalid email address",
+            },
+          })}
         />
       </div>
       <div className="mb-6">
@@ -130,9 +145,10 @@ const SignupForm = () => {
           label="Password"
           type="password"
           placeholder="•••••••••"
-          required
-          error={errors.password}
-          {...register("password")}
+          error={errors.password?.message}
+          {...register("password", {
+            required: { value: true, message: "Required" },
+          })}
         />
       </div>
       <div className="mb-6">
@@ -140,9 +156,14 @@ const SignupForm = () => {
           label="Confirm password"
           type="password"
           placeholder="•••••••••"
-          required
-          error={errors.confirmPassword}
-          {...register("confirmPassword")}
+          error={errors.confirmPassword?.message}
+          {...register("confirmPassword", {
+            required: { value: true, message: "Required" },
+            validate: {
+              matchPassword: (value) =>
+                value === watch("password") || "Passwords do not match",
+            },
+          })}
         />
       </div>
       <div className="flex items-start mb-6">
@@ -159,8 +180,10 @@ const SignupForm = () => {
               .
             </>
           }
-          error={errors.agree}
-          {...register("agree")}
+          error={errors.agree?.message}
+          {...register("agree", {
+            required: { value: true, message: "Required" },
+          })}
         />
       </div>
       <Button type="submit">Sign up</Button>
