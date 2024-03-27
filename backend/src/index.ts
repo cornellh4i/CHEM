@@ -1,5 +1,5 @@
 import { WebSocketServer } from "ws";
-import app from "./server";
+import app from "./utils/server";
 
 // Express server
 const server = app.listen(process.env.PORT || 8000);
