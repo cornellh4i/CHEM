@@ -6,7 +6,16 @@ An opinionated web application project template.
 ## Backend
 The backend is a Node.js and Express server with a PostgreSQL database managed by [Prisma ORM](https://www.prisma.io/). A WebSocket server is also implemented since WebSockets are needed for of automatic data fetching. A `.env` file should be created from the `.env.template` file. Swagger is used to autogenerate API documentation, and Jest is used for testing.
 
+### Getting started
+- `yarn dev` starts the server in development mode with `nodemon` at `localhost:8000`
+- `yarn build` compiles the server
+- `yarn start` starts the server in production mode
+- `yarn test` seeds the database and runs the Jest test suite
+- `yarn setup` does a database migration based on the Prisma schema, seeds the database, and autogenerates the API documentation available at route `/api-docs`
+
 ### Manual setup
+If you are interested in recreating the project template from scratch, the commands are shown below:
+
 ```bash
 # Init new project
 yarn init
@@ -59,13 +68,23 @@ GET /api/users?firstName="Bobby"&lastName="Fischer"&sort=email:asc&limit=100&aft
 GET /api/events/upcoming=true?sort=location:desc&limit=20&after=xjf48992
 ```
 
+### Deploy
+The server should be deployed as a Docker container.
+
 ## Frontend
 The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS. Basic components are built with Flowbite, acting as the foundation for a custom design system entirely controlled with Tailwind. A `.env.local` file should be created from the `.env.template` file. Additional dependencies include:
 - `react-hook-form` for simple form handling
 - `firebase` and `react-firebase-hooks` for Firebase authentication
 - `@tanstack/react-query` for easier data fetching and updating
 
+### Getting started
+- `yarn dev` starts the app at `localhost:3000`
+- `yarn build` compiles the app
+- `yarn start` starts the compiled app
+
 ### Manual setup
+If you are interested in recreating the project template from scratch, the commands are shown below:
+
 ```bash
 # Init new Next.js project
 npx create-next-app@latest
@@ -105,3 +124,6 @@ import api from "@/utils/api";
 const response = await api.get(`/users?email=${user.email}`);
 console.log(response.data)
 ```
+
+### Deploy
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js. Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
