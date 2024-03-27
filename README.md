@@ -18,7 +18,12 @@ yarn add --dev @types/express @types/cors @types/ws @types/swagger-ui-express no
 yarn add express cors ws swagger-autogen swagger-ui-expres dotenv
 ```
 
-The backend is a Node.js Express server with a PostgreSQL database managed by Prisma ORM. A WebSocket server is also implemented on port `8080`, as WebSockets are needed for any sort of automatic data fetching. A `.env` file should be created from the `.env.template` file. Swagger is used to autogenerate API documentation, and Jest is used for testing. The project roughly follows the Model-View-Controller pattern. Controllers include functions that directly interact with the data model, and routes are the endpoints that users directly interact with.
+The backend is a Node.js and Express server with a PostgreSQL database managed by [Prisma ORM](https://www.prisma.io/). A WebSocket server is also implemented since WebSockets are needed for of automatic data fetching. A `.env` file should be created from the `.env.template` file. Swagger is used to autogenerate API documentation, and Jest is used for testing.
+
+The project roughly follows the Model-View-Controller pattern:
+- **Controllers** are functions that directly interact with the data model, such as `getUsers`
+- **Middleware** are functions that sit between routes and controllers, handling tasks such as route authentication, logging, and more
+- **Routes** (views) are the endpoints that users directly interact with, such as `GET /api/users/:userid`
 
 ## Frontend
 ```bash
