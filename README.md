@@ -8,10 +8,10 @@ An opinionated web application project template.
 The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS. Basic components are built with Flowbite, acting as the foundation for a custom design system entirely controlled with Tailwind.
 
 Components are organized according to [atomic design](https://atomicdesign.bradfrost.com/chapter-2/) principles. In short, components are organized into the following categories:
-- **Atoms** are generic and reusable components that cannot be broken down further (`Button`, `Input`, `Checkbox`)
-- **Molecules** are generic and reusable components that are complex and act as containers for other content (`Table`, `Modal`, `Card`)
-- **Organisms** are non-generic components that handle specific business logic (`SignupForm`, `LoginForm`)
-- **Templates** are page layouts with a focus on handling responsive design (`DefaultTemplate`, `CenterTemplate`)
+- **Atoms** are generic and reusable components that cannot be broken down further (Button, Input, Checkbox)
+- **Molecules** are generic and reusable components that are complex and act as containers for other content (Table, Modal, Card)
+- **Organisms** are non-generic components that handle specific business logic (SignupForm, LoginForm)
+- **Templates** are page layouts with a focus on handling responsive design (DefaultTemplate, CenterTemplate)
 
 Additional dependencies include:
 - `react-hook-form` for simple form handling
