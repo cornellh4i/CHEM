@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
 import swaggerUI from "swagger-ui-express";
-import userRouter from "./routes/users";
-import spec from "../api-spec.json";
+import userRouter from "../routes/users";
+import spec from "../../api-spec.json";
 
 const app = express();
 
