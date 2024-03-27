@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import { WebSocketServer } from "ws";
 import app from "./server";
 
