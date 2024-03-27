@@ -1,11 +1,35 @@
 # web-template
 An opinionated web application project template.
 
+## Backend
+```bash
+# Init new project
+yarn init
+npx gitignore node
+
+# Set up Prisma and TypeScript
+yarn add --dev prisma typescript ts-node @types/node
+yarn add @prisma/client
+npx tsc --init
+npx prisma init
+
+# Set up Express, CORS, WebSocket, Swagger, nodemon, dotenv, Jest
+yarn add --dev @types/express @types/cors @types/ws @types/swagger-ui-express nodemon jest
+yarn add express cors ws swagger-autogen swagger-ui-expres dotenv
+```
+
+The backend is a Node.js Express server with a PostgreSQL database managed by Prisma ORM. A WebSocket server is also implemented on port `8080`, as WebSockets are needed for any sort of automatic data fetching. A `.env` file should be created from the `.env.template` file. Swagger is used to autogenerate API documentation, and Jest is used for testing. The project roughly follows the Model-View-Controller pattern. Controllers include functions that directly interact with the data model, and routes are the endpoints that users directly interact with.
+
 ## Frontend
+```bash
+# Init new Next.js project
+npx create-next-app@latest
 
-`npx create-next-app@latest`
+# Install packages
+yarn add flowbite react-hook-form firebase react-firebase-hooks @tanstack/react-query
+```
 
-The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS. Basic components are built with Flowbite, acting as the foundation for a custom design system entirely controlled with Tailwind.
+The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS. Basic components are built with Flowbite, acting as the foundation for a custom design system entirely controlled with Tailwind. A `.env.local` file should be created from the `.env.template` file.
 
 Components are organized according to [atomic design](https://atomicdesign.bradfrost.com/chapter-2/) principles. In short, components are organized into the following categories:
 - **Atoms** are generic and reusable components that cannot be broken down further (Button, Input, Checkbox)
@@ -17,19 +41,6 @@ Additional dependencies include:
 - `react-hook-form` for simple form handling
 - `firebase` and `react-firebase-hooks` for Firebase authentication
 - `@tanstack/react-query` for easier data fetching and updating
-
-A `.env.local` file should be created with the following format:
-```
-NEXT_PUBLIC_FIREBASE_API_KEY = ""
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN = ""
-NEXT_PUBLIC_FIREBASE_PROJECT_ID = ""
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET = ""
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID = ""
-NEXT_PUBLIC_FIREBASE_APP_ID = ""
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID = ""
-NEXT_PUBLIC_BASE_URL_SERVER = "http://localhost:8000"
-NEXT_PUBLIC_BASE_URL_CLIENT = "http://localhost:3000"
-```
 
 The frontend comes with an opinionated `fetch` wrapper for API calls to the backend with authentication built in, shown below:
 ```ts
