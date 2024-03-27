@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 # Set environment variables to prevent interactive prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -19,5 +19,5 @@ RUN apt install -y git vim wget && \
     npm install --global yarn
 
 # Make terminal nicer
-RUN echo 'LC_ALL="C.UTF-8"' >> /root/.bash_profile
-RUN echo 'PS1="\[\033[01;32m\]\u\[\033[00m\] ➜ \[\033[01;34m\]\W\[\033[00m\] \[\033[01;31m\](\h)\[\033[00m\] $ "' >> /root/.bash_profile
+RUN echo 'LC_ALL="C.UTF-8"' >> /root/.bash_profile && \
+    echo 'PS1="\[\033[01;32m\]\u\[\033[00m\] ➜ \[\033[01;34m\]\W\[\033[00m\] \[\033[01;31m\](\h)\[\033[00m\] $ "' >> /root/.bash_profile
