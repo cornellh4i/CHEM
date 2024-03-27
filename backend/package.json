@@ -1,0 +1,38 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon -r dotenv/config src/index.ts",
+    "build": "tsc",
+    "start": "ts-node -r dotenv/config src/index.ts",
+    "test": "prisma db seed && jest -i",
+    "swagger": "ts-node -r dotenv/config src/utils/swagger.ts",
+    "setup": "prisma migrate dev && prisma db seed && swagger"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.0",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.30",
+    "@types/swagger-ui-express": "^4.1.6",
+    "@types/ws": "^8.5.10",
+    "nodemon": "^3.1.0",
+    "prisma": "^5.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.3"
+  }
+}
