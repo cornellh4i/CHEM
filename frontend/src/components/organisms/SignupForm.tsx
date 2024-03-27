@@ -2,7 +2,7 @@ import React from "react";
 import api from "@/utils/api";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { Button, Input, Checkbox } from "@/components";
+import { Button, Input, Checkbox, Select } from "@/components";
 
 type FormInputs = {
   firstName: string;
@@ -10,7 +10,7 @@ type FormInputs = {
   company: string;
   phone: number;
   website: string;
-  visitors: number;
+  location: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -44,7 +44,7 @@ const SignupForm = () => {
           company: form.company,
           phone: form.phone,
           website: form.website,
-          visitors: form.visitors,
+          location: form.location,
         },
       };
       const response = await api.post("/users", data, false);
@@ -102,13 +102,18 @@ const SignupForm = () => {
           error={errors.website}
           {...register("website")}
         />
-        <Input
-          label="Visitors"
-          type="number"
+        <Select
+          label="Location"
           required
-          error={errors.visitors}
-          {...register("visitors")}
-        />
+          error={errors.location}
+          {...register("location")}
+        >
+          <option selected>Choose a country</option>
+          <option value="US">United States</option>
+          <option value="CA">Canada</option>
+          <option value="FR">France</option>
+          <option value="DE">Germany</option>
+        </Select>
       </div>
       <div className="mb-6">
         <Input
