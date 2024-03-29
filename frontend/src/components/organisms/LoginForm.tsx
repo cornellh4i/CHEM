@@ -7,10 +7,10 @@ import {
 } from "react-firebase-hooks/auth";
 import { Button, Input } from "@/components";
 
-type FormInputs = {
+interface FormInputs {
   email: string;
   password: string;
-};
+}
 
 const LoginForm = () => {
   /** Handles form submission */
