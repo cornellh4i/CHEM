@@ -1,61 +1,9 @@
 import { SERVER_URL } from "@/utils/constants";
 import auth from "@/utils/firebase";
 
-/**
- * Performs a GET request
- * @param url is the resource url
- * @param requiresAuth is whether a token is needed for the request
- * @returns a promise of the response
- */
-const get = (url: string, requiresAuth = true) => {
-  return handleRequest("GET", url, requiresAuth);
-};
-
-/**
- * Performs a POST request
- * @param url is the resource url
- * @param body is the request body
- * @param requiresAuth is whether a token is needed for the request
- * @returns a promise of the response
- */
-const post = (url: string, body: object, requiresAuth = true) => {
-  const headers = { "Content-Type": "application/json" };
-  return handleRequest("POST", url, requiresAuth, headers, body);
-};
-
-/**
- * Performs a PUT request
- * @param url is the resource url
- * @param body is the request body
- * @param requiresAuth is whether a token is needed for the request
- * @returns a promise of the response
- */
-const put = (url: string, body: object, requiresAuth = true) => {
-  const headers = { "Content-Type": "application/json" };
-  return handleRequest("PUT", url, requiresAuth, headers, body);
-};
-
-/**
- * Performs a PATCH request
- * @param url is the resource url
- * @param body is the request body
- * @param requiresAuth is whether a token is needed for the request
- * @returns a promise of the response
- */
-const patch = (url: string, body: object, requiresAuth = true) => {
-  const headers = { "Content-Type": "application/json" };
-  return handleRequest("PATCH", url, requiresAuth, headers, body);
-};
-
-/**
- * Performs a DELETE request
- * @param url is the resource url
- * @param requiresAuth is whether a token is needed for the request
- * @returns a promise of the response
- */
-const del = (url: string, requiresAuth = true) => {
-  return handleRequest("DELETE", url, requiresAuth);
-};
+interface ApiResponse extends Response {
+  data: any;
+}
 
 /**
  * Retrieves the Firebase token for the current user
@@ -70,10 +18,60 @@ const retrieveToken = (): Promise<string> => {
 };
 
 /**
+ * Performs a GET request
+ * @param url is the resource url
+ * @returns a promise of the response
+ */
+const get = (url: string): Promise<ApiResponse> => {
+  return handleRequest("GET", url);
+};
+
+/**
+ * Performs a POST request
+ * @param url is the resource url
+ * @param body is the request body
+ * @returns a promise of the response
+ */
+const post = (url: string, body: object): Promise<ApiResponse> => {
+  const headers = { "Content-Type": "application/json" };
+  return handleRequest("POST", url, headers, body);
+};
+
+/**
+ * Performs a PUT request
+ * @param url is the resource url
+ * @param body is the request body
+ * @returns a promise of the response
+ */
+const put = (url: string, body: object): Promise<ApiResponse> => {
+  const headers = { "Content-Type": "application/json" };
+  return handleRequest("PUT", url, headers, body);
+};
+
+/**
+ * Performs a PATCH request
+ * @param url is the resource url
+ * @param body is the request body
+ * @returns a promise of the response
+ */
+const patch = (url: string, body: object): Promise<ApiResponse> => {
+  const headers = { "Content-Type": "application/json" };
+  return handleRequest("PATCH", url, headers, body);
+};
+
+/**
+ * Performs a DELETE request
+ * @param url is the resource url
+ * @returns a promise of the response
+ */
+const del = (url: string): Promise<ApiResponse> => {
+  return handleRequest("DELETE", url);
+};
+
+/**
  * Performs a fetch request
  * @param method is the request method
  * @param url is the resource url
- * @param requiresAuth is whether a token is needed for the request
  * @param headers are the request headers
  * @param body is the request body
  * @returns a promise of the response data as { response, data }
@@ -81,16 +79,17 @@ const retrieveToken = (): Promise<string> => {
 const handleRequest = async (
   method: string,
   url: string,
-  requiresAuth: boolean,
   headers?: { [key: string]: string },
   body?: object
-) => {
-  // Handle request
+): Promise<ApiResponse> => {
+  // Handle auth
   let authHeader = {};
-  if (requiresAuth) {
+  try {
     const token = await retrieveToken();
     authHeader = { Authorization: `Bearer ${token}` };
-  }
+  } catch (error) {}
+
+  // Handle request
   const options = {
     method: method,
     headers: { ...authHeader, ...headers },
