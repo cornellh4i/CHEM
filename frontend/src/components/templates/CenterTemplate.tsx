@@ -7,7 +7,7 @@ interface CenterTemplateProps {
 
 const CenterTemplate = ({ children }: CenterTemplateProps) => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen dark:bg-gray-900 dark:text-gray-300">
       <Navbar />
       <div className="max-w-2xl mx-auto sm:mt-8 p-4">{children}</div>
     </div>

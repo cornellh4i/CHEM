@@ -18,7 +18,7 @@ const Appbar = ({ navs, actions }: AppbarProps) => {
   const styles = open ? "" : "hidden";
 
   return (
-    <nav className="bg-white border-b border-gray-200 dark:bg-gray-900">
+    <nav className="bg-white border-b border-gray-200 dark:border-gray-800 dark:bg-gray-900">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <a
           href="https://flowbite.com/"
@@ -29,7 +29,7 @@ const Appbar = ({ navs, actions }: AppbarProps) => {
             className="h-8"
             alt="Flowbite Logo"
           />
-          <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
+          <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-gray-300">
             Flowbite
           </span>
         </a>
@@ -61,7 +61,7 @@ const Appbar = ({ navs, actions }: AppbarProps) => {
               <li key={index}>
                 <Link
                   href={nav.link}
-                  className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                  className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-300 md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
                 >
                   {nav.label}
                 </Link>
@@ -73,7 +73,7 @@ const Appbar = ({ navs, actions }: AppbarProps) => {
               <li key={index}>
                 <div
                   onClick={action.onClick}
-                  className="cursor-pointer block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                  className="cursor-pointer block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-300 md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
                 >
                   {action.label}
                 </div>
