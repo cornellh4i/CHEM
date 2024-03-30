@@ -35,28 +35,40 @@ Components are organized according to [atomic design](https://atomicdesign.bradf
 
 ## API
 
-The frontend comes with an opinionated `fetch` wrapper for API calls to the backend with authentication built in, shown below:
+The frontend comes with an opinionated `fetch` wrapper for API calls to the backend with authentication and error handling built in, shown below:
 
 ```ts
 // fetch
 import auth from "@/utils/firebase";
 import { SERVER_URL } from "@/utils/constants";
 
-const token = await auth.currentUser?.getIdToken();
-const response = await fetch(`${SERVER_URL}/users?email=${user.email}`, {
-  method: "GET",
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-});
-const data = await response.json();
-console.log(data);
+try {
+  const token = await auth.currentUser?.getIdToken();
+  const response = await fetch(`${SERVER_URL}/users?email=${user.email}`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json();
+  if (response.ok) {
+    console.log(data);
+  } else {
+    throw new Error(data.error);
+  }
+} catch (error) {
+  console.error(error);
+}
+```
 
+```ts
 // fetch wrapper
 import api from "@/utils/api";
 
-const response = await api.get(`/users?email=${user.email}`);
-console.log(response.data);
+try {
+  const response = await api.get(`/users?email=${user.email}`);
+  console.log(response.data);
+} catch (error) {
+  console.error(error);
+}
 ```
 
 ## Deploy
