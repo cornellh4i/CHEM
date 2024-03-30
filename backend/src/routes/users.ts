@@ -22,8 +22,8 @@ userRouter.get("/", async (req, res) => {
   };
   const sortQuery = (req.query.sort as string)?.split(":");
   const sort = {
-    key: sortQuery ? sortQuery[0] : "default",
-    order: (sortQuery ? sortQuery[1] : "asc") as Prisma.SortOrder,
+    key: sortQuery[0],
+    order: sortQuery[1] as Prisma.SortOrder,
   };
   const pagination = {
     after: req.query.after as string,
