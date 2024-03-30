@@ -1,4 +1,4 @@
-import { WebSocketServer } from "ws";
+import wss from "./utils/websocket";
 import app from "./utils/server";
 
 // Express server
@@ -13,8 +13,6 @@ server.on("error", (error) => {
 });
 
 // WebSocket server
-const wss = new WebSocketServer({ port: 8080 });
-
 wss.on("connection", (ws) => {
   // Error handling
   ws.on("error", console.error);
