@@ -31,26 +31,29 @@ const match = (path: string, routes: string[]): boolean => {
   return routes.some((route) => regex(route).test(path));
 };
 
-/** Routes related to authentication */
-const authPaths = [
-  "/login",
-  "/signup",
-  "/verify",
-  "/password/forgot",
-  "/password/reset/:oobcode",
-];
+/** All valid routes in the website */
+const routes = {
+  /** Routes related to authentication */
+  authPaths: [
+    "/login",
+    "/signup",
+    "/verify",
+    "/password/forgot",
+    "/password/reset/:oobcode",
+  ],
 
-/** Users can access */
-const userPaths = ["/posts"];
+  /** Users can access */
+  userPaths: ["/posts"],
 
-/** Users can access only in certain conditions; admins can access */
-const userRestrictedPaths = ["/users/:userid", "/posts/:postid"];
+  /** Users can access only in certain conditions; admins can access */
+  userRestrictedPaths: ["/users/:userid", "/posts/:postid"],
 
-/** Admins can access */
-const adminPaths = ["/dashboard", "/users", "/website"];
+  /** Admins can access */
+  adminPaths: ["/dashboard", "/users", "/website"],
 
-/** Anyone can access */
-const publicPaths = ["/", "about"];
+  /** Anyone can access */
+  publicPaths: ["/", "about"],
+};
 
 /** Middleware that runs for every protected route */
 export const middleware = async (request: NextRequest) => {
@@ -64,7 +67,7 @@ export const middleware = async (request: NextRequest) => {
 
   switch (true) {
     // Auth paths
-    case match(path, authPaths):
+    case match(path, routes.authPaths):
       // If user is logged in, redirect to About
       if (token) {
         return NextResponse.redirect(new URL("/about", request.url));
@@ -73,7 +76,7 @@ export const middleware = async (request: NextRequest) => {
       break;
 
     // User paths
-    case match(path, userPaths):
+    case match(path, routes.userPaths):
       // If user is not logged in, redirect to Login
       if (!token) {
         return NextResponse.redirect(new URL("/login", request.url));
@@ -82,7 +85,7 @@ export const middleware = async (request: NextRequest) => {
       break;
 
     // User restricted paths
-    case match(path, userRestrictedPaths):
+    case match(path, routes.userRestrictedPaths):
       // If user is not logged in, redirect to Login
       if (!token) {
         return NextResponse.redirect(new URL("/login", request.url));
@@ -99,7 +102,7 @@ export const middleware = async (request: NextRequest) => {
       break;
 
     // Admin paths
-    case match(path, adminPaths):
+    case match(path, routes.adminPaths):
       // If user is not logged in, redirect to Login
       if (!token) {
         return NextResponse.redirect(new URL("/login", request.url));
@@ -112,7 +115,7 @@ export const middleware = async (request: NextRequest) => {
       break;
 
     // Public paths
-    case match(path, publicPaths):
+    case match(path, routes.publicPaths):
       // Everyone else can access
       break;
 
