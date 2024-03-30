@@ -6,18 +6,6 @@ interface ApiResponse extends Response {
 }
 
 /**
- * Retrieves the Firebase token for the current user
- * @returns a promise of the token
- */
-const retrieveToken = (): Promise<string> => {
-  if (auth.currentUser) {
-    return auth.currentUser.getIdToken();
-  } else {
-    return Promise.reject(new Error("Failed to retrieve token: user is null"));
-  }
-};
-
-/**
  * Performs a GET request
  * @param url is the resource url
  * @returns a promise of the response
@@ -85,9 +73,9 @@ const handleRequest = async (
   // Handle auth
   let authHeader = {};
   try {
-    const token = await retrieveToken();
+    const token = await auth.currentUser?.getIdToken();
     authHeader = { Authorization: `Bearer ${token}` };
-  } catch (error) {}
+  } catch {}
 
   // Handle request
   const options = {
