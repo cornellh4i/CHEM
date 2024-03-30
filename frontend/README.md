@@ -1,10 +1,6 @@
 # Frontend
 
-The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS. Basic components are built with Flowbite, acting as the foundation for a custom design system entirely controlled with Tailwind. A `.env.local` file should be created from the `.env.template` file. Additional dependencies include:
-
-- `react-hook-form` for simple form handling
-- `firebase` and `react-firebase-hooks` for Firebase authentication
-- `@tanstack/react-query` for easier data fetching and updating
+The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS. Basic components are built with Flowbite, acting as the foundation for a custom design system entirely controlled with Tailwind. A `.env.local` file should be created from the `.env.template` file.
 
 ## Getting started
 
@@ -17,11 +13,15 @@ The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS.
 If you are interested in recreating the project template from scratch, the commands are shown below:
 
 ```bash
-# Init new Next.js project
+# Create new Next.js project
 npx create-next-app@latest
 
-# Install packages
-yarn add flowbite react-hook-form firebase react-firebase-hooks @tanstack/react-query
+# Install dependencies
+yarn add \
+    flowbite \                      # Component library
+    react-hook-form \               # Form handling
+    firebase react-firebase-hooks \ # Firebase authentication
+    @tanstack/react-query           # Data fetching and updating
 ```
 
 ## Folder structure
