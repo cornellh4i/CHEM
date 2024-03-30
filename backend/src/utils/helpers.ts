@@ -4,7 +4,7 @@ import wss from "./websocket";
 /**
  * Sends a message from the WebSocket server to all connected clients
  * @param resource is the API resource that has been updated; if a user with
- * uuid `1234` was updated, the resource would be `/users/1234`
+ *     uuid `1234` was updated, the resource would be `/users/1234`
  * @returns void
  */
 export const notify = (resource: string): void => {
