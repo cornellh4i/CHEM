@@ -10,7 +10,7 @@ const Navbar = () => {
   const navs = [
     { label: "Home", link: "/" },
     { label: "About", link: "/about" },
-    { label: "Profile", link: "/asdf/profile" },
+    { label: "Profile", link: "/users/asdf" },
   ];
   const actions = [{ label: "Log Out", onClick: handleSignOut }];
 

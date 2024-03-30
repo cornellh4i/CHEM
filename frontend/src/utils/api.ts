@@ -62,7 +62,7 @@ const del = (url: string): Promise<ApiResponse> => {
  * @param url is the resource url
  * @param headers are the request headers
  * @param body is the request body
- * @returns a promise of the response data as { response, data }
+ * @returns a promise of the response
  */
 const handleRequest = async (
   method: string,
