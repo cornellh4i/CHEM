@@ -7,7 +7,7 @@ interface LoginTemplateProps {
 
 const LoginTemplate = ({ children }: LoginTemplateProps) => {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen dark:bg-gray-900 dark:text-gray-300">
       {/* Left */}
       <div className="flex overflow-auto w-full sm:max-w-2xl py-10 px-10 sm:px-20 items-center justify-center">
         <div className="w-full">{children}</div>
