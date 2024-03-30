@@ -36,9 +36,7 @@ const getUsers = async (
     lastName: filter?.lastName,
     company: filter?.company,
     phone: filter?.phone,
-    role: {
-      equals: filter?.role,
-    },
+    role: { equals: filter?.role },
   };
 
   /** Prisma sort object, handles GET /users?sort=firstName:asc */
