@@ -15,19 +15,30 @@ The backend is a Node.js and Express server with a PostgreSQL database managed b
 If you are interested in recreating the project template from scratch, the commands are shown below:
 
 ```bash
-# Init new project
+# Create new Node.js project
 yarn init
 npx gitignore node
-
-# Set up Prisma and TypeScript
-yarn add --dev prisma typescript ts-node @types/node
-yarn add @prisma/client
+yarn add --dev typescript ts-node @types/node
 npx tsc --init
+
+# Install Prisma
+yarn add --dev prisma
+yarn add @prisma/client
 npx prisma init
 
-# Set up Express, CORS, WebSocket, Swagger, nodemon, dotenv, Jest
-yarn add --dev @types/express @types/cors @types/ws @types/swagger-ui-express nodemon jest
-yarn add express cors ws swagger-autogen swagger-ui-expres dotenv
+# Install dependencies
+yarn add \
+    express \                            # Express server
+    cors \                               # Enable CORS
+    ws \                                 # WebSocket server
+    swagger-autogen swagger-ui-express \ # Swagger autogen and API docs
+    dotenv                               # Load .env files
+yarn add --dev \
+    nodemon                              # Hot reload server in dev mode
+    jest                                 # Test suite
+    supertest                            # Make API calls in test suite
+    @types/express @types/cors @types/ws @types/swagger-ui-express @types/jest @types/supertest
+
 ```
 
 ## Folder structure
