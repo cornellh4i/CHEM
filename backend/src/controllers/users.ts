@@ -1,13 +1,13 @@
-import { Prisma, Role } from "@prisma/client";
-import { Users } from "../utils/types";
 import prisma from "../utils/client";
+import { Prisma, Role, User } from "@prisma/client";
+import { Users } from "../utils/types";
 
 /**
  * Gets all users in database and all data associated with each user
  * @param filter are the filter params passed in
  * @param sort are sort params passed in
  * @param pagination are the pagination params passed in
- * @returns promise with list of users
+ * @returns a promise with list of users
  */
 const getUsers = async (
   filter?: {
@@ -70,4 +70,41 @@ const getUsers = async (
   return { result, nextCursor, total };
 };
 
-export default { getUsers };
+/**
+ * Creates a new user
+ * @param user is a User object
+ * @returns promise with the created user
+ */
+const createUser = async (user: User): Promise<User> => {
+  return prisma.user.create({
+    data: { ...user },
+  });
+};
+
+/**
+ * Updates the user with a new User object
+ * @param userid is the id of user to be updated
+ * @param user is a complete User object
+ * @returns a promise with the updated user
+ */
+const updateUser = async (userid: string, user: User): Promise<User> => {
+  return prisma.user.update({
+    where: { id: userid },
+    data: { ...user },
+  });
+};
+
+/**
+ * Deletes specified user by userid.
+ * @param userid is the id of the user to be deleted
+ * @returns a promise with the deleted user
+ */
+const deleteUser = async (userid: string): Promise<User> => {
+  return prisma.user.delete({
+    where: {
+      id: userid,
+    },
+  });
+};
+
+export default { getUsers, createUser, updateUser, deleteUser };

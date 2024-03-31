@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { Prisma, Role } from "@prisma/client";
 import { ErrorMessage, Users } from "../utils/types";
-import controller from "../controllers/users";
 import { notify } from "../utils/helpers";
+import controller from "../controllers/users";
 
 const userRouter = Router();
 
@@ -40,8 +40,60 @@ userRouter.get("/", async (req, res) => {
   }
 });
 
-userRouter.post("/", (req, res) => {
-  res.send(req.body);
+userRouter.post("/", async (req, res) => {
+  // #swagger.tags = ['Users']
+  const { password, ...rest } = req.body;
+
+  try {
+    const user = await controller.createUser(rest);
+    res.status(201).send(user);
+    notify("/users");
+  } catch (error) {
+    const body: ErrorMessage = { error: (error as Error).message };
+    res.status(500).send(body);
+  }
+});
+
+userRouter.put("/:userid", async (req, res) => {
+  // #swagger.tags = ['Users']
+  try {
+    const user = await controller.updateUser(
+      req.query.userid as string,
+      req.body
+    );
+    res.status(200).send(user);
+    notify(`/users/${req.query.userid}`);
+  } catch (error) {
+    const body: ErrorMessage = { error: (error as Error).message };
+    res.status(500).send(body);
+  }
+});
+
+userRouter.patch("/:userid", async (req, res) => {
+  // #swagger.tags = ['Users']
+  try {
+    const user = await controller.updateUser(
+      req.query.userid as string,
+      req.body
+    );
+    res.status(200).send(user);
+    notify(`/users/${req.query.userid}`);
+  } catch (error) {
+    const body: ErrorMessage = { error: (error as Error).message };
+    res.status(500).send(body);
+  }
+});
+
+userRouter.delete("/:userid", async (req, res) => {
+  // #swagger.tags = ['Users']
+  try {
+    const user = await controller.deleteUser(req.query.userid as string);
+    res.status(200).send(user);
+    notify("/users");
+  } catch (error) {
+    const body: ErrorMessage = { error: (error as Error).message };
+    res.status(500).send(body);
+  }
 });
 
 export default userRouter;
