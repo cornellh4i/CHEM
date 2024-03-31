@@ -33,6 +33,53 @@ Components are organized according to [atomic design](https://atomicdesign.bradf
 - **Organisms** are non-generic components that handle specific business logic (SignupForm, LoginForm)
 - **Templates** are page layouts with a focus on handling responsive design (DefaultTemplate, CenterTemplate)
 
+## Authentication
+
+The template provides a complete end-to-end solution for Firebase authentication, covering the vast majority of the authentication pipeline. This includes email login, signup, forgot/reset password, and email verification.
+
+## Hooks
+
+Hooks are used wherever possible for cleaner state management. `tanstack-query` and `react-firebase-hooks` are used to provide hooks for API calls and common Firebase functions, but a few custom hooks in `@/utils/hooks.ts` are also provided. One example where hooks can simplify code is when we are implementing error display. Imagine we want to trigger a notification every time our application encounters an error. One option is to continuously render the error message:
+
+```ts
+if (error) {
+  return <p>{error.message}</p>;
+}
+```
+
+However, some UI components are incompatible with this approach. For example, we may want a toast notification that can be user-dismissed. In that case, we need the following:
+
+```ts
+/** Toast visibility state */
+const [open, setOpen] = useState(false);
+
+// Show errors
+useEffect(() => {
+  if (error) {
+    setOpen(true);
+  }
+}, [error]);
+
+return (
+  <Toast open={open} onClose={() => setOpen(false)}>
+    {error?.message}
+  </Toast>;
+)
+```
+
+With hooks, this can be simplified to the following:
+
+```ts
+/** Toast visibility hooks */
+const { open, closeToast } = useToast(error);
+
+return (
+  <Toast open={open} onClose={closeToast}>
+    {error?.message}
+  </Toast>
+);
+```
+
 ## API
 
 The frontend comes with an opinionated `fetch` wrapper for API calls to the backend with authentication and error handling built in, shown below:
