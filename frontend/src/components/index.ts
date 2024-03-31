@@ -3,6 +3,7 @@ export { default as Button } from "./atoms/Button";
 export { default as Checkbox } from "./atoms/Checkbox";
 export { default as Input } from "./atoms/Input";
 export { default as Select } from "./atoms/Select";
+export { default as Toast } from "./atoms/Toast";
 
 // Molecules
 export { default as Appbar } from "./molecules/Appbar";

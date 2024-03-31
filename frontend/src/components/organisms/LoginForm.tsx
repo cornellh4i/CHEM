@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import auth from "@/utils/firebase";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { Button, Input } from "@/components";
+import { Button, Input, Toast } from "@/components";
 
 interface FormInputs {
   email: string;
@@ -28,47 +28,57 @@ const LoginForm = () => {
   const [signInWithEmailAndPassword, user, loading, error] =
     useSignInWithEmailAndPassword(auth);
 
+  /** Toast visibility state */
+  const [open, setOpen] = useState(false);
+
   // Show errors
-  if (error) {
-    return <p>{error.message}</p>;
-  }
+  useEffect(() => {
+    if (error) {
+      setOpen(true);
+    }
+  }, [error]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="mb-6">
-        <Input
-          label="Email address"
-          placeholder="john.doe@company.com"
-          error={errors.email?.message}
-          {...register("email", {
-            required: { value: true, message: "Required" },
-            pattern: {
-              value:
-                /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
-              message: "Invalid email address",
-            },
-          })}
-        />
-      </div>
-      <div className="mb-6">
-        <Input
-          label="Password"
-          type="password"
-          placeholder="•••••••••"
-          error={errors.password?.message}
-          {...register("password", {
-            required: { value: true, message: "Required" },
-          })}
-        />
-      </div>
-      <Button type="submit">Log in</Button>
-      <Link href="/auth/signup" passHref>
-        <Button variant="secondary">Sign up</Button>
-      </Link>
-      <Link href="/auth/forgot-password" passHref>
-        <Button variant="secondary">Forgot password</Button>
-      </Link>
-    </form>
+    <div>
+      <Toast open={open} onClose={() => setOpen(false)}>
+        {error?.message}
+      </Toast>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="mb-6">
+          <Input
+            label="Email address"
+            placeholder="john.doe@company.com"
+            error={errors.email?.message}
+            {...register("email", {
+              required: { value: true, message: "Required" },
+              pattern: {
+                value:
+                  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+                message: "Invalid email address",
+              },
+            })}
+          />
+        </div>
+        <div className="mb-6">
+          <Input
+            label="Password"
+            type="password"
+            placeholder="•••••••••"
+            error={errors.password?.message}
+            {...register("password", {
+              required: { value: true, message: "Required" },
+            })}
+          />
+        </div>
+        <Button type="submit">Log in</Button>
+        <Link href="/auth/signup" passHref>
+          <Button variant="secondary">Sign up</Button>
+        </Link>
+        <Link href="/auth/forgot-password" passHref>
+          <Button variant="secondary">Forgot password</Button>
+        </Link>
+      </form>
+    </div>
   );
 };
 
