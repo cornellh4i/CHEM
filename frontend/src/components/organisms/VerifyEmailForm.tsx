@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import auth from "@/utils/firebase";
 import { useSendEmailVerification } from "react-firebase-hooks/auth";
 import { Button, Toast } from "@/components";
+import { useToast } from "@/utils/hooks";
 
-const LoginForm = () => {
+const VerifyEmailForm = () => {
   /** Handles form submission */
   const onSubmit = async (): Promise<void> => {
     await sendEmailVerification();
@@ -13,19 +14,12 @@ const LoginForm = () => {
   const [sendEmailVerification, sending, error] =
     useSendEmailVerification(auth);
 
-  /** Toast visibility state */
-  const [open, setOpen] = useState(false);
-
-  // Show errors
-  useEffect(() => {
-    if (error) {
-      setOpen(true);
-    }
-  }, [error]);
+  /** Toast visibility hooks */
+  const { open, closeToast } = useToast(error);
 
   return (
     <div>
-      <Toast open={open} onClose={() => setOpen(false)}>
+      <Toast open={open} onClose={closeToast}>
         {error?.message}
       </Toast>
       <Button>Resend verification email</Button>
@@ -34,4 +28,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default VerifyEmailForm;

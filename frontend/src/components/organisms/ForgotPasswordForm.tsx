@@ -3,6 +3,7 @@ import auth from "@/utils/firebase";
 import { useForm } from "react-hook-form";
 import { useSendPasswordResetEmail } from "react-firebase-hooks/auth";
 import { Button, Input, Toast } from "@/components";
+import { useToast } from "@/utils/hooks";
 
 interface FormInputs {
   email: string;
@@ -26,19 +27,12 @@ const ForgotPasswordForm = () => {
   const [sendPasswordResetEmail, sending, error] =
     useSendPasswordResetEmail(auth);
 
-  /** Toast visibility state */
-  const [open, setOpen] = useState(false);
-
-  // Show errors
-  useEffect(() => {
-    if (error) {
-      setOpen(true);
-    }
-  }, [error]);
+  /** Toast visibility hooks */
+  const { open, closeToast } = useToast(error);
 
   return (
     <div>
-      <Toast open={open} onClose={() => setOpen(false)}>
+      <Toast open={open} onClose={closeToast}>
         {error?.message}
       </Toast>
       <form onSubmit={handleSubmit(onSubmit)}>
