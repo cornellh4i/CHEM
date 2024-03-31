@@ -1,5 +1,7 @@
 import React from "react";
 import api from "@/utils/api";
+import auth from "@/utils/firebase";
+import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Input, Checkbox, Select } from "@/components";
@@ -22,6 +24,7 @@ const SignupForm = () => {
   const onSubmit = async (data: FormInputs): Promise<void> => {
     console.log(data);
     await signupMutation.mutateAsync(data);
+    await createUserWithEmailAndPassword(data.email, data.password);
   };
 
   /** React hook form */
@@ -38,14 +41,12 @@ const SignupForm = () => {
       const data = {
         email: form.email,
         password: form.password,
-        profile: {
-          firstName: form.firstName,
-          lastName: form.lastName,
-          company: form.company,
-          phone: form.phone,
-          website: form.website,
-          location: form.location,
-        },
+        firstName: form.firstName,
+        lastName: form.lastName,
+        company: form.company,
+        phone: form.phone,
+        website: form.website,
+        location: form.location,
       };
       const response = await api.post("/users", data);
       return response;
@@ -53,9 +54,13 @@ const SignupForm = () => {
     retry: false,
   });
 
-  // Handles API errors
+  /** Firebase hooks */
+  const [createUserWithEmailAndPassword, user, loading, error] =
+    useCreateUserWithEmailAndPassword(auth);
+
+  // Show errors
   if (signupMutation.isError) {
-    return <div>{signupMutation.error.message}</div>;
+    return <p>{signupMutation.error.message}</p>;
   }
 
   return (
