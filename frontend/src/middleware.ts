@@ -23,23 +23,28 @@ const regex = (path: string): RegExp => {
 /**
  * Takes a URL path and checks if it matches any route in routes
  * @param path is the URL path
- * @param routes is an array of routes to check against
+ * @param routes is a route or an array of routes to check against
  * @returns whether path matches any route in routes
  * @example "/users/asdf" matches ["/users/:userid"]
  */
-const match = (path: string, routes: string[]): boolean => {
-  return routes.some((route) => regex(route).test(path));
+const match = (path: string, routes: string[] | string): boolean => {
+  if (typeof routes === "string") {
+    return regex(routes).test(path);
+  } else {
+    return routes.some((route) => regex(route).test(path));
+  }
 };
 
 /** All valid routes in the website */
 const routes = {
   /** Routes related to authentication */
   authPaths: [
-    "/login",
-    "/signup",
-    "/verify",
-    "/password/forgot",
-    "/password/reset/:oobcode",
+    "/auth/:oobcode/reset-password",
+    "/auth/:oobcode/verify-email",
+    "/auth/forgot-password",
+    "/auth/login",
+    "/auth/send-verify-email",
+    "/auth/signup",
   ],
 
   /** Users can access */
@@ -79,7 +84,7 @@ export const middleware = async (request: NextRequest) => {
     case match(path, routes.userPaths):
       // If user is not logged in, redirect to Login
       if (!token) {
-        return NextResponse.redirect(new URL("/login", request.url));
+        return NextResponse.redirect(new URL("/auth/login", request.url));
       }
       // Everyone else can access
       break;
@@ -88,14 +93,14 @@ export const middleware = async (request: NextRequest) => {
     case match(path, routes.userRestrictedPaths):
       // If user is not logged in, redirect to Login
       if (!token) {
-        return NextResponse.redirect(new URL("/login", request.url));
+        return NextResponse.redirect(new URL("/auth/login", request.url));
       }
       // If user token and trying to access a user profile, check for access
-      else if (token && claims?.user && match(path, ["/users/:userid"])) {
+      else if (token && claims?.user && match(path, "/users/:userid")) {
         console.log("check for access");
       }
       // If user token and trying to access a post, check for access
-      else if (token && claims?.user && match(path, ["/posts/:postid"])) {
+      else if (token && claims?.user && match(path, "/posts/:postid")) {
         console.log("check for access");
       }
       // Everyone else can access
@@ -105,7 +110,7 @@ export const middleware = async (request: NextRequest) => {
     case match(path, routes.adminPaths):
       // If user is not logged in, redirect to Login
       if (!token) {
-        return NextResponse.redirect(new URL("/login", request.url));
+        return NextResponse.redirect(new URL("/auth/login", request.url));
       }
       // If user is logged in but not admin, redirect to About
       else if (token && !claims?.admin) {
