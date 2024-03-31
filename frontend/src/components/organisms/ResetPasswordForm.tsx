@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import auth from "@/utils/firebase";
 import { useForm } from "react-hook-form";
-import { verifyPasswordResetCode, confirmPasswordReset } from "firebase/auth";
 import { Button, Input, Toast } from "@/components";
+import { useToast, useResetPassword } from "@/utils/hooks";
 
 interface ResetPasswordFormProps {
   oobcode: string;
@@ -16,12 +16,7 @@ interface FormInputs {
 const ResetPasswordForm = ({ oobcode }: ResetPasswordFormProps) => {
   /** Handles form submission */
   const onSubmit = async (data: FormInputs): Promise<void> => {
-    try {
-      await verifyPasswordResetCode(auth, oobcode);
-      await confirmPasswordReset(auth, oobcode, data.password);
-    } catch (error) {
-      setError(error as Error);
-    }
+    await resetPassword(oobcode, data.password);
   };
 
   /** React hook form */
@@ -32,22 +27,15 @@ const ResetPasswordForm = ({ oobcode }: ResetPasswordFormProps) => {
     formState: { errors },
   } = useForm<FormInputs>();
 
-  /** Error state */
-  const [error, setError] = useState<Error | null>(null);
+  /** Custom Firebase hook */
+  const { error, resetPassword } = useResetPassword(auth);
 
-  /** Toast visibility state */
-  const [open, setOpen] = useState(false);
-
-  // Show errors
-  useEffect(() => {
-    if (error) {
-      setOpen(true);
-    }
-  }, [error]);
+  /** Toast visibility hooks */
+  const { open, closeToast } = useToast(error);
 
   return (
     <div>
-      <Toast open={open} onClose={() => setOpen(false)}>
+      <Toast open={open} onClose={closeToast}>
         {error?.message}
       </Toast>
       <form onSubmit={handleSubmit(onSubmit)}>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { Button, Input, Toast } from "@/components";
+import { useToast } from "@/utils/hooks";
 
 interface FormInputs {
   email: string;
@@ -28,19 +29,12 @@ const LoginForm = () => {
   const [signInWithEmailAndPassword, user, loading, error] =
     useSignInWithEmailAndPassword(auth);
 
-  /** Toast visibility state */
-  const [open, setOpen] = useState(false);
-
-  // Show errors
-  useEffect(() => {
-    if (error) {
-      setOpen(true);
-    }
-  }, [error]);
+  /** Toast visibility hooks */
+  const { open, closeToast } = useToast(error);
 
   return (
     <div>
-      <Toast open={open} onClose={() => setOpen(false)}>
+      <Toast open={open} onClose={closeToast}>
         {error?.message}
       </Toast>
       <form onSubmit={handleSubmit(onSubmit)}>

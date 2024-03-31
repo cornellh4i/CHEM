@@ -5,6 +5,7 @@ import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Input, Checkbox, Select, Toast } from "@/components";
+import { useToast } from "@/utils/hooks";
 
 interface FormInputs {
   firstName: string;
@@ -58,19 +59,12 @@ const SignupForm = () => {
   const [createUserWithEmailAndPassword, user, loading, error] =
     useCreateUserWithEmailAndPassword(auth);
 
-  /** Toast visibility state */
-  const [open, setOpen] = useState(false);
-
-  // Show errors
-  useEffect(() => {
-    if (error || signupMutation.isError) {
-      setOpen(true);
-    }
-  }, [error, signupMutation.isError]);
+  /** Toast visibility hooks */
+  const { open, closeToast } = useToast(error && signupMutation.isError);
 
   return (
     <div>
-      <Toast open={open} onClose={() => setOpen(false)}>
+      <Toast open={open} onClose={closeToast}>
         {error?.message}
         {signupMutation.error?.message}
       </Toast>
