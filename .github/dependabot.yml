@@ -6,7 +6,7 @@
 version: 2
 updates:
   # Maintain dependencies for the backend
-  - package-ecosystem: "yarn"
+  - package-ecosystem: "npm"
     directory: "/backend"
     schedule:
       interval: "monthly"
@@ -14,7 +14,7 @@ updates:
       - dependency-type: "all"
 
   # Maintain dependencies for the frontend
-  - package-ecosystem: "yarn"
+  - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
       interval: "monthly"
