@@ -12,6 +12,10 @@ updates:
       interval: "monthly"
     allow:
       - dependency-type: "all"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
 
   # Maintain dependencies for the frontend
   - package-ecosystem: "npm"
@@ -20,6 +24,10 @@ updates:
       interval: "monthly"
     allow:
       - dependency-type: "all"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
 
   # Maintain dependencies for GitHub Actions
   # Workflow files stored in the default location of `.github/workflows`. You
@@ -31,3 +39,7 @@ updates:
       interval: "monthly"
     allow:
       - dependency-type: "all"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
