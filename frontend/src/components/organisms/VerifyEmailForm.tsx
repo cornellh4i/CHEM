@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import auth from "@/utils/firebase";
 import { useSendEmailVerification } from "react-firebase-hooks/auth";
 import { Button, Toast } from "@/components";
 import { useToast } from "@/utils/hooks";
 
 const VerifyEmailForm = () => {
-  /** Handles form submission */
-  const onSubmit = async (): Promise<void> => {
+  /** Sends email verification */
+  const onClick = async (): Promise<void> => {
     await sendEmailVerification();
   };
 
@@ -22,7 +22,7 @@ const VerifyEmailForm = () => {
       <Toast open={open} onClose={closeToast}>
         {error?.message}
       </Toast>
-      <Button>Resend verification email</Button>
+      <Button onClick={onClick}>Resend verification email</Button>
       <Button variant="secondary">Sign out</Button>
     </div>
   );

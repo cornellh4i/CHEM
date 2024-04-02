@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import auth from "@/utils/firebase";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
