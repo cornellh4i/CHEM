@@ -38,8 +38,8 @@ yarn add --dev \
     nodemon                              # Hot reload server in dev mode
     jest ts-jest                         # Test suite
     supertest                            # Make API calls in test suite
+    prettier                             # Code formatting
     @types/express @types/cors @types/ws @types/swagger-ui-express @types/jest @types/supertest
-
 ```
 
 ## Folder structure
