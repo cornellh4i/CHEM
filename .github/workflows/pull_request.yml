@@ -8,7 +8,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  pull_request_build:
     runs-on: ubuntu-latest
 
     services:
@@ -34,7 +34,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       # Test backend
       - name: Install backend dependencies
