@@ -12,15 +12,20 @@ const Toast = ({ children, open, onClose }: ToastProps) => {
   }
 
   return (
-    <div className="fixed top-0 left-0 z-10 flex w-full p-4">
+    <div className="fixed left-0 top-0 z-10 flex w-full p-4">
       <div
         id="toast-default"
-        className="flex mx-auto items-center w-full max-w-md p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800"
+        className="mx-auto flex w-full max-w-md items-center rounded-lg bg-white
+          p-4 text-gray-500 shadow dark:bg-gray-800 dark:text-gray-400"
         role="alert"
       >
-        <div className="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-blue-500 bg-blue-100 rounded-lg dark:bg-blue-800 dark:text-blue-200">
+        <div
+          className="inline-flex h-8 w-8 flex-shrink-0 items-center
+            justify-center rounded-lg bg-blue-100 text-blue-500 dark:bg-blue-800
+            dark:text-blue-200"
+        >
           <svg
-            className="w-4 h-4"
+            className="h-4 w-4"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -36,17 +41,21 @@ const Toast = ({ children, open, onClose }: ToastProps) => {
           </svg>
           <span className="sr-only">Fire icon</span>
         </div>
-        <div className="ms-3 text-sm font-normal mr-5">{children}</div>
+        <div className="mr-5 ms-3 text-sm font-normal">{children}</div>
         <button
           type="button"
-          className="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+          className="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center
+            justify-center rounded-lg bg-white p-1.5 text-gray-400
+            hover:bg-gray-100 hover:text-gray-900 focus:ring-2
+            focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-500
+            dark:hover:bg-gray-700 dark:hover:text-white"
           data-dismiss-target="#toast-default"
           aria-label="Close"
           onClick={onClose}
         >
           <span className="sr-only">Close</span>
           <svg
-            className="w-3 h-3"
+            className="h-3 w-3"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

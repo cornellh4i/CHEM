@@ -69,7 +69,7 @@ const SignupForm = () => {
         {signupMutation.error?.message}
       </Toast>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid gap-6 mb-6 sm:grid-cols-2">
+        <div className="mb-6 grid gap-6 sm:grid-cols-2">
           <Input
             label="First name"
             placeholder="John"
@@ -175,7 +175,7 @@ const SignupForm = () => {
             })}
           />
         </div>
-        <div className="flex items-start mb-6">
+        <div className="mb-6 flex items-start">
           <Checkbox
             label={
               <>
