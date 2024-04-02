@@ -1,0 +1,63 @@
+# This workflow will attempt to install, build, and start the project for every
+# pull request to the main branch.
+
+name: Pull request workflow
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Test backend
+      - name: Install backend dependencies
+        run: npm install
+        working-directory: ./backend
+
+      - name: Set up database migration and seeding
+        run: npm run setup:ci
+        working-directory: ./backend
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5433/testdb
+
+      - name: Test backend
+        run: npm run test
+        working-directory: ./backend
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5433/testdb
+
+      # Test frontend
+      - name: Install frontend dependencies
+        run: npm run install
+        working-directory: ./frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./frontend

@@ -9,8 +9,9 @@
     "build": "tsc",
     "start": "ts-node -r dotenv/config src/index.ts",
     "test": "prisma db seed && jest -i",
-    "swagger": "ts-node -r dotenv/config src/utils/swagger.ts",
-    "setup": "prisma generate && prisma migrate dev && prisma db seed && yarn swagger"
+    "setup": "prisma generate && prisma migrate dev && prisma db seed && yarn swagger",
+    "setup:ci": "prisma generate && prisma migrate deploy && prisma db seed && yarn swagger",
+    "swagger": "ts-node -r dotenv/config src/utils/swagger.ts"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -36,6 +37,7 @@
     "nodemon": "^3.1.0",
     "prisma": "^5.11.0",
     "supertest": "^6.3.4",
+    "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.3"
   }
