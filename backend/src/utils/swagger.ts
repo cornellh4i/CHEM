@@ -29,6 +29,6 @@ const doc = {
 };
 
 const outputFile = "../../api-spec.json";
-const endpointsFiles = ["../server.ts"];
+const endpointsFiles = ["./server.ts"];
 
 swaggerAutogen()(outputFile, endpointsFiles, doc);

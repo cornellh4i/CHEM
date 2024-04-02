@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { Role } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -8,7 +9,8 @@ async function main() {
     update: {},
     create: {
       email: "alice@prisma.io",
-      name: "Alice",
+      firstName: "Alice",
+      lastName: "Cool",
       posts: {
         create: {
           title: "Check out Prisma with Next.js",
@@ -16,6 +18,7 @@ async function main() {
           published: true,
         },
       },
+      role: Role.USER,
     },
   });
 
@@ -24,7 +27,8 @@ async function main() {
     update: {},
     create: {
       email: "bob@prisma.io",
-      name: "Bob",
+      firstName: "Bob",
+      lastName: "Awesome",
       posts: {
         create: [
           {
@@ -39,6 +43,7 @@ async function main() {
           },
         ],
       },
+      role: Role.ADMIN,
     },
   });
 

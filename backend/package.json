@@ -10,7 +10,7 @@
     "start": "ts-node -r dotenv/config src/index.ts",
     "test": "prisma db seed && jest -i",
     "swagger": "ts-node -r dotenv/config src/utils/swagger.ts",
-    "setup": "prisma generate && prisma migrate dev && prisma db seed && swagger"
+    "setup": "prisma generate && prisma migrate dev && prisma db seed && yarn swagger"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
