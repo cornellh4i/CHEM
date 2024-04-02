@@ -9,6 +9,7 @@ The backend is a Node.js and Express server with a PostgreSQL database managed b
 - `yarn start` starts the server in production mode
 - `yarn test` seeds the database and runs the Jest test suite
 - `yarn setup` does a database migration based on the Prisma schema, seeds the database, and autogenerates the API documentation available at route `/api-docs`
+- `yarn setup:ci` does the same actions as `yarn setup` except uses `prisma migrate deploy` instead of `prisma migrate dev`
 
 ## Manual setup
 
@@ -35,7 +36,7 @@ yarn add \
     dotenv                               # Load .env files
 yarn add --dev \
     nodemon                              # Hot reload server in dev mode
-    jest                                 # Test suite
+    jest ts-jest                         # Test suite
     supertest                            # Make API calls in test suite
     @types/express @types/cors @types/ws @types/swagger-ui-express @types/jest @types/supertest
 
