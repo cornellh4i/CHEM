@@ -7,8 +7,9 @@ interface ApiResponse extends Response {
 
 /**
  * Performs a GET request
- * @param url is the resource url
- * @returns a promise of the response
+ *
+ * @param url - The resource url
+ * @returns A promise of the response
  */
 const get = (url: string): Promise<ApiResponse> => {
   return handleRequest("GET", url);
@@ -16,9 +17,10 @@ const get = (url: string): Promise<ApiResponse> => {
 
 /**
  * Performs a POST request
- * @param url is the resource url
- * @param body is the request body
- * @returns a promise of the response
+ *
+ * @param url - The resource url
+ * @param body - The request body
+ * @returns A promise of the response
  */
 const post = (url: string, body: object): Promise<ApiResponse> => {
   const headers = { "Content-Type": "application/json" };
@@ -27,9 +29,10 @@ const post = (url: string, body: object): Promise<ApiResponse> => {
 
 /**
  * Performs a PUT request
- * @param url is the resource url
- * @param body is the request body
- * @returns a promise of the response
+ *
+ * @param url - The resource url
+ * @param body - The request body
+ * @returns A promise of the response
  */
 const put = (url: string, body: object): Promise<ApiResponse> => {
   const headers = { "Content-Type": "application/json" };
@@ -38,9 +41,10 @@ const put = (url: string, body: object): Promise<ApiResponse> => {
 
 /**
  * Performs a PATCH request
- * @param url is the resource url
- * @param body is the request body
- * @returns a promise of the response
+ *
+ * @param url - The resource url
+ * @param body - The request body
+ * @returns A promise of the response
  */
 const patch = (url: string, body: object): Promise<ApiResponse> => {
   const headers = { "Content-Type": "application/json" };
@@ -49,8 +53,9 @@ const patch = (url: string, body: object): Promise<ApiResponse> => {
 
 /**
  * Performs a DELETE request
- * @param url is the resource url
- * @returns a promise of the response
+ *
+ * @param url - The resource url
+ * @returns A promise of the response
  */
 const del = (url: string): Promise<ApiResponse> => {
   return handleRequest("DELETE", url);
@@ -58,11 +63,12 @@ const del = (url: string): Promise<ApiResponse> => {
 
 /**
  * Performs a fetch request
- * @param method is the request method
- * @param url is the resource url
- * @param headers are the request headers
- * @param body is the request body
- * @returns a promise of the response
+ *
+ * @param method - The request method
+ * @param url - The resource url
+ * @param headers - The request headers
+ * @param body - The request body
+ * @returns A promise of the response
  */
 const handleRequest = async (
   method: string,
