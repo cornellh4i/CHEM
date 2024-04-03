@@ -4,10 +4,11 @@ import { Users } from "../utils/types";
 
 /**
  * Gets all users in database and all data associated with each user
- * @param filter are the filter params passed in
- * @param sort are sort params passed in
- * @param pagination are the pagination params passed in
- * @returns a promise with list of users
+ *
+ * @param filter - Filter params passed in
+ * @param sort - Sort params passed in
+ * @param pagination - Pagination params passed in
+ * @returns A promise with list of users
  */
 const getUsers = async (
   filter?: {
@@ -72,8 +73,9 @@ const getUsers = async (
 
 /**
  * Creates a new user
- * @param user is a User object
- * @returns promise with the created user
+ *
+ * @param user - User object
+ * @returns Promise with the created user
  */
 const createUser = async (user: User): Promise<User> => {
   return prisma.user.create({
@@ -83,9 +85,10 @@ const createUser = async (user: User): Promise<User> => {
 
 /**
  * Updates the user with a new User object
- * @param userid is the id of user to be updated
- * @param user is a complete User object
- * @returns a promise with the updated user
+ *
+ * @param userid - The id of user to be updated
+ * @param user - A complete User object
+ * @returns A promise with the updated user
  */
 const updateUser = async (userid: string, user: User): Promise<User> => {
   return prisma.user.update({
@@ -96,8 +99,9 @@ const updateUser = async (userid: string, user: User): Promise<User> => {
 
 /**
  * Deletes specified user by userid.
- * @param userid is the id of the user to be deleted
- * @returns a promise with the deleted user
+ *
+ * @param userid - The id of the user to be deleted
+ * @returns A promise with the deleted user
  */
 const deleteUser = async (userid: string): Promise<User> => {
   return prisma.user.delete({

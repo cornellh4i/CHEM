@@ -3,9 +3,12 @@ import auth from "./utils/firebase";
 
 /**
  * Takes a URL path and converts it into a matching regex
- * @param path is the URL path
- * @returns the matching regex
- * @example "/users/:userid/posts/:postid" becomes `/users/${wild}/posts/${wild}`
+ *
+ * @example
+ *   /users/:userid/posts/:postid becomes `/users/${wild}/posts/${wild}`
+ *
+ * @param path - The URL path
+ * @returns The matching regex
  */
 const regex = (path: string): RegExp => {
   // Replace each :parameterName with a ([^/]+) capturing group
@@ -22,10 +25,13 @@ const regex = (path: string): RegExp => {
 
 /**
  * Takes a URL path and checks if it matches any route in routes
- * @param path is the URL path
- * @param routes is a route or an array of routes to check against
- * @returns whether path matches any route in routes
- * @example "/users/asdf" matches ["/users/:userid"]
+ *
+ * @example
+ *   /users/asdf matches ["/users/:userid"]
+ *
+ * @param path - The URL path
+ * @param routes - A route or an array of routes to check against
+ * @returns Whether path matches any route in routes
  */
 const match = (path: string, routes: string[] | string): boolean => {
   if (typeof routes === "string") {
