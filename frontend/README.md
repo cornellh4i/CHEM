@@ -24,9 +24,10 @@ yarn add \
     @tanstack/react-query           # Data fetching and updating
 yarn add --dev \
     prettier \                      # Code formatting with Tailwind support
-    prettier-plugin-tailwindcss \
     prettier-plugin-classnames \
-    prettier-plugin-merge
+    prettier-plugin-jsdoc \
+    prettier-plugin-merge \
+    prettier-plugin-tailwindcss
 ```
 
 ## Folder structure
