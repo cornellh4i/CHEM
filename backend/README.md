@@ -35,10 +35,11 @@ yarn add \
     swagger-autogen swagger-ui-express \ # Swagger autogen and API docs
     dotenv                               # Load .env files
 yarn add --dev \
-    nodemon                              # Hot reload server in dev mode
-    jest ts-jest                         # Test suite
-    supertest                            # Make API calls in test suite
-    prettier                             # Code formatting
+    nodemon \                            # Hot reload server in dev mode
+    jest ts-jest \                       # Test suite
+    supertest \                          # Make API calls in test suite
+    prettier \                           # Code formatting
+    prettier-plugin-jsdoc \
     @types/express @types/cors @types/ws @types/swagger-ui-express @types/jest @types/supertest
 ```
 
