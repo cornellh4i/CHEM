@@ -12,7 +12,7 @@
     "setup": "prisma generate && prisma migrate dev && prisma db seed && yarn swagger",
     "setup:ci": "prisma generate && prisma migrate deploy && prisma db seed && yarn swagger",
     "swagger": "ts-node -r dotenv/config src/utils/swagger.ts",
-    "format": "prettier . --write"
+    "format": "prettier --write ."
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
