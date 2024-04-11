@@ -22,6 +22,7 @@ yarn add \
     react-hook-form \               # Form handling
     firebase react-firebase-hooks \ # Firebase authentication
     @tanstack/react-query           # Data fetching and updating
+
 yarn add --dev \
     prettier \                      # Code formatting with Tailwind support
     prettier-plugin-classnames \
