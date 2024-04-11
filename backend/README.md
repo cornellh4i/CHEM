@@ -34,6 +34,7 @@ yarn add \
     ws \                                 # WebSocket server
     swagger-autogen swagger-ui-express \ # Swagger autogen and API docs
     dotenv                               # Load .env files
+
 yarn add --dev \
     nodemon \                            # Hot reload server in dev mode
     jest ts-jest \                       # Test suite
