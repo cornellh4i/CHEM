@@ -128,3 +128,9 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Custom files
+
+# Note: we can only comment out the entire .yarn folder since we strictly stick
+# to nodeLinker: node-modules. If using pnp, the folder contains important info
+.yarn
