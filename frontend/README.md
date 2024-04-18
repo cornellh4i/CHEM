@@ -10,9 +10,13 @@ The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS.
 
 ## Manual setup
 
-If you are interested in recreating the project template from scratch, the commands are shown below:
+If you are interested in recreating the project template from scratch, the commands are shown below, assuming `node v20` is installed:
 
 ```bash
+# Install yarn
+corepack enable
+yarn set version stable
+
 # Create new Next.js project
 npx create-next-app@latest
 
