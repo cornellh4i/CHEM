@@ -34,3 +34,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Custom files
+
+# Note: we can only comment out the entire .yarn folder since we strictly stick
+# to nodeLinker: node-modules. If using pnp, the folder contains important info
+.yarn
