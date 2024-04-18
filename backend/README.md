@@ -32,18 +32,28 @@ yarn add @prisma/client
 npx prisma init
 
 # Install dependencies
-yarn add \
-    express \                            # Express server
-    cors \                               # Enable CORS
-    ws \                                 # WebSocket server
-    swagger-autogen swagger-ui-express \ # Swagger autogen and API docs
-    dotenv                               # Load .env files
 
+# express                            : Express server
+# cors                               : Enable CORS
+# ws                                 : WebSocket server
+# swagger-autogen swagger-ui-express : Swagger autogen and API docs
+# dotenv                             : Load .env files
+yarn add \
+    express \
+    cors \
+    ws \
+    swagger-autogen swagger-ui-express \
+    dotenv
+
+# nodemon      : Hot reload server in dev mode
+# jest ts-jest : Test suite
+# supertest    : Make API calls in test suite
+# prettier     : Code formatting
 yarn add --dev \
-    nodemon \                            # Hot reload server in dev mode
-    jest ts-jest \                       # Test suite
-    supertest \                          # Make API calls in test suite
-    prettier \                           # Code formatting
+    nodemon \
+    jest ts-jest \
+    supertest \
+    prettier \
     prettier-plugin-jsdoc \
     @types/express @types/cors @types/ws @types/swagger-ui-express @types/jest @types/supertest
 ```
