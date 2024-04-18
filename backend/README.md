@@ -34,7 +34,6 @@ If you are interested in recreating the project template from scratch, the comma
 3. Create a new Node.js project:
 
    ```bash
-   # Create new Node.js project
    npx gitignore node
    yarn init
    yarn add --dev typescript ts-node @types/node
