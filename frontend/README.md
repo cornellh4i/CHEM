@@ -21,14 +21,20 @@ yarn set version stable
 npx create-next-app@latest
 
 # Install dependencies
-yarn add \
-    flowbite \                      # Component library
-    react-hook-form \               # Form handling
-    firebase react-firebase-hooks \ # Firebase authentication
-    @tanstack/react-query           # Data fetching and updating
 
+# flowbite                      : Component library
+# react-hook-form               : Form handling
+# firebase react-firebase-hooks : Firebase authentication
+# @tanstack/react-query         : Data fetching and updating
+yarn add \
+    flowbite \
+    react-hook-form \
+    firebase react-firebase-hooks \
+    @tanstack/react-query
+
+# prettier : Code formatting with Tailwind support
 yarn add --dev \
-    prettier \                      # Code formatting with Tailwind support
+    prettier \
     prettier-plugin-classnames \
     prettier-plugin-jsdoc \
     prettier-plugin-merge \
