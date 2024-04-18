@@ -15,48 +15,59 @@ The backend is a Node.js and Express server with a PostgreSQL database managed b
 
 If you are interested in recreating the project template from scratch, the commands are shown below, assuming `node v20` is installed:
 
-```bash
-# Install yarn
-corepack enable
-yarn set version stable
+1. Install yarn:
 
-# Create new Node.js project
-yarn init
-npx gitignore node
-yarn add --dev typescript ts-node @types/node
-npx tsc --init
+   ```bash
+   # Enable corepack if not already enabled
+   corepack enable
 
-# Install Prisma
-yarn add --dev prisma
-yarn add @prisma/client
-npx prisma init
+   # Install latest version of yarn
+   yarn set version stable
+   ```
 
-# Install dependencies
+2. Create `.yarnrc.yml` and paste in the following to disable plug-and-play mode:
 
-# express                            : Express server
-# cors                               : Enable CORS
-# ws                                 : WebSocket server
-# swagger-autogen swagger-ui-express : Swagger autogen and API docs
-# dotenv                             : Load .env files
-yarn add \
-    express \
-    cors \
-    ws \
-    swagger-autogen swagger-ui-express \
-    dotenv
+   ```yaml
+   nodeLinker: node-modules
+   ```
 
-# nodemon      : Hot reload server in dev mode
-# jest ts-jest : Test suite
-# supertest    : Make API calls in test suite
-# prettier     : Code formatting
-yarn add --dev \
-    nodemon \
-    jest ts-jest \
-    supertest \
-    prettier \
-    prettier-plugin-jsdoc \
-    @types/express @types/cors @types/ws @types/swagger-ui-express @types/jest @types/supertest
-```
+3. Create new Node.js project
+
+   ```bash
+   # Create new Node.js project
+   npx gitignore node
+   yarn init
+   yarn add --dev typescript ts-node @types/node
+   npx tsc --init
+   ```
+
+4. Install dependencies
+
+   ```bash
+   # express                            : Express server
+   # cors                               : Enable CORS
+   # ws                                 : WebSocket server
+   # swagger-autogen swagger-ui-express : Swagger autogen and API docs
+   # dotenv                             : Load .env files
+   yarn add \
+       express \
+       cors \
+       ws \
+       swagger-autogen swagger-ui-express \
+       dotenv
+
+   # nodemon      : Hot reload server in dev mode
+   # jest ts-jest : Test suite
+   # supertest    : Make API calls in test suite
+   # prettier     : Code formatting
+   yarn add --dev \
+       nodemon \
+       jest ts-jest \
+       supertest \
+       prettier \
+       prettier-plugin-jsdoc \
+       @types/express @types/cors @types/ws @types/swagger-ui-express @types/jest @types/supertest
+   ```
 
 ## Folder structure
 

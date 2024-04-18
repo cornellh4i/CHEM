@@ -12,34 +12,47 @@ The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS.
 
 If you are interested in recreating the project template from scratch, the commands are shown below, assuming `node v20` is installed:
 
-```bash
-# Install yarn
-corepack enable
-yarn set version stable
+1. Run `npx create-next-app@latest` and push to a new repository.
 
-# Create new Next.js project
-npx create-next-app@latest
+2. Install yarn:
 
-# Install dependencies
+   ```bash
+   # Enable corepack if not already enabled
+   corepack enable
 
-# flowbite                      : Component library
-# react-hook-form               : Form handling
-# firebase react-firebase-hooks : Firebase authentication
-# @tanstack/react-query         : Data fetching and updating
-yarn add \
-    flowbite \
-    react-hook-form \
-    firebase react-firebase-hooks \
-    @tanstack/react-query
+   # Install latest version of yarn
+   yarn set version stable
+   ```
 
-# prettier : Code formatting with Tailwind support
-yarn add --dev \
-    prettier \
-    prettier-plugin-classnames \
-    prettier-plugin-jsdoc \
-    prettier-plugin-merge \
-    prettier-plugin-tailwindcss
-```
+3. Add `.yarn` to your `.gitignore` file.
+
+4. Create `.yarnrc.yml` and paste in the following to disable plug-and-play mode:
+
+   ```yaml
+   nodeLinker: node-modules
+   ```
+
+5. Install dependencies
+
+   ```bash
+   # flowbite                      : Component library
+   # react-hook-form               : Form handling
+   # firebase react-firebase-hooks : Firebase authentication
+   # @tanstack/react-query         : Data fetching and updating
+   yarn add \
+       flowbite \
+       react-hook-form \
+       firebase react-firebase-hooks \
+       @tanstack/react-query
+
+   # prettier : Code formatting with Tailwind support
+   yarn add --dev \
+       prettier \
+       prettier-plugin-classnames \
+       prettier-plugin-jsdoc \
+       prettier-plugin-merge \
+       prettier-plugin-tailwindcss
+   ```
 
 ## Folder structure
 
