@@ -31,17 +31,16 @@ If you are interested in recreating the project template from scratch, the comma
    nodeLinker: node-modules
    ```
 
-3. Create new Node.js project
+3. Create a new Node.js project:
 
    ```bash
-   # Create new Node.js project
    npx gitignore node
    yarn init
    yarn add --dev typescript ts-node @types/node
    npx tsc --init
    ```
 
-4. Install dependencies
+4. Install dependencies:
 
    ```bash
    # express                            : Express server
