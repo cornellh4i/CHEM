@@ -32,7 +32,7 @@ If you are interested in recreating the project template from scratch, the comma
    nodeLinker: node-modules
    ```
 
-5. Install dependencies
+5. Install dependencies:
 
    ```bash
    # flowbite                      : Component library
