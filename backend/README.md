@@ -69,6 +69,15 @@ If you are interested in recreating the project template from scratch, the comma
        @types/express @types/cors @types/ws @types/swagger-ui-express @types/jest @types/supertest
    ```
 
+5. Create `.prettierrc` and paste in the following. Then, run `npx prettier --write .` to standardize formatting and indentation across all files.
+
+   ```bash
+   {
+   "trailingComma": "es5",
+   "plugins": ["prettier-plugin-jsdoc"]
+   }
+   ```
+
 ## Folder structure
 
 The project roughly follows the Model-View-Controller pattern:

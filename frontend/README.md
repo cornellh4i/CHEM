@@ -54,6 +54,21 @@ If you are interested in recreating the project template from scratch, the comma
        prettier-plugin-tailwindcss
    ```
 
+6. Create `.prettierrc` and paste in the following. Then, run `npx prettier --write .` to standardize formatting and indentation across all files.
+
+   ```bash
+   {
+     "trailingComma": "es5",
+     "plugins": [
+       "prettier-plugin-classnames",
+       "prettier-plugin-jsdoc",
+       "prettier-plugin-tailwindcss",
+       "prettier-plugin-merge"
+     ],
+     "endingPosition": "absolute-with-indent"
+   }
+   ```
+
 ## Folder structure
 
 Components are organized according to [atomic design](https://atomicdesign.bradfrost.com/chapter-2/) principles. In short, components are organized into the following categories:
