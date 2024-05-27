@@ -1,6 +1,6 @@
 # Frontend
 
-The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS. Basic components are built with Flowbite, acting as the foundation for a custom design system entirely controlled with Tailwind. A `.env.local` file should be created from the `.env.template` file.
+The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS. Basic components are built with Flowbite, acting as the foundation for a custom design system entirely controlled with Tailwind.
 
 ## Getting started
 
@@ -142,6 +142,8 @@ If you are interested in recreating the project template from scratch, the comma
     }
     ```
 
+10. Create a `.env.local` file from the `.env.template` file.
+
 ## Folder structure
 
 Components are organized according to [atomic design](https://atomicdesign.bradfrost.com/chapter-2/) principles. In short, components are organized into the following categories:
@@ -154,8 +156,6 @@ Components are organized according to [atomic design](https://atomicdesign.bradf
 ## Authentication
 
 The template provides a complete end-to-end solution for Firebase authentication, covering the vast majority of the authentication pipeline. This includes email login, signup, forgot/reset password, and email verification.
-
-For local testing, we set Firebase to connect to a local emulator suite to avoid having to connect to a real Firebase instance.
 
 ## Hooks
 
