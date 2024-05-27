@@ -58,6 +58,10 @@ jobs:
         run: npm install
         working-directory: ./frontend
 
-      # - name: Build frontend
-      #   run: npm run build
-      #   working-directory: ./frontend
+      - name: Create .env.production
+        run: cat "${{ secrets.FRONTEND_ENV }}" >> .env.production
+        working-directory: ./frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./frontend
