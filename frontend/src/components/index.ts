@@ -18,6 +18,6 @@ export { default as VerifyEmailConfirm } from "./organisms/VerifyEmailConfirm";
 export { default as VerifyEmailForm } from "./organisms/VerifyEmailForm";
 
 // Templates
-export { default as DefaultTemplate } from "./templates/DefaultTemplate";
 export { default as CenterTemplate } from "./templates/CenterTemplate";
+export { default as DefaultTemplate } from "./templates/DefaultTemplate";
 export { default as LoginTemplate } from "./templates/LoginTemplate";

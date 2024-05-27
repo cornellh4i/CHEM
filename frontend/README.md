@@ -12,62 +12,135 @@ The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS.
 
 If you are interested in recreating the project template from scratch, the commands are shown below, assuming `node v20` is installed:
 
-1. Run `npx create-next-app@latest` and push to a new repository.
+1.  Run `npx create-next-app@latest` and push to a new repository.
 
-2. Install yarn:
+2.  Install yarn:
 
-   ```bash
-   # Enable corepack if not already enabled
-   corepack enable
+    ```bash
+    # Enable corepack if not already enabled
+    corepack enable
 
-   # Install latest version of yarn
-   yarn set version stable
-   ```
+    # Install latest version of yarn
+    yarn set version stable
+    ```
 
-3. Add `.yarn` to your `.gitignore` file.
+3.  Add `.yarn` to your `.gitignore` file.
 
-4. Create `.yarnrc.yml` and paste in the following to disable plug-and-play mode:
+4.  Create `.yarnrc.yml` and paste in the following to disable plug-and-play mode:
 
-   ```yaml
-   nodeLinker: node-modules
-   ```
+    ```yaml
+    nodeLinker: node-modules
+    ```
 
-5. Install dependencies:
+5.  Install dependencies:
 
-   ```bash
-   # flowbite                      : Component library
-   # react-hook-form               : Form handling
-   # firebase react-firebase-hooks : Firebase authentication
-   # @tanstack/react-query         : Data fetching and updating
-   yarn add \
-       flowbite \
-       react-hook-form \
-       firebase react-firebase-hooks \
-       @tanstack/react-query
+    ```bash
+    # flowbite, flowbite-react       : Component library
+    # react-hook-form                : Form handling
+    # firebase, react-firebase-hooks : Firebase authentication
+    # @tanstack/react-query          : Data fetching and updating
+    yarn add \
+        flowbite \
+        flowbite-react \
+        react-hook-form \
+        firebase \
+        react-firebase-hooks \
+        @tanstack/react-query
 
-   # prettier : Code formatting with Tailwind support
-   yarn add --dev \
-       prettier \
-       prettier-plugin-classnames \
-       prettier-plugin-jsdoc \
-       prettier-plugin-merge \
-       prettier-plugin-tailwindcss
-   ```
+    # prettier : Code formatting with Tailwind support
+    yarn add --dev \
+        prettier \
+        prettier-plugin-classnames \
+        prettier-plugin-jsdoc \
+        prettier-plugin-merge \
+        prettier-plugin-tailwindcss
+    ```
 
-6. Create `.prettierrc` and paste in the following. Then, run `npx prettier --write .` to standardize formatting and indentation across all files.
+6.  Create `.prettierrc` and paste in the following. Then, run `npx prettier --write .` to standardize formatting and indentation across all files.
 
-   ```bash
-   {
-     "trailingComma": "es5",
-     "plugins": [
-       "prettier-plugin-classnames",
-       "prettier-plugin-jsdoc",
-       "prettier-plugin-tailwindcss",
-       "prettier-plugin-merge"
-     ],
-     "endingPosition": "absolute-with-indent"
-   }
-   ```
+    ```bash
+    {
+      "trailingComma": "es5",
+      "plugins": [
+        "prettier-plugin-classnames",
+        "prettier-plugin-jsdoc",
+        "prettier-plugin-tailwindcss",
+        "prettier-plugin-merge"
+      ],
+      "endingPosition": "absolute-with-indent"
+    }
+    ```
+
+7.  Change `tailwind.config.ts` to add Flowbite as a plugin, include the JS files from Flowbite React, and enable dark mode based on device setting:
+
+    ```jsx
+    import type { Config } from "tailwindcss";
+
+    const config: Config = {
+      content: [
+        "./node_modules/flowbite-react/lib/**/*.js",
+        "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+        "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+        "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+      ],
+      theme: {
+        extend: {
+          backgroundImage: {
+            "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+            "gradient-conic":
+              "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+          },
+        },
+      },
+      plugins: [require("flowbite/plugin")],
+      darkMode: "media",
+    };
+    export default config;
+    ```
+
+8.  Change `.eslintrc.json` so that we can use `<img>` tags:
+
+    ```jsx
+    {
+      "extends": "next/core-web-vitals",
+      "rules": {
+        "@next/next/no-img-element": "off"
+      }
+    }
+    ```
+
+9.  Update the root `layout.tsx` file to incorporate TanStack Query:
+
+    ```jsx
+    import { Inter } from "next/font/google";
+    import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+    import "./globals.css";
+
+    const inter = Inter({ subsets: ["latin"] });
+
+    /** Tanstack query client */
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          refetchOnWindowFocus: false,
+        },
+      },
+    });
+
+    export default function RootLayout({
+      children,
+    }: Readonly<{
+      children: React.ReactNode;
+    }>) {
+      return (
+        <html lang="en">
+          <QueryClientProvider client={queryClient}>
+            <body className={inter.className}>{children}</body>
+          </QueryClientProvider>
+        </html>
+      );
+    }
+    ```
 
 ## Folder structure
 
@@ -81,6 +154,8 @@ Components are organized according to [atomic design](https://atomicdesign.bradf
 ## Authentication
 
 The template provides a complete end-to-end solution for Firebase authentication, covering the vast majority of the authentication pipeline. This includes email login, signup, forgot/reset password, and email verification.
+
+For local testing, we set Firebase to connect to a local emulator suite to avoid having to connect to a real Firebase instance.
 
 ## Hooks
 
