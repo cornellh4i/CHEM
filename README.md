@@ -21,13 +21,6 @@ In VS Code, install the **Dev Containers** extension.
 2. Open the folder in VS Code.
 3. A button should appear in the bottom right corner asking to reopen the folder in a Dev Container. Click **Yes**.
 
-### Add environment variables
-
-Create the following files based on their respective template files:
-
-- `/backend/.env`
-- `/frontend/.env.local`
-
 ## CI/CD
 
 The repository is configured with automatic daily updates using Dependabot and automatic build testing before each pull request. The CI/CD pipeline consists of the following workflows:
