@@ -116,6 +116,8 @@ If you are interested in recreating the project template from scratch, the comma
 10. Update the root `layout.tsx` file to incorporate TanStack Query:
 
     ```jsx
+    "use client"
+
     import { Inter } from "next/font/google";
     import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
     import "./globals.css";

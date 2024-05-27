@@ -139,8 +139,8 @@ If you are interested in recreating the project template from scratch, the comma
 11. Create `.prettierignore` and paste in the following:
 
     ```
-    api-spec.json;
-    tsconfig.json;
+    api-spec.json
+    tsconfig.json
     ```
 
 12. Run `npx prettier --write .` to standardize formatting and indentation across all files.
