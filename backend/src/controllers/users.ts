@@ -66,9 +66,21 @@ const getUsers = async (
   });
 
   const lastVisiblePost = take ? result[take - 1] : result[result.length - 1];
-  const nextCursor = lastVisiblePost ? lastVisiblePost.id : undefined;
+  const nextCursor = lastVisiblePost ? lastVisiblePost.id : "";
 
   return { result, nextCursor, total };
+};
+
+/**
+ * Gets a user by userid
+ *
+ * @param userid - The id of user to be retrieved
+ * @returns Promise with the retrieved user or null
+ */
+const getUser = async (userid: string) => {
+  return prisma.user.findUnique({
+    where: { id: userid },
+  });
 };
 
 /**
@@ -111,4 +123,4 @@ const deleteUser = async (userid: string): Promise<User> => {
   });
 };
 
-export default { getUsers, createUser, updateUser, deleteUser };
+export default { getUsers, getUser, createUser, updateUser, deleteUser };
