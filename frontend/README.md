@@ -4,6 +4,8 @@ The frontend is a Next.js web app bundling TypeScript, ESLint, and Tailwind CSS.
 
 ## Getting started
 
+To start, create `.env.local` from the provided `.env.template` file.
+
 - `yarn dev` starts the app at `localhost:3000`
 - `yarn build` compiles the app
 - `yarn start` starts the compiled app
@@ -56,7 +58,7 @@ If you are interested in recreating the project template from scratch, the comma
         prettier-plugin-tailwindcss
     ```
 
-6.  Create `.prettierrc` and paste in the following. Then, run `npx prettier --write .` to standardize formatting and indentation across all files.
+6.  Create `.prettierrc` and paste in the following.
 
     ```bash
     {
@@ -71,7 +73,9 @@ If you are interested in recreating the project template from scratch, the comma
     }
     ```
 
-7.  Change `tailwind.config.ts` to add Flowbite as a plugin, include the JS files from Flowbite React, and enable dark mode based on device setting:
+7.  Run `npx prettier --write .` to standardize formatting and indentation across all files.
+
+8.  Change `tailwind.config.ts` to add Flowbite as a plugin, include the JS files from Flowbite React, and enable dark mode based on device setting:
 
     ```jsx
     import type { Config } from "tailwindcss";
@@ -98,7 +102,7 @@ If you are interested in recreating the project template from scratch, the comma
     export default config;
     ```
 
-8.  Change `.eslintrc.json` so that we can use `<img>` tags:
+9.  Change `.eslintrc.json` so that we can use `<img>` tags:
 
     ```jsx
     {
@@ -109,7 +113,7 @@ If you are interested in recreating the project template from scratch, the comma
     }
     ```
 
-9.  Update the root `layout.tsx` file to incorporate TanStack Query:
+10. Update the root `layout.tsx` file to incorporate TanStack Query:
 
     ```jsx
     import { Inter } from "next/font/google";
@@ -142,7 +146,7 @@ If you are interested in recreating the project template from scratch, the comma
     }
     ```
 
-10. Create a `.env.local` file from the `.env.template` file.
+11. Congratulations! You now have a fully functioning Next.js app. Beyond this point, this template provides pages, components, and utils specified below.
 
 ## Folder structure
 

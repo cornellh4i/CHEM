@@ -4,6 +4,8 @@ The backend is a Node.js and Express server with a PostgreSQL database managed b
 
 ## Getting started
 
+To start, create `.env` from the provided `.env.template` file.
+
 - `yarn dev` starts the server in development mode with `nodemon` at `localhost:8000`
 - `yarn build` compiles the server
 - `yarn start` starts the server in production mode
@@ -15,67 +17,135 @@ The backend is a Node.js and Express server with a PostgreSQL database managed b
 
 If you are interested in recreating the project template from scratch, the commands are shown below, assuming `node v20` is installed:
 
-1. Install yarn:
+1.  Create a basic `package.json` for the backend:
 
-   ```bash
-   # Enable corepack if not already enabled
-   corepack enable
+    ```js
+    {
+      "name": "backend",
+      "version": "0.1.0",
+      "main": "index.js",
+      "license": "MIT",
+      "private": "true"
+    }
+    ```
 
-   # Install latest version of yarn
-   yarn set version stable
-   ```
+2.  Install yarn:
 
-2. Create `.yarnrc.yml` and paste in the following to disable plug-and-play mode:
+    ```bash
+    # Enable corepack if not already enabled
+    corepack enable
 
-   ```yaml
-   nodeLinker: node-modules
-   ```
+    # Install latest version of yarn
+    yarn set version stable
+    ```
 
-3. Create a new Node.js project:
+3.  Create `.yarnrc.yml` and paste in the following to disable plug-and-play mode:
 
-   ```bash
-   npx gitignore node
-   yarn init
-   yarn add --dev typescript ts-node @types/node
-   npx tsc --init
-   ```
+    ```yaml
+    nodeLinker: node-modules
+    ```
 
-4. Install dependencies:
+4.  Create a new Node.js project:
 
-   ```bash
-   # express                            : Express server
-   # cors                               : Enable CORS
-   # ws                                 : WebSocket server
-   # swagger-autogen swagger-ui-express : Swagger autogen and API docs
-   # dotenv                             : Load .env files
-   yarn add \
-       express \
-       cors \
-       ws \
-       swagger-autogen swagger-ui-express \
-       dotenv
+    ```bash
+    # Create a gitignore for Node.js projects
+    npx gitignore node
 
-   # nodemon      : Hot reload server in dev mode
-   # jest ts-jest : Test suite
-   # supertest    : Make API calls in test suite
-   # prettier     : Code formatting
-   yarn add --dev \
-       nodemon \
-       jest ts-jest \
-       supertest \
-       prettier \
-       prettier-plugin-jsdoc \
-       @types/express @types/cors @types/ws @types/swagger-ui-express @types/jest @types/supertest
-   ```
+    # Add TypeScript
+    yarn add --dev typescript ts-node @types/node
+    npx tsc --init
+    ```
 
-5. Create `.prettierrc` and paste in the following. Then, run `npx prettier --write .` to standardize formatting and indentation across all files.
+5.  Add `.yarn` to your `.gitignore` file.
 
-   ```bash
-   {
-   "trailingComma": "es5",
-   "plugins": ["prettier-plugin-jsdoc"]
-   }
-   ```
+6.  Install dependencies:
+
+    ```bash
+    # express                             : Express server
+    # cors                                : Enable CORS
+    # ws                                  : WebSocket server
+    # swagger-autogen, swagger-ui-express : Swagger autogen and API docs
+    # dotenv                              : Load .env files
+    yarn add \
+        express \
+        cors \
+        ws \
+        swagger-autogen swagger-ui-express \
+        dotenv
+
+    # nodemon       : Hot reload server in dev mode
+    # jest, ts-jest : Test suite
+    # supertest     : Make API calls in test suite
+    # prettier      : Code formatting
+    yarn add --dev \
+        nodemon \
+        jest \
+        ts-jest \
+        supertest \
+        prettier \
+        prettier-plugin-jsdoc \
+        @types/express \
+        @types/cors \
+        @types/ws \
+        @types/swagger-ui-express \
+        @types/jest \
+        @types/supertest
+    ```
+
+7.  Add Prisma ORM
+
+    ```bash
+    # Install Prisma
+    yarn add --dev prisma
+
+    # Initialize Prisma
+    npx prisma init
+
+    # Install Prisma Client; requires Prisma to be initialized first
+    yarn add @prisma/client
+    ```
+
+8.  Configure Jest testing by creating `jest.config.js` in the root directory:
+
+    ```js
+    /** @type {import("ts-jest").JestConfigWithTsJest} */
+    module.exports = {
+      preset: "ts-jest",
+      testEnvironment: "node",
+      roots: ["src/tests/"],
+      transformIgnorePatterns: ["<rootDir>/node_modules/"],
+      setupFiles: ["dotenv/config"],
+      moduleFileExtensions: ["js", "ts"],
+      maxWorkers: 1,
+      testTimeout: 30000,
+    };
+    ```
+
+9.  Uncomment the following line in `tsconfig.json` so that the server can import the `api-spec.json` Swagger file:
+
+    ```js
+    // "resolveJsonModule": true, /* Enable importing .json files. */
+    ```
+
+10. Create `.prettierrc` and paste in the following.
+
+    ```json
+    {
+      "trailingComma": "es5",
+      "plugins": ["prettier-plugin-jsdoc"]
+    }
+    ```
+
+11. Create `.prettierignore` and paste in the following:
+
+    ```
+    api-spec.json;
+    tsconfig.json;
+    ```
+
+12. Run `npx prettier --write .` to standardize formatting and indentation across all files.
+
+13. Congratulations! You now have the basic skeleton for a Node.js server. Beyond this point, this template provides the scripts in `src/` and `prisma/` to complete the functionality of the server. More information is detailed below.
 
 ## Folder structure
 
