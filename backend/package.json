@@ -8,7 +8,7 @@
     "dev": "npx prisma studio --browser none & nodemon -r dotenv/config src/index.ts",
     "build": "tsc",
     "start": "ts-node -r dotenv/config src/index.ts",
-    "test": "prisma db seed && jest -i",
+    "test": "prisma db seed && jest -i --forceExit",
     "setup": "prisma generate && prisma migrate dev && prisma db seed && npm run swagger",
     "setup:ci": "prisma generate && prisma migrate deploy && prisma db seed && npm run swagger",
     "swagger": "ts-node -r dotenv/config src/utils/swagger.ts",
