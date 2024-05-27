@@ -9,25 +9,31 @@ updates:
   - package-ecosystem: "npm"
     directory: "/backend"
     schedule:
-      interval: "monthly"
+      interval: "daily"
     allow:
       - dependency-type: "all"
     groups:
       all-dependencies:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   # Maintain dependencies for the frontend
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
-      interval: "monthly"
+      interval: "daily"
     allow:
       - dependency-type: "all"
     groups:
       all-dependencies:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   # Maintain dependencies for GitHub Actions
   # Workflow files stored in the default location of `.github/workflows`. You
@@ -36,7 +42,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "daily"
     allow:
       - dependency-type: "all"
     groups:
