@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Prisma, Role } from "@prisma/client";
+import { Prisma, Role, User } from "@prisma/client";
 import { ErrorMessage, Users } from "../utils/types";
 import { notify } from "../utils/helpers";
 import controller from "../controllers/users";
@@ -21,7 +21,7 @@ userRouter.get("/", async (req, res) => {
     role: req.query.role as Role,
   };
   const sortQuery = (req.query.sort as string)?.split(":");
-  const sort = {
+  const sort = sortQuery && {
     key: sortQuery[0],
     order: sortQuery[1] as Prisma.SortOrder,
   };
@@ -34,6 +34,23 @@ userRouter.get("/", async (req, res) => {
   try {
     const body: Users = await controller.getUsers(filter, sort, pagination);
     res.status(200).send(body);
+  } catch (error) {
+    const body: ErrorMessage = { error: (error as Error).message };
+    res.status(500).send(body);
+  }
+});
+
+userRouter.get("/:userid", async (req, res) => {
+  // #swagger.tags = ['Users']
+
+  try {
+    const body: User | null = await controller.getUser(req.params.userid);
+    if (body) {
+      res.status(200).send(body);
+    } else {
+      const error: ErrorMessage = { error: "No user found" };
+      res.status(404).send(error);
+    }
   } catch (error) {
     const body: ErrorMessage = { error: (error as Error).message };
     res.status(500).send(body);
