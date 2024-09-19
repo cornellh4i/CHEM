@@ -1,35 +1,115 @@
-# web-template
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <!-- <a href="https://github.com/github_username/repo_name">
+    <img src="/lfbi_logo.png" alt="Logo" width="200" height="80">
+  </a> -->
 
-An opinionated web application project template.
+<h3 align="center">CHEM: Cornell Hack4Impact Endowment Manager</h3>
 
-![Frame 1(5)](https://github.com/jasozh/web-template/assets/48730262/62733269-c19d-4078-920f-d301af1c9593)
+  <p align="center">
+    CHEM is a project developed by Cornell Hack4Impact to manage and optimize endowments.
+    <br />    
+  </p>
+</div>
 
-## Getting started
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+  </ol>
+</details>
 
-### Install Docker
+<!-- ABOUT THE PROJECT -->
 
-- [Install Docker Desktop for macOS](https://docs.docker.com/desktop/install/mac-install/)
-- [Install Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/)
+## About the Project
 
-### Install Dev Containers
+The CHEM project aims to create a robust endowment management system that helps in optimizing the use of endowment funds, tracking performance, and ensuring compliance.
 
-In VS Code, install the **Dev Containers** extension.
+### Built With
 
-### Build container
+- [![Next][Next.js]][Next-url]
+- [![React][React.js]][React-url]
+- [![Express][Express.js]][Express-url]
+- [![Postresql][Prisma.io]][Prisma-url]
 
-1. Clone the GitHub repo.
-2. Open the folder in VS Code.
-3. A button should appear in the bottom right corner asking to reopen the folder in a Dev Container. Click **Yes**.
+<!-- GETTING STARTED -->
 
-## CI/CD
+## Getting Started
 
-The repository is configured with automatic monthly updates using Dependabot and automatic build testing before each pull request. The CI/CD pipeline consists of the following workflows:
+> Folder structure
 
-- `pull_request.yml` runs a sanity check on every opened pull request to make sure the app still builds. NOTE: the frontend requires a proper Firebase connection to build correctly. Copy the contents of `frontend/.env.local` to the `FRONTEND_ENV` GitHub Actions secret and Dependabot secret. During the build step, a `.env.production` file is created with this secret. Keep in mind that `.env.local` must be copied to both locations since Dependabot does not have access to secrets from GitHub Actions.
-- `dependabot.yml` automatically updates dependencies on a monthly basis. Major updates have individual pull requests while all minor and patch updates are grouped together.
-- `dependabot_auto_merge.yml` automatically merges pull requests by Dependabot if it passes the sanity check.
+    .
+    ├── frontend      # Next.js client
+    ├── backend       # Express server
+    └── README.md
 
-The following GitHub settings are enabled:
+### Prerequisites
 
-- **General > Allow auto-merge**
-- **Branches > Branch protection > Require status checks to pass before merging (pull_request_build)**
+- Nodejs
+- PostreSQL
+- Docker
+
+### Installation
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/cornellh4i/lagos-volunteers.git
+   ```
+2. Start the client
+   ```sh
+   cd frontend
+   yarn install
+   yarn run dev
+   ```
+3. Start the server
+   ```sh
+   cd backend
+   yarn install
+   yarn run backend
+   ```
+
+> Note: See individual project files for more information on how to build and deploy the project.
+
+## Contributors
+
+### Fall 2024
+
+- Leads
+  - Mohammed Kane
+  - Diego Marques
+- Developers
+  - Claire Wang
+  - Akul Maheshwari
+  - Ashlie Zhang
+  - Nicole Qiu
+  - Rohan Sedhain
+  - Sanya Mahajan
+- Designers
+  - Naomi Rufian
+  - Yuki Li
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
+[Next-url]: https://nextjs.org/
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React-url]: https://reactjs.org/
+[Prisma.io]: https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white
+[Express.js]: https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB
+[Express-url]: https://expressjs.com/
+[Prisma-url]: https://www.prisma.io/
