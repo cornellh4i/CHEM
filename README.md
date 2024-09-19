@@ -1,20 +1,20 @@
 <!-- PROJECT LOGO -->
-<br />
-<div align="center">
+<!-- <br /> -->
+<!-- <div align="center">
   <!-- <a href="https://github.com/github_username/repo_name">
     <img src="/lfbi_logo.png" alt="Logo" width="200" height="80">
   </a> -->
 
-<h3 align="center">CHEM: Cornell Hack4Impact Endowment Manager</h3>
+<!-- <h3 align="center">CHEM: Cornell Hack4Impact Endowment Manager</h3>
 
   <p align="center">
     CHEM is a project developed by Cornell Hack4Impact to manage and optimize endowments.
-    <br />    
+    <br />
   </p>
-</div>
+</div> -->
 
 <!-- TABLE OF CONTENTS -->
-<details>
+<!-- <details>
   <summary>Table of Contents</summary>
   <ol>
     <li>
@@ -31,11 +31,11 @@
       </ul>
     </li>
   </ol>
-</details>
+</details> -->
 
 <!-- ABOUT THE PROJECT -->
 
-## About the Project
+# CHEM: Cornell Hack4Impact Endowment Manager
 
 The CHEM project aims to create a robust endowment management system that helps in optimizing the use of endowment funds, tracking performance, and ensuring compliance.
 
