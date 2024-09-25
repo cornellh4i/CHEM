@@ -34,6 +34,12 @@ const OnboardingPage: React.FC = () => {
           >
             Get Random Cat Fact
           </Button>
+          <Button
+            onClick={handleClick}
+            className="w-full rounded bg-blue-500 py-2 text-white transition-colors hover:bg-blue-600"
+          >
+            Button
+          </Button>
         </div>
         {/* TODO 2: Add a button here that when pressed does handleClick */}
       </div>
