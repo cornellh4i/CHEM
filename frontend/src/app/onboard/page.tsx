@@ -8,7 +8,12 @@ const OnboardingPage: React.FC = () => {
   const [catFact, setCatFact] = useState<string>("");
 
   // TODO 1: Implement fetching and displaying a random cat fact
-  const fetchCatFact = async () => {};
+  const fetchCatFact = async () => {
+    fetch("https://catfact.ninja/fact")
+    .then(response=>response.json())
+    .then(data=>setCatFact(data.cat))
+    .catch(error => console.error('No cat fact :(', error));
+  };
 
   // TODO 2: Implement the button to navigate to auth/secret
   const handleClick = () => {
