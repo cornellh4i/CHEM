@@ -15,10 +15,6 @@ const getUsers = async (
     email?: string;
     firstName?: string;
     lastName?: string;
-    company?: string;
-    phone?: string;
-    website?: string;
-    location?: string;
     role?: Role;
   },
   sort?: {
@@ -30,45 +26,11 @@ const getUsers = async (
     limit?: string;
   }
 ): Promise<Users> => {
-  /** Prisma filtering object, handles GET /users?firstName=Bob&lastName=Jackson */
-  const whereDict = {
-    email: filter?.email,
-    firstName: filter?.firstName,
-    lastName: filter?.lastName,
-    company: filter?.company,
-    phone: filter?.phone,
-    role: { equals: filter?.role },
-  };
-
-  /** Prisma sort object, handles GET /users?sort=firstName:asc */
-  const orderBy: { [key: string]: Prisma.SortOrder } = sort
-    ? { [sort.key]: sort.order }
-    : { id: "asc" };
-
-  /** Prisma pagination object, handles GET /users?limit=20&after=asdf */
-  let take = pagination?.limit ? parseInt(pagination?.limit as string) : 10;
-  let skip = pagination?.after ? 1 : undefined;
-  let cursor = pagination?.after
-    ? { id: pagination?.after as string }
-    : undefined;
-
-  /** Total number of records before pagination is applied */
-  const total = await prisma.user.count({
-    where: { AND: [whereDict] },
-  });
-
-  const result = await prisma.user.findMany({
-    where: { AND: [whereDict] },
-    orderBy: orderBy,
-    take: take,
-    skip: skip,
-    cursor: cursor,
-  });
-
-  const lastVisiblePost = take ? result[take - 1] : result[result.length - 1];
-  const nextCursor = lastVisiblePost ? lastVisiblePost.id : "";
-
-  return { result, nextCursor, total };
+  // TODO: Implement getUsers function
+  // - Apply filters
+  // - Apply sorting
+  // - Apply pagination
+  // - Return Users object with result, nextCursor, and total
 };
 
 /**
@@ -78,9 +40,9 @@ const getUsers = async (
  * @returns Promise with the retrieved user or null
  */
 const getUser = async (userid: string) => {
-  return prisma.user.findUnique({
-    where: { id: userid },
-  });
+  // TODO: Implement getUser function
+  // - Use prisma to find a unique user by id
+  // - Return the user or null if not found
 };
 
 /**
@@ -90,9 +52,9 @@ const getUser = async (userid: string) => {
  * @returns Promise with the created user
  */
 const createUser = async (user: User): Promise<User> => {
-  return prisma.user.create({
-    data: { ...user },
-  });
+  // TODO: Implement createUser function
+  // - Use prisma to create a new user
+  // - Return the created user
 };
 
 /**
@@ -103,10 +65,9 @@ const createUser = async (user: User): Promise<User> => {
  * @returns A promise with the updated user
  */
 const updateUser = async (userid: string, user: User): Promise<User> => {
-  return prisma.user.update({
-    where: { id: userid },
-    data: { ...user },
-  });
+  // TODO: Implement updateUser function
+  // - Use prisma to update the user with the given id
+  // - Return the updated user
 };
 
 /**
@@ -116,11 +77,9 @@ const updateUser = async (userid: string, user: User): Promise<User> => {
  * @returns A promise with the deleted user
  */
 const deleteUser = async (userid: string): Promise<User> => {
-  return prisma.user.delete({
-    where: {
-      id: userid,
-    },
-  });
+  // TODO: Implement deleteUser function
+  // - Use prisma to delete the user with the given id
+  // - Return the deleted user
 };
 
 export default { getUsers, getUser, createUser, updateUser, deleteUser };
