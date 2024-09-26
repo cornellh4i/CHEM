@@ -1,40 +1,3 @@
-<!-- PROJECT LOGO -->
-<!-- <br /> -->
-<!-- <div align="center">
-  <!-- <a href="https://github.com/github_username/repo_name">
-    <img src="/lfbi_logo.png" alt="Logo" width="200" height="80">
-  </a> -->
-
-<!-- <h3 align="center">CHEM: Cornell Hack4Impact Endowment Manager</h3>
-
-  <p align="center">
-    CHEM is a project developed by Cornell Hack4Impact to manage and optimize endowments.
-    <br />
-  </p>
-</div> -->
-
-<!-- TABLE OF CONTENTS -->
-<!-- <details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-  </ol>
-</details> -->
-
-<!-- ABOUT THE PROJECT -->
-
 # CHEM: Cornell Hack4Impact Endowment Manager
 
 The CHEM project aims to create a robust endowment management system that helps in optimizing the use of endowment funds, tracking performance, and ensuring compliance.
@@ -67,7 +30,7 @@ The CHEM project aims to create a robust endowment management system that helps 
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/cornellh4i/lagos-volunteers.git
+   git clone https://github.com/cornellh4i/chem.git
    ```
 2. Start the client
    ```sh
