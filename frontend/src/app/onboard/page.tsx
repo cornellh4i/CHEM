@@ -37,6 +37,11 @@ const OnboardingPage: React.FC = () => {
           </Button>
         </div>
         {/* TODO 2: Add a button here that when pressed does handleClick */}
+        <Button onClick={handleClick}
+        className="w-full rounded bg-blue-500 py-2 text-white transition-colors hover:bg-blue-600"
+        >
+          Go to page
+        </Button>
       </div>
     </div>
   );
