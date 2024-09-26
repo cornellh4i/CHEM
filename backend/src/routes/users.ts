@@ -8,109 +8,61 @@ const userRouter = Router();
 
 userRouter.get("/", async (req, res) => {
   // #swagger.tags = ['Users']
-
-  // Get params
-  const filter = {
-    email: req.query.email as string,
-    firstName: req.query.firstName as string,
-    lastName: req.query.lastName as string,
-    company: req.query.company as string,
-    phone: req.query.phone as string,
-    website: req.query.website as string,
-    location: req.query.location as string,
-    role: req.query.role as Role,
-  };
-  const sortQuery = (req.query.sort as string)?.split(":");
-  const sort = sortQuery && {
-    key: sortQuery[0],
-    order: sortQuery[1] as Prisma.SortOrder,
-  };
-  const pagination = {
-    after: req.query.after as string,
-    limit: req.query.limit as string,
-  };
-
-  // Get result
-  try {
-    const body: Users = await controller.getUsers(filter, sort, pagination);
-    res.status(200).send(body);
-  } catch (error) {
-    const body: ErrorMessage = { error: (error as Error).message };
-    res.status(500).send(body);
-  }
+  // TODO: Implement GET /users route
+  // - Extract filter, sort, and pagination parameters from req.query
+  // - Call controller.getUsers with extracted parameters
+  // - Send appropriate response based on the result
+  // - Handle errors and send error response if necessary
 });
 
 userRouter.get("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
-
-  try {
-    const body: User | null = await controller.getUser(req.params.userid);
-    if (body) {
-      res.status(200).send(body);
-    } else {
-      const error: ErrorMessage = { error: "No user found" };
-      res.status(404).send(error);
-    }
-  } catch (error) {
-    const body: ErrorMessage = { error: (error as Error).message };
-    res.status(500).send(body);
-  }
+  // TODO: Implement GET /users/:userid route
+  // - Extract userid from req.params
+  // - Call controller.getUser with userid
+  // - Send appropriate response based on the result
+  // - Handle case where no user is found (404 error)
+  // - Handle other errors and send error response if necessary
 });
 
 userRouter.post("/", async (req, res) => {
   // #swagger.tags = ['Users']
-  const { password, ...rest } = req.body;
-
-  try {
-    const user = await controller.createUser(rest);
-    res.status(201).send(user);
-    notify("/users");
-  } catch (error) {
-    const body: ErrorMessage = { error: (error as Error).message };
-    res.status(500).send(body);
-  }
+  // TODO: Implement POST /users route
+  // - Extract user data from req.body
+  // - Call controller.createUser with extracted data
+  // - Send created user as response
+  // - Call notify function with "/users"
+  // - Handle errors and send error response if necessary
 });
 
 userRouter.put("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
-  try {
-    const user = await controller.updateUser(
-      req.query.userid as string,
-      req.body
-    );
-    res.status(200).send(user);
-    notify(`/users/${req.query.userid}`);
-  } catch (error) {
-    const body: ErrorMessage = { error: (error as Error).message };
-    res.status(500).send(body);
-  }
+  // TODO: Implement PUT /users/:userid route
+  // - Extract userid from req.query and user data from req.body
+  // - Call controller.updateUser with userid and user data
+  // - Send updated user as response
+  // - Call notify function with "/users/{userid}"
+  // - Handle errors and send error response if necessary
 });
 
 userRouter.patch("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
-  try {
-    const user = await controller.updateUser(
-      req.query.userid as string,
-      req.body
-    );
-    res.status(200).send(user);
-    notify(`/users/${req.query.userid}`);
-  } catch (error) {
-    const body: ErrorMessage = { error: (error as Error).message };
-    res.status(500).send(body);
-  }
+  // TODO: Implement PATCH /users/:userid route
+  // - Extract userid from req.query and partial user data from req.body
+  // - Call controller.updateUser with userid and partial user data
+  // - Send updated user as response
+  // - Call notify function with "/users/{userid}"
+  // - Handle errors and send error response if necessary
 });
 
 userRouter.delete("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
-  try {
-    const user = await controller.deleteUser(req.query.userid as string);
-    res.status(200).send(user);
-    notify("/users");
-  } catch (error) {
-    const body: ErrorMessage = { error: (error as Error).message };
-    res.status(500).send(body);
-  }
+  // TODO: Implement DELETE /users/:userid route
+  // - Extract userid from req.query
+  // - Call controller.deleteUser with userid
+  // - Send deleted user as response
+  // - Call notify function with "/users"
+  // - Handle errors and send error response if necessary
 });
 
 export default userRouter;
