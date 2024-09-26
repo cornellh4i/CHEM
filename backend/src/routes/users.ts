@@ -6,6 +6,8 @@ import controller from "../controllers/users";
 
 const userRouter = Router();
 
+//hi
+
 userRouter.get("/", async (req, res) => {
   // #swagger.tags = ['Users']
   // TODO: Implement GET /users route
