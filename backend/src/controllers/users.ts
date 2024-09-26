@@ -26,11 +26,42 @@ const getUsers = async (
     limit?: string;
   }
 ): Promise<Users> => {
-  // TODO: Implement getUsers function
-  // - Apply filters
-  // - Apply sorting
-  // - Apply pagination
-  // - Return Users object with result, nextCursor, and total
+  // where holds the filter params
+  const where: Prisma.UserWhereInput = {};
+  if (filter) {
+    if (filter.email) where.email = filter.email;
+    if (filter.firstName) where.firstName = filter.firstName;
+    if (filter.lastName) where.lastName = filter.lastName;
+    if (filter.role) where.role = filter.role;
+  }
+
+  // orderBy holds the sort order if one is passed else then default is ascending
+  const orderBy: Prisma.UserOrderByWithRelationInput = {
+    [sort?.key as keyof User]: sort?.order || Prisma.SortOrder.asc,
+  };
+
+  // pagination limits
+  const take = pagination?.limit ? parseInt(pagination.limit) : 10;
+  const cursor = pagination?.after ? { id: pagination.after } : undefined;
+
+  // db query
+  const users = await prisma.user.findMany({
+    where,
+    orderBy,
+    take,
+    cursor,
+  });
+
+  // total amount of users from this query, useful for pagination
+  const total = await prisma.user.count({ where });
+
+  // return object with the result, the next cursor for pagination and the total
+  // amount of users
+  return {
+    result: users,
+    nextCursor: users.length == take ? users[users.length - 1].id : undefined,
+    total,
+  };
 };
 
 /**
@@ -40,9 +71,11 @@ const getUsers = async (
  * @returns Promise with the retrieved user or null
  */
 const getUser = async (userid: string) => {
-  // TODO: Implement getUser function
-  // - Use prisma to find a unique user by id
-  // - Return the user or null if not found
+  // uses findunique to find record associated with userid
+  const user = await prisma.user.findUnique({
+    where: { id: userid },
+  });
+  return user;
 };
 
 /**

@@ -3,28 +3,68 @@ import { Prisma, Role, User } from "@prisma/client";
 import { ErrorMessage, Users } from "../utils/types";
 import { notify } from "../utils/helpers";
 import controller from "../controllers/users";
+import { lstat } from "fs";
 
 const userRouter = Router();
 
-//hi
 
 userRouter.get("/", async (req, res) => {
-  // #swagger.tags = ['Users']
-  // TODO: Implement GET /users route
-  // - Extract filter, sort, and pagination parameters from req.query
-  // - Call controller.getUsers with extracted parameters
-  // - Send appropriate response based on the result
-  // - Handle errors and send error response if necessary
+  try {
+
+    // get the flter, sort, and pagination parameters from the req.query object
+    const filter = {
+      email: req.query.email as string,
+      firstName: req.query.firstName as string,
+      lastName: req.query.lastName as string,
+      role: req.query.role as Role,
+    };
+
+
+    // extract variables for sort and pagination
+    const sort = {
+      key: req.query.sortKey as string,
+      order: req.query.sortOrder ? (req.query.sortOrder as Prisma.SortOrder) : Prisma.SortOrder.asc,
+    };
+
+    const pagination = {
+      after: req.query.after as string,
+      limit: req.query.limit as string,
+    }
+
+    // call the get users function from controller with the parameters
+    const users: Users = await controller.getUsers(filter, sort, pagination);
+
+    // send the users as a success json response
+    res.status(200).json(users);
+  } catch (error) {
+    // caught error in process
+    console.error(error);
+    const errorResponse : ErrorMessage = { error: "An error occurred while fetching users" };
+    res.status(500).json(errorResponse)
+  }
 });
 
 userRouter.get("/:userid", async (req, res) => {
-  // #swagger.tags = ['Users']
-  // TODO: Implement GET /users/:userid route
-  // - Extract userid from req.params
-  // - Call controller.getUser with userid
-  // - Send appropriate response based on the result
-  // - Handle case where no user is found (404 error)
-  // - Handle other errors and send error response if necessary
+  // get the userid
+  const userid = req.params.userid;
+
+  try {
+    // call the getuser function from controller
+    const user = await controller.getUser(userid);
+
+    // user not found
+    if (!user) {
+      const errorResponse : ErrorMessage = { error : "User not found" };
+      return res.status(404).json(errorResponse);
+    }
+
+    // else return success json response
+    res.status(200).json(user)
+  } catch (error) { 
+    // error in process
+    console.error(error)
+    const errorResponse : ErrorMessage = { error: "An error occurred while fetching user" };
+  }
 });
 
 userRouter.post("/", async (req, res) => {
