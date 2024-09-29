@@ -37,22 +37,42 @@ userRouter.post("/", async (req, res) => {
 
 userRouter.put("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
-  // TODO: Implement PUT /users/:userid route
-  // - Extract userid from req.query and user data from req.body
-  // - Call controller.updateUser with userid and user data
-  // - Send updated user as response
-  // - Call notify function with "/users/{userid}"
-  // - Handle errors and send error response if necessary
+  const userid = req.params.userid;
+  const userData = req.body;
+
+  try {
+    const updatedUser = await controller.updateUser(userid, userData);
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json(updatedUser);
+    notify(`/users/${userid}`);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(404).json({ error: error.message });
+    }
+  }
 });
 
 userRouter.patch("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
-  // TODO: Implement PATCH /users/:userid route
-  // - Extract userid from req.query and partial user data from req.body
-  // - Call controller.updateUser with userid and partial user data
-  // - Send updated user as response
-  // - Call notify function with "/users/{userid}"
-  // - Handle errors and send error response if necessary
+
+  const userid = req.params.userid;
+  const partialUserData = req.body;
+
+  try {
+    const updatedUser = await controller.updateUser(userid, partialUserData);
+
+    res.status(200).json(updatedUser);
+
+    notify(`/users/${userid}`);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(404).json({ error: error.message });
+    }
+  }
 });
 
 userRouter.delete("/:userid", async (req, res) => {
