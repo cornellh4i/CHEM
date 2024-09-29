@@ -65,9 +65,15 @@ const createUser = async (user: User): Promise<User> => {
  * @returns A promise with the updated user
  */
 const updateUser = async (userid: string, user: User): Promise<User> => {
-  // TODO: Implement updateUser function
-  // - Use prisma to update the user with the given id
-  // - Return the updated user
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: userid },
+      data: user, // This will update the user with the provided data
+    });
+    return updatedUser;
+  } catch (error) {
+    throw new Error("User not found or update failed");
+  }
 };
 
 /**
