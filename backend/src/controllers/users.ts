@@ -66,12 +66,15 @@ const createUser = async (user: User): Promise<User> => {
  */
 const updateUser = async (userid: string, user: User): Promise<User> => {
   try {
+    // update user using prisma
     const updatedUser = await prisma.user.update({
       where: { id: userid },
-      data: user, // This will update the user with the provided data
+      data: user,
     });
+    // return updated user
     return updatedUser;
   } catch (error) {
+    // return error if any
     throw new Error("User not found or update failed");
   }
 };
