@@ -37,20 +37,27 @@ userRouter.post("/", async (req, res) => {
 
 userRouter.put("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
+
+  // extract information from header
   const userid = req.params.userid;
   const userData = req.body;
 
   try {
+    // Call the updateUser controller function to update the user with the given id
     const updatedUser = await controller.updateUser(userid, userData);
 
     if (!updatedUser) {
+      // If no user is found, return 404 Not Found
       return res.status(404).json({ error: "User not found" });
     }
-
+    // Send the updated user as the response
     res.status(200).json(updatedUser);
+
+    // call notify function
     notify(`/users/${userid}`);
   } catch (error) {
     if (error instanceof Error) {
+      // return error message if error
       res.status(404).json({ error: error.message });
     }
   }
@@ -59,17 +66,22 @@ userRouter.put("/:userid", async (req, res) => {
 userRouter.patch("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
 
+  // exract information from header
   const userid = req.params.userid;
   const partialUserData = req.body;
 
   try {
+    // call updateUser with partial user data
     const updatedUser = await controller.updateUser(userid, partialUserData);
 
+    // return updated user
     res.status(200).json(updatedUser);
 
+    // call notify
     notify(`/users/${userid}`);
   } catch (error) {
     if (error instanceof Error) {
+      // catch and return errors if any
       res.status(404).json({ error: error.message });
     }
   }
