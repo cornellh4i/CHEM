@@ -86,9 +86,17 @@ const updateUser = async (userid: string, user: User): Promise<User> => {
  * @returns A promise with the deleted user
  */
 const deleteUser = async (userid: string): Promise<User> => {
-  // TODO: Implement deleteUser function
-  // - Use prisma to delete the user with the given id
-  // - Return the deleted user
+  try {
+    // delete user using prisma
+    const deletedUser = await prisma.user.delete({
+      where: { id: userid },
+    });
+    // return deleted user
+    return deletedUser;
+  } catch (error) {
+    // throw error message
+    throw new Error("User not found or failed to delete user")
+  }
 };
 
 export default { getUsers, getUser, createUser, updateUser, deleteUser };
