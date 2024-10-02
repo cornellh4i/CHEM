@@ -43,14 +43,14 @@ userRouter.put("/:userid", async (req, res) => {
   const userData = req.body;
 
   try {
-    // call the updateUser controller function to update the user with the given id
+    // Call the updateUser controller function to update the user with the given id
     const updatedUser = await controller.updateUser(userid, userData);
 
     if (!updatedUser) {
-      // if no user is found, return 404 Not Found
+      // If no user is found, return 404 Not Found
       return res.status(404).json({ error: "User not found" });
     }
-    // send the updated user as the response
+    // Send the updated user as the response
     res.status(200).json(updatedUser);
 
     // call notify function
