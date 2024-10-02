@@ -7,21 +7,21 @@ interface CheckboxProps {
 }
 
 const Checkbox = (
-  { label, error, ...props }: CheckboxProps,
+  { defaultChecked, label, error, ...props }: CheckboxProps,
   ref: Ref<HTMLInputElement>
 ) => {
   return (
     <div className="flex">
-      <div className="flex h-5 items-center">
+      <div className="grid h-5 place-items-center">
         <input
           ref={ref}
           type="checkbox"
+          defaultChecked={defaultChecked}
           value=""
-          className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600
-            focus:ring-2 focus:ring-blue-500 dark:border-gray-600
-            dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+          className="peer col-start-1 row-start-1 h-6 w-6 shrink-0 appearance-none rounded-full border-2 border-black focus:shadow-none focus:outline-none focus:ring-0"
           {...props}
         />
+        <div className="pointer-events-none col-start-1 row-start-1 h-3.5 w-3.5 rounded-full focus:shadow-none focus:outline-none focus:ring-0 peer-checked:bg-black" />
       </div>
       <div className="ms-2 text-sm">
         <label className="font-medium text-gray-900 dark:text-gray-300">
