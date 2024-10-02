@@ -66,15 +66,15 @@ const createUser = async (user: User): Promise<User> => {
  */
 const updateUser = async (userid: string, user: User): Promise<User> => {
   try {
-    // update user using prisma
+    // Update user using prisma
     const updatedUser = await prisma.user.update({
       where: { id: userid },
       data: user,
     });
-    // return updated user
+    // Return updated user
     return updatedUser;
   } catch (error) {
-    // return error if any
+    // Return error if any
     throw new Error("User not found or update failed");
   }
 };
@@ -88,14 +88,14 @@ const updateUser = async (userid: string, user: User): Promise<User> => {
 const deleteUser = async (userid: string): Promise<User> => {
 
   try {
-    // delete user using prisma
+    // Delete user using prisma
     const deletedUser = await prisma.user.delete({
       where: { id: userid },
     });
-    // return deleted user
+    // Return deleted user
     return deletedUser;
   } catch (error) {
-    // throw error message
+    // Throw error message
     throw new Error("User not found or failed to delete user")
   }
 };
