@@ -43,14 +43,14 @@ userRouter.put("/:userid", async (req, res) => {
   const userData = req.body;
 
   try {
-    // Call the updateUser controller function to update the user with the given id
+    // call the updateUser controller function to update the user with the given id
     const updatedUser = await controller.updateUser(userid, userData);
 
     if (!updatedUser) {
-      // If no user is found, return 404 Not Found
+      // if no user is found, return 404 Not Found
       return res.status(404).json({ error: "User not found" });
     }
-    // Send the updated user as the response
+    // send the updated user as the response
     res.status(200).json(updatedUser);
 
     // call notify function
@@ -89,12 +89,25 @@ userRouter.patch("/:userid", async (req, res) => {
 
 userRouter.delete("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
-  // TODO: Implement DELETE /users/:userid route
-  // - Extract userid from req.query
-  // - Call controller.deleteUser with userid
-  // - Send deleted user as response
-  // - Call notify function with "/users"
-  // - Handle errors and send error response if necessary
+
+  // extract userid from req.query
+  const userid = req.params.userid;
+
+  try {
+    // call controller.deleteUser to delete the user with userid
+    const deletedUser = await controller.deleteUser(userid);
+
+    // send deleted user as the response
+    res.status(200).json(deletedUser);
+
+    // call notify function with "/users"
+    notify(`/users/${userid}`);
+  } catch (error) {
+    if (error instanceof Error) {
+      // handle errors and send error response
+      res.status(404).json({ error: error.message });
+    }
+  }
 });
 
 export default userRouter;
