@@ -1,16 +1,12 @@
 import { Router } from "express";
 import { Prisma, Role, User } from "@prisma/client";
 import { ErrorMessage, Users } from "../utils/types";
-import { notify } from "../utils/helpers";
 import controller from "../controllers/users";
-import { lstat } from "fs";
 
 const userRouter = Router();
 
-
 userRouter.get("/", async (req, res) => {
   try {
-
     // get the flter, sort, and pagination parameters from the req.query object
     const filter = {
       email: req.query.email as string,
@@ -19,17 +15,18 @@ userRouter.get("/", async (req, res) => {
       role: req.query.role as Role,
     };
 
-
     // extract variables for sort and pagination
     const sort = {
       key: req.query.sortKey as string,
-      order: req.query.sortOrder ? (req.query.sortOrder as Prisma.SortOrder) : Prisma.SortOrder.asc,
+      order: req.query.sortOrder
+        ? (req.query.sortOrder as Prisma.SortOrder)
+        : Prisma.SortOrder.asc,
     };
 
     const pagination = {
       after: req.query.after as string,
       limit: req.query.limit as string,
-    }
+    };
 
     // call the get users function from controller with the parameters
     const users: Users = await controller.getUsers(filter, sort, pagination);
@@ -39,8 +36,10 @@ userRouter.get("/", async (req, res) => {
   } catch (error) {
     // caught error in process
     console.error(error);
-    const errorResponse : ErrorMessage = { error: "An error occurred while fetching users" };
-    res.status(500).json(errorResponse)
+    const errorResponse: ErrorMessage = {
+      error: "An error occurred while fetching users",
+    };
+    res.status(500).json(errorResponse);
   }
 });
 
@@ -54,16 +53,18 @@ userRouter.get("/:userid", async (req, res) => {
 
     // user not found
     if (!user) {
-      const errorResponse : ErrorMessage = { error : "User not found" };
+      const errorResponse: ErrorMessage = { error: "User not found" };
       return res.status(404).json(errorResponse);
     }
 
     // else return success json response
-    res.status(200).json(user)
-  } catch (error) { 
+    res.status(200).json(user);
+  } catch (error) {
     // error in process
-    console.error(error)
-    const errorResponse : ErrorMessage = { error: "An error occurred while fetching user" };
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error: "An error occurred while fetching user",
+    };
   }
 });
 
@@ -71,6 +72,13 @@ userRouter.post("/", async (req, res) => {
   // #swagger.tags = ['Users']
   // TODO: Implement POST /users route
   // - Extract user data from req.body
+
+  try {
+    const newUser = controller.createUser(req.body);
+    return res.status(200).json(newUser);
+  } catch (error) {
+    return res.status(400).json({ error: "Error creating user" });
+  }
   // - Call controller.createUser with extracted data
   // - Send created user as response
   // - Call notify function with "/users"
