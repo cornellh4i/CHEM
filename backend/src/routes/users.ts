@@ -89,7 +89,7 @@ userRouter.patch("/:userid", async (req, res) => {
 
 userRouter.delete("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
-
+  
   // extract userid from req.query
   const userid = req.params.userid;
 

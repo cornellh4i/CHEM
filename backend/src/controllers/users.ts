@@ -86,6 +86,7 @@ const updateUser = async (userid: string, user: User): Promise<User> => {
  * @returns A promise with the deleted user
  */
 const deleteUser = async (userid: string): Promise<User> => {
+
   try {
     // delete user using prisma
     const deletedUser = await prisma.user.delete({
