@@ -38,7 +38,7 @@ userRouter.post("/", async (req, res) => {
 userRouter.put("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
 
-  // extract information from header
+  // Extract information from header
   const userid = req.params.userid;
   const userData = req.body;
 
@@ -53,11 +53,11 @@ userRouter.put("/:userid", async (req, res) => {
     // Send the updated user as the response
     res.status(200).json(updatedUser);
 
-    // call notify function
+    // Call notify function
     notify(`/users/${userid}`);
   } catch (error) {
     if (error instanceof Error) {
-      // return error message if error
+      // Return error message if error
       res.status(404).json({ error: error.message });
     }
   }
@@ -66,22 +66,22 @@ userRouter.put("/:userid", async (req, res) => {
 userRouter.patch("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
 
-  // exract information from header
+  // Exract information from header
   const userid = req.params.userid;
   const partialUserData = req.body;
 
   try {
-    // call updateUser with partial user data
+    // Call updateUser with partial user data
     const updatedUser = await controller.updateUser(userid, partialUserData);
 
-    // return updated user
+    // Return updated user
     res.status(200).json(updatedUser);
 
-    // call notify
+    // Call notify
     notify(`/users/${userid}`);
   } catch (error) {
     if (error instanceof Error) {
-      // catch and return errors if any
+      // Catch and return errors if any
       res.status(404).json({ error: error.message });
     }
   }
@@ -90,21 +90,21 @@ userRouter.patch("/:userid", async (req, res) => {
 userRouter.delete("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
   
-  // extract userid from req.query
+  // Extract userid from req.query
   const userid = req.params.userid;
 
   try {
-    // call controller.deleteUser to delete the user with userid
+    // Call controller.deleteUser to delete the user with userid
     const deletedUser = await controller.deleteUser(userid);
 
-    // send deleted user as the response
+    // Send deleted user as the response
     res.status(200).json(deletedUser);
 
-    // call notify function with "/users"
+    // Call notify function with "/users"
     notify(`/users/${userid}`);
   } catch (error) {
     if (error instanceof Error) {
-      // handle errors and send error response
+      // Handle errors and send error response
       res.status(404).json({ error: error.message });
     }
   }
