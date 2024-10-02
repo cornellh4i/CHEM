@@ -88,6 +88,20 @@ const createUser = async (user: User): Promise<User> => {
   // TODO: Implement createUser function
   // - Use prisma to create a new user
   // - Return the created user
+
+  try {
+    const newUser = await prisma.user.create({
+      data: {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+      },
+    });
+    return newUser;
+  } catch (error) {
+    throw new Error("Failed to create new User");
+  }
 };
 
 /**
