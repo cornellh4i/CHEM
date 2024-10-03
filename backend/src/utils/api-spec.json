@@ -11,6 +11,14 @@
     {
       "name": "User",
       "description": "Endpoints"
+    },
+    {
+      "name": "Contributor",
+      "description": "Endpoints"
+    },
+    {
+      "name": "Organization",
+      "description": "Endpoints"
     }
   ],
   "schemes": [
@@ -22,7 +30,7 @@
       "type": "apiKey",
       "in": "header",
       "name": "X-API-KEY",
-      "description": "any description..."
+      "description": "Your API Key"
     }
   },
   "consumes": [
@@ -45,20 +53,10 @@
     "/users/": {
       "get": {
         "tags": [
-          "Users"
+          "User"
         ],
-        "description": "",
+        "description": "Endpoint to get all users",
         "parameters": [
-          {
-            "name": "filter",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "type": "string"
-          },
           {
             "name": "after",
             "in": "query",
@@ -68,121 +66,69 @@
             "name": "limit",
             "in": "query",
             "type": "string"
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "Filter parameters",
+            "schema": {
+              "$ref": "#/definitions/FilterParams"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort parameters",
+            "schema": {
+              "$ref": "#/definitions/SortParams"
+            }
+          },
+          {
+            "name": "pagination",
+            "in": "query",
+            "description": "Pagination parameters",
+            "schema": {
+              "$ref": "#/definitions/PaginationParams"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Users successfully obtained.",
+            "schema": {
+              "$ref": "#/definitions/Users"
+            }
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Server error while fetching users."
           }
         }
       },
       "post": {
         "tags": [
-          "Users"
+          "User"
         ],
-        "description": "",
+        "description": "Endpoint to create a new user",
+        "parameters": [
+          {
+            "name": "newUser",
+            "in": "body",
+            "description": "User information.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NewUser"
+            }
+          }
+        ],
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "User successfully created.",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
           },
           "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/users/{userid}": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "userid",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Users"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "userid",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Users"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "userid",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Users"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "userid",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
+            "description": "Server error while creating user."
           }
         }
       }
