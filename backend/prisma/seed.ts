@@ -1,61 +1,81 @@
-import { PrismaClient } from "@prisma/client";
-import { Role } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const alice = await prisma.user.upsert({
-    where: { email: "alice@prisma.io" },
+  // Create Organizations
+  const techCorp = await prisma.organization.upsert({
+    where: { id: "techcorp-id" },
     update: {},
     create: {
-      email: "alice@prisma.io",
+      id: "techcorp-id",
+      name: "TechCorp",
+      description: "A leading technology company",
+    },
+  });
+
+  const ecoFoundation = await prisma.organization.upsert({
+    where: { id: "ecofoundation-id" },
+    update: {},
+    create: {
+      id: "ecofoundation-id",
+      name: "Eco Foundation",
+      description: "Non-profit organization for environmental causes",
+    },
+  });
+
+  // Create Users
+  const alice = await prisma.user.upsert({
+    where: { email: "alice@example.com" },
+    update: {},
+    create: {
+      email: "alice@example.com",
       firstName: "Alice",
-      lastName: "Cool",
-      posts: {
-        create: {
-          title: "Check out Prisma with Next.js",
-          content: "https://www.prisma.io/nextjs",
-          published: true,
-        },
-      },
+      lastName: "Johnson",
       role: Role.USER,
     },
   });
 
   const bob = await prisma.user.upsert({
-    where: { email: "bob@prisma.io" },
+    where: { email: "bob@example.com" },
     update: {},
     create: {
-      email: "bob@prisma.io",
+      email: "bob@example.com",
       firstName: "Bob",
-      lastName: "Awesome",
-      posts: {
-        create: [
-          {
-            title: "Follow Prisma on Twitter",
-            content: "https://twitter.com/prisma",
-            published: true,
-          },
-          {
-            title: "Follow Nexus on Twitter",
-            content: "https://twitter.com/nexusgql",
-            published: true,
-          },
-        ],
-      },
+      lastName: "Smith",
       role: Role.ADMIN,
     },
   });
 
-  console.log({ alice, bob });
+  // Create Contributors
+  const charlie = await prisma.contributor.create({
+    data: {
+      firstName: "Charlie",
+      lastName: "Brown",
+      organization: {
+        connect: { id: techCorp.id },
+      },
+    },
+  });
+
+  const diana = await prisma.contributor.create({
+    data: {
+      firstName: "Diana",
+      lastName: "Prince",
+      organization: {
+        connect: { id: ecoFoundation.id },
+      },
+    },
+  });
+
+  console.log({ techCorp, ecoFoundation, alice, bob, charlie, diana });
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
+  .catch((e) => {
     console.error(e);
-    await prisma.$disconnect();
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });
