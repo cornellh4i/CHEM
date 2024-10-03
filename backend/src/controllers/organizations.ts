@@ -28,8 +28,18 @@ const updateOrganization = async (
     Omit<Organization, "id" | "createdAt" | "updatedAt">
   >
 ): Promise<Organization> => {
-  // TODO: Implement update organization logic
-  throw new Error("updateOrganization method not implemented");
+  try {
+    // Update organization using prisma
+    const updatedOrg = await prisma.organization.update({
+      where: { id: id },
+      data: organizationData,
+    });
+    // Return updated org
+    return updatedOrg;
+  } catch (error) {
+    // Return error if any
+    throw new Error("Organization not found or update failed");
+  }
 };
 
 const deleteOrganization = async (id: string): Promise<void> => {
