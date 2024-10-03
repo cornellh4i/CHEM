@@ -22,8 +22,8 @@ const RadioButton = (
         />
         <div className="pointer-events-none col-start-1 row-start-1 h-3 w-3 rounded-full peer-checked:bg-black" />
       </div>
-      <div className="ms-2 text-sm">
-        <label className="font-normal text-black dark:text-gray-300">
+      <div className="ms-5">
+        <label className="text-md font-normal text-black dark:text-gray-300">
           {label}
         </label>
       </div>
