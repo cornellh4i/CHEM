@@ -1,6 +1,7 @@
 // routes/users.ts
 import { Router } from "express";
 import controller from "../controllers/users";
+import { notify } from "../utils/helpers";
 
 const userRouter = Router();
 
@@ -77,7 +78,7 @@ userRouter.patch("/:userid", async (req, res) => {
 
 userRouter.delete("/:userid", async (req, res) => {
   // #swagger.tags = ['Users']
-  
+
   // Extract userid from req.query
   const userid = req.params.userid;
 
