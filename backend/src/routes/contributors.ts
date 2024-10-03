@@ -14,9 +14,26 @@ contributorRouter.get("/", async (req, res) => {
 // GET a single contributor by ID
 contributorRouter.get("/:id", async (req, res) => {
   // TODO: Implement GET single contributor route
-  res
-    .status(501)
-    .json({ error: "GET single contributor route not implemented" });
+
+  // get id from req body
+  const { id } = req.params;
+  try {
+    // try controller function getContributorById
+    const contributor = await controller.getContributorById(id);
+
+    // if not found return 404 not found error
+    if (!contributor) {
+      res.status(404).json({ error: "Contributor not found" });
+
+      // else return the response json
+    } else {
+      res.json(contributor);
+    }
+
+    // catch the error
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching contributor by ID" });
+  }
 });
 
 // POST a new contributor

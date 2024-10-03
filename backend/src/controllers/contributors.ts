@@ -1,7 +1,7 @@
 // controllers/contributors.ts
 import prisma from "../utils/client";
 import { Contributor } from "@prisma/client";
-// df
+
 const getContributors = async (): Promise<Contributor[]> => {
   // TODO: Implement get contributors logic
   // This should include handling filters, sorting, and pagination
@@ -9,8 +9,16 @@ const getContributors = async (): Promise<Contributor[]> => {
 };
 
 const getContributorById = async (id: string): Promise<Contributor | null> => {
-  // TODO: Implement get contributor by ID logic
-  throw new Error("getContributorById method not implemented");
+  try {
+    // find unique id from prisma
+    const contributor = await prisma.contributor.findUnique({
+      where: { id },
+    });
+    return contributor;
+    // else error finding
+  } catch (error) {
+    throw new Error("Error fetching contributor by ID");
+  }
 };
 
 const createContributor = async (
