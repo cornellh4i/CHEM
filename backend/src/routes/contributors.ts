@@ -1,6 +1,7 @@
 // routes/contributors.ts
 import { Router } from "express";
 import controller from "../controllers/contributors";
+import prisma from "../utils/client";
 
 const contributorRouter = Router();
 
@@ -53,7 +54,13 @@ contributorRouter.put("/:id", async (req, res) => {
 // DELETE a contributor
 contributorRouter.delete("/:id", async (req, res) => {
   // TODO: Implement DELETE contributor route
-  res.status(501).json({ error: "DELETE contributor route not implemented" });
+  const { id } = req.params;
+  try {
+    const contributor = await controller.deleteContributor(id);
+    return res.status(200).json(contributor);
+  } catch (error) {
+    return res.status(400).json({ error: "Error deleting user" });
+  }
 });
 
 export default contributorRouter;

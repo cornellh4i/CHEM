@@ -36,9 +36,14 @@ const updateContributor = async (
   throw new Error("updateContributor method not implemented");
 };
 
-const deleteContributor = async (id: string): Promise<void> => {
+const deleteContributor = async (id: string): Promise<Contributor> => {
   // TODO: Implement delete contributor logic
-  throw new Error("deleteContributor method not implemented");
+  try {
+    const contributor = await prisma.contributor.delete({ where: { id } });
+    return contributor;
+  } catch (error) {
+    throw new Error("Couldn't delete user");
+  }
 };
 
 export default {
