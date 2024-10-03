@@ -19,6 +19,18 @@ const createOrganization = async (
   organizationData: Omit<Organization, "id" | "createdAt" | "updatedAt">
 ): Promise<Organization> => {
   // TODO: Implement create organization logic
+  try {
+    const organization = await prisma.organization.create({
+      data: {
+        ...organizationData,
+      },
+    })
+
+    return organization;
+  } catch(error) {
+    throw new Error("Failed to create the organization");
+  }
+  
   throw new Error("createOrganization method not implemented");
 };
 
