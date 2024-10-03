@@ -1,38 +1,26 @@
+// routes/users.ts
 import { Router } from "express";
-import { Prisma, Role, User } from "@prisma/client";
-import { ErrorMessage, Users } from "../utils/types";
-import { notify } from "../utils/helpers";
 import controller from "../controllers/users";
 
 const userRouter = Router();
 
+// GET all users
 userRouter.get("/", async (req, res) => {
-  // #swagger.tags = ['Users']
-  // TODO: Implement GET /users route
-  // - Extract filter, sort, and pagination parameters from req.query
-  // - Call controller.getUsers with extracted parameters
-  // - Send appropriate response based on the result
-  // - Handle errors and send error response if necessary
+  // TODO: Implement GET all users route
+  // This should handle query parameters for filtering, sorting, and pagination
+  res.status(501).json({ error: "GET all users route not implemented" });
 });
 
-userRouter.get("/:userid", async (req, res) => {
-  // #swagger.tags = ['Users']
-  // TODO: Implement GET /users/:userid route
-  // - Extract userid from req.params
-  // - Call controller.getUser with userid
-  // - Send appropriate response based on the result
-  // - Handle case where no user is found (404 error)
-  // - Handle other errors and send error response if necessary
+// GET a single user by ID
+userRouter.get("/:id", async (req, res) => {
+  // TODO: Implement GET single user route
+  res.status(501).json({ error: "GET single user route not implemented" });
 });
 
+// POST a new user
 userRouter.post("/", async (req, res) => {
-  // #swagger.tags = ['Users']
-  // TODO: Implement POST /users route
-  // - Extract user data from req.body
-  // - Call controller.createUser with extracted data
-  // - Send created user as response
-  // - Call notify function with "/users"
-  // - Handle errors and send error response if necessary
+  // TODO: Implement POST new user route
+  res.status(501).json({ error: "POST new user route not implemented" });
 });
 
 userRouter.put("/:userid", async (req, res) => {
