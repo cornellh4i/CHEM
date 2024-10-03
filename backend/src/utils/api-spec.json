@@ -52,83 +52,104 @@
     },
     "/users/": {
       "get": {
-        "tags": [
-          "User"
-        ],
-        "description": "Endpoint to get all users",
-        "parameters": [
-          {
-            "name": "after",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "filter",
-            "in": "query",
-            "description": "Filter parameters",
-            "schema": {
-              "$ref": "#/definitions/FilterParams"
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "description": "Sort parameters",
-            "schema": {
-              "$ref": "#/definitions/SortParams"
-            }
-          },
-          {
-            "name": "pagination",
-            "in": "query",
-            "description": "Pagination parameters",
-            "schema": {
-              "$ref": "#/definitions/PaginationParams"
-            }
-          }
-        ],
+        "description": "",
         "responses": {
-          "200": {
-            "description": "Users successfully obtained.",
-            "schema": {
-              "$ref": "#/definitions/Users"
-            }
-          },
-          "500": {
-            "description": "Server error while fetching users."
+          "501": {
+            "description": "Not Implemented"
           }
         }
       },
       "post": {
-        "tags": [
-          "User"
-        ],
-        "description": "Endpoint to create a new user",
+        "description": "",
+        "responses": {
+          "501": {
+            "description": "Not Implemented"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "description": "",
         "parameters": [
           {
-            "name": "newUser",
-            "in": "body",
-            "description": "User information.",
+            "name": "id",
+            "in": "path",
             "required": true,
-            "schema": {
-              "$ref": "#/definitions/NewUser"
-            }
+            "type": "string"
           }
         ],
         "responses": {
-          "201": {
-            "description": "User successfully created.",
-            "schema": {
-              "$ref": "#/definitions/User"
-            }
+          "501": {
+            "description": "Not Implemented"
+          }
+        }
+      }
+    },
+    "/users/{userid}": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "userid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           },
-          "500": {
-            "description": "Server error while creating user."
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "userid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "userid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       }
@@ -136,45 +157,67 @@
     "/contributors/": {
       "get": {
         "description": "",
-        "parameters": [
-          {
-            "name": "filter",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "after",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "type": "string"
-          }
-        ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "501": {
+            "description": "Not Implemented"
           }
         }
       },
       "post": {
         "description": "",
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "501": {
+            "description": "Not Implemented"
+          }
+        }
+      }
+    },
+    "/contributors/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "501": {
+            "description": "Not Implemented"
+          }
+        }
+      },
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "501": {
+            "description": "Not Implemented"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "501": {
+            "description": "Not Implemented"
           }
         }
       }
@@ -182,45 +225,67 @@
     "/organizations/": {
       "get": {
         "description": "",
-        "parameters": [
-          {
-            "name": "filter",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "after",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "type": "string"
-          }
-        ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "501": {
+            "description": "Not Implemented"
           }
         }
       },
       "post": {
         "description": "",
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "501": {
+            "description": "Not Implemented"
+          }
+        }
+      }
+    },
+    "/organizations/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "501": {
+            "description": "Not Implemented"
+          }
+        }
+      },
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "501": {
+            "description": "Not Implemented"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "501": {
+            "description": "Not Implemented"
           }
         }
       }
