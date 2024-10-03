@@ -65,9 +65,18 @@ const createUser = async (user: User): Promise<User> => {
  * @returns A promise with the updated user
  */
 const updateUser = async (userid: string, user: User): Promise<User> => {
-  // TODO: Implement updateUser function
-  // - Use prisma to update the user with the given id
-  // - Return the updated user
+  try {
+    // Update user using prisma
+    const updatedUser = await prisma.user.update({
+      where: { id: userid },
+      data: user,
+    });
+    // Return updated user
+    return updatedUser;
+  } catch (error) {
+    // Return error if any
+    throw new Error("User not found or update failed");
+  }
 };
 
 /**
@@ -77,9 +86,18 @@ const updateUser = async (userid: string, user: User): Promise<User> => {
  * @returns A promise with the deleted user
  */
 const deleteUser = async (userid: string): Promise<User> => {
-  // TODO: Implement deleteUser function
-  // - Use prisma to delete the user with the given id
-  // - Return the deleted user
+
+  try {
+    // Delete user using prisma
+    const deletedUser = await prisma.user.delete({
+      where: { id: userid },
+    });
+    // Return deleted user
+    return deletedUser;
+  } catch (error) {
+    // Throw error message
+    throw new Error("User not found or failed to delete user")
+  }
 };
 
 export default { getUsers, getUser, createUser, updateUser, deleteUser };
