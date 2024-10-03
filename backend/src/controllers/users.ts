@@ -34,17 +34,47 @@ const createUser = async (userData: Omit<User, "id">): Promise<User> => {
   throw new Error("createUser method not implemented");
 };
 
-const updateUser = async (
-  userId: string,
-  userData: Partial<Omit<User, "id">>
-): Promise<User> => {
-  // TODO: Implement update user logic
-  throw new Error("updateUser method not implemented");
+/**
+ * Updates the user with a new User object
+ *
+ * @param userid - The id of user to be updated
+ * @param user - A complete User object
+ * @returns A promise with the updated user
+ */
+const updateUser = async (userid: string, user: User): Promise<User> => {
+  try {
+    // Update user using prisma
+    const updatedUser = await prisma.user.update({
+      where: { id: userid },
+      data: user,
+    });
+    // Return updated user
+    return updatedUser;
+  } catch (error) {
+    // Return error if any
+    throw new Error("User not found or update failed");
+  }
 };
 
-const deleteUser = async (userId: string): Promise<User> => {
-  // TODO: Implement delete user logic
-  throw new Error("deleteUser method not implemented");
+/**
+ * Deletes specified user by userid.
+ *
+ * @param userid - The id of the user to be deleted
+ * @returns A promise with the deleted user
+ */
+const deleteUser = async (userid: string): Promise<User> => {
+
+  try {
+    // Delete user using prisma
+    const deletedUser = await prisma.user.delete({
+      where: { id: userid },
+    });
+    // Return deleted user
+    return deletedUser;
+  } catch (error) {
+    // Throw error message
+    throw new Error("User not found or failed to delete user")
+  }
 };
 
 export default { getUsers, getUser, createUser, updateUser, deleteUser };
