@@ -31,6 +31,26 @@ organizationRouter.post("/", async (req, res) => {
 
 // PUT (update) an existing organization
 organizationRouter.put("/:id", async (req, res) => {
+  // Exract information from header
+  const orgId = req.params.id;
+  const partialOrgData = req.body;
+
+  try {
+    // Call updateUser with partial user data
+    const updatedOrg = await controller.updateOrganization(
+      orgId,
+      partialOrgData
+    );
+
+    // Return updated user
+    res.status(200).json(updatedOrg);
+  } catch (error) {
+    if (error instanceof Error) {
+      // Catch and return errors if any
+      res.status(404).json({ error: error.message });
+    }
+  }
+
   // TODO: Implement PUT (update) organization route
   res
     .status(501)
