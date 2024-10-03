@@ -7,11 +7,11 @@ interface RadioProps {
 }
 
 const RadioButton = (
-  { label, error, ...props }: RadioProps,
+  { label, ...props }: RadioProps,
   ref: Ref<HTMLInputElement>
 ) => {
   return (
-    <div className="flex">
+    <div className="flex items-center">
       <div className="grid h-5 place-items-center">
         <input
           ref={ref}
@@ -23,12 +23,9 @@ const RadioButton = (
         <div className="pointer-events-none col-start-1 row-start-1 h-3 w-3 rounded-full peer-checked:bg-black" />
       </div>
       <div className="ms-2 text-sm">
-        <label className="font-medium text-gray-900 dark:text-gray-300">
+        <label className="font-normal text-black dark:text-gray-300">
           {label}
         </label>
-        <p className="text-xs font-normal text-red-600 dark:text-red-500">
-          {error}
-        </p>
       </div>
     </div>
   );
