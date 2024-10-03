@@ -72,10 +72,14 @@ const getUsers = async (
  */
 const getUser = async (userid: string) => {
   // uses findunique to find record associated with userid
-  const user = await prisma.user.findUnique({
-    where: { id: userid },
-  });
-  return user;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userid },
+    });
+    return user;
+  } catch (error) {
+    throw new Error("User not found");
+  }
 };
 
 /**
