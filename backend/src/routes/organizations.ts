@@ -23,18 +23,45 @@ organizationRouter.get("/:id", async (req, res) => {
 
 // POST a new organization
 organizationRouter.post("/", async (req, res) => {
-  // TODO: Implement POST new organization route
-  res
-    .status(501)
-    .json({ error: "POST new organization route not implemented" });
+  try {
+    // Extract organization data
+    const organizationData = req.body;
+
+    // Call createOrganization with organizationData
+    const newOrganization =
+      await controller.createOrganization(organizationData);
+
+    // Return created organization
+    res.status(201).json(newOrganization);
+  } catch (error) {
+    if (error instanceof Error) {
+      // Catch and return errors if any
+      res.status(400).json({ error: error.message });
+    }
+  }
 });
 
 // PUT (update) an existing organization
 organizationRouter.put("/:id", async (req, res) => {
-  // TODO: Implement PUT (update) organization route
-  res
-    .status(501)
-    .json({ error: "PUT update organization route not implemented" });
+  // Exract information from header
+  const orgId = req.params.id;
+  const partialOrgData = req.body;
+
+  try {
+    // Call updateUser with partial user data
+    const updatedOrg = await controller.updateOrganization(
+      orgId,
+      partialOrgData
+    );
+
+    // Return updated user
+    res.status(200).json(updatedOrg);
+  } catch (error) {
+    if (error instanceof Error) {
+      // Catch and return errors if any
+      res.status(404).json({ error: error.message });
+    }
+  }
 });
 
 // DELETE an organization
