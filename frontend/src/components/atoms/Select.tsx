@@ -1,73 +1,86 @@
 "use client";
-import React, { ReactNode, forwardRef, Ref, useState } from "react";
+import React, { useState } from "react";
 
 interface SelectProps {
-  children: ReactNode;
   label?: string;
-  error?: string;
   placeholder?: string;
   values?: string[];
-  [key: string]: any;
+  width?: string; // New prop for width
 }
 
-const Select = (
-  { children, label, error, placeholder, values, ...props }: SelectProps,
-  ref: Ref<HTMLSelectElement>
-) => {
+const Select = ({ label, placeholder, values = [], width }: SelectProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const handleToggleDropdown = () => {
-    setIsDropdownOpen((prev) => !prev);
+  const [selectedValue, setSelectedValue] = useState<string | null>(null);
+
+  // Toggle the dropdown visibility
+  const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
+
+  // Handle selecting a value from the dropdown
+  const handleSelect = (value: string) => {
+    setSelectedValue(value);
+    setIsDropdownOpen(false);
   };
 
-  if (error) {
-    return (
-      <div>
-        <label className="mb-2 block text-sm font-medium text-red-700 dark:text-red-500">
-          {label}
-        </label>
-        <select
-          ref={ref}
-          className="block w-full cursor-pointer rounded-lg border border-red-500 bg-red-50 p-2.5 text-sm text-red-900 placeholder-red-700 focus:border-red-500 focus:ring-red-500 dark:border-red-500 dark:bg-white dark:text-red-500 dark:placeholder-red-500"
-          defaultValue={placeholder ? "" : undefined}
-          {...props}
-        >
-          {children}
-        </select>
-        <p className="mt-2 text-sm text-red-600 dark:text-red-500">{error}</p>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <label className="ml-2 block text-sm font-normal text-gray-900 dark:text-gray-600">
+    <div style={{ position: "relative", width: width || "100%" }}>
+      <label className="ml-2 block text-sm font-normal text-gray-600">
         {label}
       </label>
-      <div onClick={handleToggleDropdown}>
-        <select
-          ref={ref}
-          className="block w-full cursor-pointer rounded-lg border border-gray-300 p-2.5 text-sm text-gray-500 focus:border-blue-500 focus:ring-blue-500"
-          style={{ backgroundColor: "#F5F5F5" }}
-          defaultValue={placeholder ? "" : undefined}
-          {...props}
-        >
-          {placeholder && (
-            <option value="" disabled className="text-gray-600">
-              {placeholder}
-            </option>
-          )}
 
-          {values &&
-            values.map((value, index) => (
-              <option key={index} value={value}>
-                {value}
-              </option>
-            ))}
-          {children}
-        </select>
+      {/* Custom dropdown trigger */}
+      <div
+        onClick={toggleDropdown}
+        className="cursor-pointer rounded-lg border border-gray-300 p-2.5"
+        style={{
+          backgroundColor: "#F5F5F5",
+          position: "relative",
+          width: "100%",
+        }}
+      >
+        {selectedValue || placeholder}
       </div>
+
+      {/* Custom dropdown container */}
+      {isDropdownOpen && (
+        <div
+          className="custom-dropdown"
+          style={{
+            position: "relative",
+            top: "100%",
+            left: "70%",
+            width: width ? `calc(${width} * 0.3)` : "30%",
+            backgroundColor: "#f5f5f5",
+            borderRadius: "8px",
+            overflowY: "auto",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          {values.map((value, index) => (
+            <div
+              key={index}
+              onClick={() => handleSelect(value)}
+              style={{
+                padding: "8px 16px",
+                cursor: "pointer",
+                backgroundColor: selectedValue === value ? "#f5f5f5" : "#fff",
+                color: "#6B7280",
+                fontWeight: 400,
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor = "#f5f5f5")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  selectedValue === value ? "#f0f0f0" : "#fff")
+              }
+            >
+              {value}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
-export default forwardRef(Select);
+export default Select;
