@@ -15,7 +15,7 @@ const Checkbox = (
   return (
     <div className="p-2">
       {/* Normal Input */}
-      <Input label="Name" placeholder="Enter a name" />
+      <Input label="Name" placeholder="Enter a name" width="200px" />
       {/* Error Input */}
       <Input label="Error" error="Amount is negative" />
       {/* Disabled Input */}
@@ -31,14 +31,13 @@ const Checkbox = (
         label="Choose a fund"
         placeholder="Select fund"
         values={["A", "B", "C"]}
-        error="This field is required"
       />
       {/* Disabled Select */}
       <Select
         label="Choose a fund"
         placeholder="Select fund"
         values={["A", "B", "C"]}
-        disabled
+        width="200px"
       />
     </div>
   );
