@@ -15,29 +15,37 @@ const Checkbox = (
   return (
     <div className="p-2">
       {/* Normal Input */}
-      <Input label="Name" placeholder="Enter a name" width="200px" />
+      <Input label="Name" placeholder="Enter a name" width="300px" />
       {/* Error Input */}
-      <Input label="Error" error="Amount is negative" />
+      <Input label="Error" error="Amount is negative" width="300px" />
       {/* Disabled Input */}
-      <Input label="Disabled" value="Cannot enter value" disabled />
+      <Input
+        label="Disabled"
+        value="Cannot enter value"
+        width="300px"
+        disabled
+      />
       {/* Normal Select */}
       <Select
         label="Choose a fund"
         placeholder="Select fund"
         values={["A", "B", "C"]}
+        width="300px"
       />
       {/* Error Select */}
       <Select
         label="Choose a fund"
         placeholder="Select fund"
         values={["A", "B", "C"]}
+        width="300px"
       />
       {/* Disabled Select */}
       <Select
         label="Choose a fund"
         placeholder="Select fund"
         values={["A", "B", "C"]}
-        width="200px"
+        width="300px"
+        disabled
       />
     </div>
   );

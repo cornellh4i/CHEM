@@ -41,9 +41,12 @@ const Select = ({
       {/* Custom dropdown trigger */}
       <div
         onClick={toggleDropdown}
-        className="cursor-pointer rounded-lg border border-gray-300 p-2.5"
+        className={`cursor-pointer rounded-lg p-2.5 ${
+          disabled
+            ? "cursor-not-allowed bg-gray-300 text-black placeholder-transparent"
+            : "bg-gray-100"
+          }`}
         style={{
-          backgroundColor: "#F5F5F5",
           position: "relative",
           width: "100%",
         }}
