@@ -5,17 +5,18 @@ interface InputProps {
   error?: string;
   disabled?: boolean;
   [key: string]: any;
+  width?: string;
 }
 
 const Input = (
-  { label, error, disabled, ...props }: InputProps,
+  { label, error, disabled, width, ...props }: InputProps,
   ref: Ref<HTMLInputElement>
 ) => {
   return (
     <div>
       {label && (
         <label
-          className={`ml-2 block text-sm font-normal ${error ? "text-red-700" : "text-black"}`}
+          className={`mb-2 mt-4 block text-sm font-normal ${error ? "text-red-700" : "text-black"}`}
         >
           {label}
         </label>
@@ -32,9 +33,12 @@ const Input = (
         disabled={disabled}
         placeholder={disabled ? "" : props.placeholder}
         {...props}
+        style={{
+          width: width,
+        }}
       />
 
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
   );
 };
