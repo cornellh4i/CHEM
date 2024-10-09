@@ -5,15 +5,26 @@ interface SelectProps {
   label?: string;
   placeholder?: string;
   values?: string[];
-  width?: string; // New prop for width
+  width?: string;
+  disabled?: boolean;
 }
 
-const Select = ({ label, placeholder, values = [], width }: SelectProps) => {
+const Select = ({
+  label,
+  placeholder,
+  values = [],
+  width,
+  disabled,
+}: SelectProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
 
   // Toggle the dropdown visibility
-  const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
+  const toggleDropdown = () => {
+    if (!disabled || disabled == null) {
+      setIsDropdownOpen((prev) => !prev);
+    }
+  };
 
   // Handle selecting a value from the dropdown
   const handleSelect = (value: string) => {
@@ -23,7 +34,7 @@ const Select = ({ label, placeholder, values = [], width }: SelectProps) => {
 
   return (
     <div style={{ position: "relative", width: width || "100%" }}>
-      <label className="ml-2 block text-sm font-normal text-gray-600">
+      <label className="mb-2 mt-4 block text-sm font-normal text-gray-600">
         {label}
       </label>
 
@@ -45,7 +56,7 @@ const Select = ({ label, placeholder, values = [], width }: SelectProps) => {
         <div
           className="custom-dropdown"
           style={{
-            position: "relative",
+            position: "absolute",
             top: "100%",
             left: "70%",
             width: width ? `calc(${width} * 0.3)` : "30%",
@@ -53,6 +64,7 @@ const Select = ({ label, placeholder, values = [], width }: SelectProps) => {
             borderRadius: "8px",
             overflowY: "auto",
             boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+            zIndex: 999,
           }}
         >
           {values.map((value, index) => (
