@@ -19,19 +19,86 @@ const getUsers = async (
     limit?: string;
   }
 ): Promise<Users> => {
-  // TODO: Implement get users logic
-  // This should include handling filters, sorting, and pagination
-  throw new Error("getUsers method not implemented");
+  // where holds the filter params
+  const where: Prisma.UserWhereInput = {};
+  if (filter) {
+    if (filter.email) where.email = filter.email;
+    if (filter.firstName) where.firstName = filter.firstName;
+    if (filter.lastName) where.lastName = filter.lastName;
+    if (filter.role) where.role = filter.role;
+  }
+
+  // orderBy holds the sort order if one is passed else then default is ascending
+  const orderBy: Prisma.UserOrderByWithRelationInput = {
+    [sort?.key as keyof User]: sort?.order || Prisma.SortOrder.asc,
+  };
+
+  // pagination limits
+  const take = pagination?.limit ? parseInt(pagination.limit) : 10;
+  const cursor = pagination?.after ? { id: pagination.after } : undefined;
+
+  // db query
+  const users = await prisma.user.findMany({
+    where,
+    orderBy,
+    take,
+    cursor,
+  });
+
+  // total amount of users from this query, useful for pagination
+  const total = await prisma.user.count({ where });
+
+  // return object with the result, the next cursor for pagination and the total
+  // amount of users
+  return {
+    result: users,
+    nextCursor: users.length == take ? users[users.length - 1].id : undefined,
+    total,
+  };
 };
 
-const getUser = async (userId: string): Promise<User | null> => {
-  // TODO: Implement get user by ID logic
-  throw new Error("getUser method not implemented");
+/**
+ * Gets a user by userid
+ *
+ * @param userid - The id of user to be retrieved
+ * @returns Promise with the retrieved user or null
+ */
+const getUser = async (userid: string) => {
+  // uses findunique to find record associated with userid
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userid },
+    });
+    return user;
+  } catch (error) {
+    throw new Error("User not found");
+  }
 };
 
-const createUser = async (userData: Omit<User, "id">): Promise<User> => {
-  // TODO: Implement create user logic
-  throw new Error("createUser method not implemented");
+/**
+ * Creates a new user
+ *
+ * @param user - User object
+ * @returns Promise with the created user
+ */
+const createUser = async (user: User): Promise<User> => {
+  // TODO: Implement createUser function
+  // - Use prisma to create a new user
+  // - Return the created user
+
+  try {
+    const newUser = await prisma.user.create({
+      data: {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+      },
+    });
+    return newUser;
+  } catch (error) {
+    throw new Error("Failed to create new User");
+  }
 };
 
 /**

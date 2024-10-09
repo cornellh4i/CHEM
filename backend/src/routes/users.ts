@@ -1,5 +1,7 @@
 // routes/users.ts
 import { Router } from "express";
+import { Prisma, Role, User } from "@prisma/client";
+import { ErrorMessage, Users } from "../utils/types";
 import controller from "../controllers/users";
 import { notify } from "../utils/helpers";
 
@@ -7,21 +9,80 @@ const userRouter = Router();
 
 // GET all users
 userRouter.get("/", async (req, res) => {
-  // TODO: Implement GET all users route
-  // This should handle query parameters for filtering, sorting, and pagination
-  res.status(501).json({ error: "GET all users route not implemented" });
+  try {
+    // get the flter, sort, and pagination parameters from the req.query object
+    const filter = {
+      email: req.query.email as string,
+      firstName: req.query.firstName as string,
+      lastName: req.query.lastName as string,
+      role: req.query.role as Role,
+    };
+
+    // extract variables for sort and pagination
+    const sort = {
+      key: req.query.sortKey as string,
+      order: req.query.sortOrder
+        ? (req.query.sortOrder as Prisma.SortOrder)
+        : Prisma.SortOrder.asc,
+    };
+
+    const pagination = {
+      after: req.query.after as string,
+      limit: req.query.limit as string,
+    };
+
+    // call the get users function from controller with the parameters
+    const users: Users = await controller.getUsers(filter, sort, pagination);
+
+    // send the users as a success json response
+    res.status(200).json(users);
+  } catch (error) {
+    // caught error in process
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error: "An error occurred while fetching users",
+    };
+    res.status(500).json(errorResponse);
+  }
 });
 
-// GET a single user by ID
-userRouter.get("/:id", async (req, res) => {
-  // TODO: Implement GET single user route
-  res.status(501).json({ error: "GET single user route not implemented" });
+userRouter.get("/:userid", async (req, res) => {
+  // get the userid
+  const userid = req.params.userid;
+
+  try {
+    // call the getuser function from controller
+    const user = await controller.getUser(userid);
+
+    // user not found
+    if (!user) {
+      const errorResponse: ErrorMessage = { error: "User not found" };
+      return res.status(404).json(errorResponse);
+    }
+
+    // else return success json response
+    res.status(200).json(user);
+  } catch (error) {
+    // error in process
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error: "An error occurred while fetching user",
+    };
+  }
 });
 
 // POST a new user
 userRouter.post("/", async (req, res) => {
-  // TODO: Implement POST new user route
-  res.status(501).json({ error: "POST new user route not implemented" });
+  // #swagger.tags = ['Users']
+  // TODO: Implement POST /users route
+  // - Extract user data from req.body
+
+  try {
+    const newUser = controller.createUser(req.body);
+    return res.status(200).json(newUser);
+  } catch (error) {
+    return res.status(400).json({ error: "Error creating user" });
+  }
 });
 
 userRouter.put("/:userid", async (req, res) => {
