@@ -17,18 +17,26 @@ const doc = {
       name: "User",
       description: "Endpoints",
     },
+    {
+      name: "Contributor",
+      description: "Endpoints",
+    },
+    {
+      name: "Organization",
+      description: "Endpoints",
+    },
   ],
   securityDefinitions: {
     apiKeyAuth: {
       type: "apiKey",
-      in: "header", // can be "header", "query" or "cookie"
-      name: "X-API-KEY", // name of the header, query parameter or cookie
-      description: "any description...",
+      in: "header",
+      name: "X-API-KEY",
+      description: "Your API Key",
     },
   },
 };
 
-const outputFile = "../../api-spec.json";
-const endpointsFiles = ["./server.ts"];
+const outputFile = "./api-spec.json";
+const endpointsFiles = ["./src/utils/server.ts", "./src/routes/*.ts"];
 
 swaggerAutogen()(outputFile, endpointsFiles, doc);
