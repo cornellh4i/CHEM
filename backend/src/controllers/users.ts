@@ -2,6 +2,7 @@
 import prisma from "../utils/client";
 import { User, Role } from "@prisma/client";
 import { Users } from "../utils/types";
+import { Prisma } from "@prisma/client";
 
 const getUsers = async (
   filter?: {
@@ -29,9 +30,12 @@ const getUsers = async (
   }
 
   // orderBy holds the sort order if one is passed else then default is ascending
-  const orderBy: Prisma.UserOrderByWithRelationInput = {
-    [sort?.key as keyof User]: sort?.order || Prisma.SortOrder.asc,
-  };
+  let orderBy: Prisma.UserOrderByWithRelationInput | undefined = undefined;
+  if (sort?.key) {
+    orderBy = {
+      [sort.key]: sort.order || Prisma.SortOrder.asc,
+    };
+  }
 
   // pagination limits
   const take = pagination?.limit ? parseInt(pagination.limit) : 10;
@@ -40,9 +44,9 @@ const getUsers = async (
   // db query
   const users = await prisma.user.findMany({
     where,
-    orderBy,
+    ...(orderBy && { orderBy }),
     take,
-    cursor,
+    ...(cursor && { cursor }),
   });
 
   // total amount of users from this query, useful for pagination
@@ -130,7 +134,6 @@ const updateUser = async (userid: string, user: User): Promise<User> => {
  * @returns A promise with the deleted user
  */
 const deleteUser = async (userid: string): Promise<User> => {
-
   try {
     // Delete user using prisma
     const deletedUser = await prisma.user.delete({
@@ -140,7 +143,7 @@ const deleteUser = async (userid: string): Promise<User> => {
     return deletedUser;
   } catch (error) {
     // Throw error message
-    throw new Error("User not found or failed to delete user")
+    throw new Error("User not found or failed to delete user");
   }
 };
 
