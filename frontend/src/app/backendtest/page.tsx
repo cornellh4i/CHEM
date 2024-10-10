@@ -57,8 +57,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchUsers();
-    fetchContributors();
-    fetchOrganizations();
+    fetchOrganizations().then(() => fetchContributors());
   }, []);
 
   const fetchUsers = async () => {
@@ -73,21 +72,43 @@ const Dashboard = () => {
 
   const fetchContributors = async () => {
     try {
+      console.log("Fetching contributors...");
       const response = await fetch(`${API_URL}/contributors`);
+      console.log("Contributors response status:", response.status);
       const data = await response.json();
-      setContributors(data.result || []);
+      console.log("Contributors data:", data);
+      if (Array.isArray(data.contributors)) {
+        setContributors(data.contributors);
+      } else if (Array.isArray(data)) {
+        setContributors(data);
+      } else {
+        console.error("Unexpected contributors data format:", data);
+        setContributors([]);
+      }
     } catch (error) {
       console.error("Error fetching contributors:", error);
+      setContributors([]);
     }
   };
 
   const fetchOrganizations = async () => {
     try {
+      console.log("Fetching organizations...");
       const response = await fetch(`${API_URL}/organizations`);
+      console.log("Organizations response status:", response.status);
       const data = await response.json();
-      setOrganizations(data.result || []);
+      console.log("Organizations data:", data);
+      if (Array.isArray(data.organizations)) {
+        setOrganizations(data.organizations);
+      } else if (Array.isArray(data)) {
+        setOrganizations(data);
+      } else {
+        console.error("Unexpected organizations data format:", data);
+        setOrganizations([]);
+      }
     } catch (error) {
       console.error("Error fetching organizations:", error);
+      setOrganizations([]);
     }
   };
 
@@ -117,8 +138,15 @@ const Dashboard = () => {
       });
       if (response.ok) {
         if (entity === "users") fetchUsers();
-        else if (entity === "contributors") fetchContributors();
-        else fetchOrganizations();
+        else if (entity === "contributors") {
+          console.log("Contributor created, fetching updated list...");
+          await fetchOrganizations();  // Fetch organizations first
+          await fetchContributors();   // Then fetch contributors
+        }
+        else {
+          console.log("Organization created, fetching updated list...");
+          await fetchOrganizations();
+        }
 
         // Reset form
         if (entity === "users")
@@ -203,14 +231,21 @@ const Dashboard = () => {
       {/* Contributors Section */}
       <section className="mb-8">
         <h2 className="mb-2 text-xl font-semibold">Contributors</h2>
-        <ul className="mb-4 list-disc pl-5">
-          {contributors.map((contributor) => (
-            <li key={contributor.id}>
-              {contributor.firstName} {contributor.lastName} - Organization:{" "}
-              {contributor.organization.name}
-            </li>
-          ))}
-        </ul>
+        {contributors.length > 0 ? (
+          <ul className="mb-4 list-disc pl-5">
+            {contributors.map((contributor) => {
+              const organization = organizations.find(org => org.id === contributor.organizationId);
+              return (
+                <li key={contributor.id}>
+                  {contributor.firstName} {contributor.lastName} - Organization:{" "}
+                  {organization ? organization.name : "Unknown"}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p>No contributors found. {JSON.stringify(contributors)}</p>
+        )}
         <form
           onSubmit={(e) => handleSubmit(e, "contributors")}
           className="space-y-4"
@@ -259,13 +294,17 @@ const Dashboard = () => {
       {/* Organizations Section */}
       <section className="mb-8">
         <h2 className="mb-2 text-xl font-semibold">Organizations</h2>
-        <ul className="mb-4 list-disc pl-5">
-          {organizations.map((org) => (
-            <li key={org.id}>
-              {org.name} - {org.description}
-            </li>
-          ))}
-        </ul>
+        {organizations.length > 0 ? (
+          <ul className="mb-4 list-disc pl-5">
+            {organizations.map((org) => (
+              <li key={org.id}>
+                {org.name} - {org.description}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No organizations found. {JSON.stringify(organizations)}</p>
+        )}
         <form
           onSubmit={(e) => handleSubmit(e, "organizations")}
           className="space-y-4"

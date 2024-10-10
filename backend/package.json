@@ -12,7 +12,8 @@
     "setup": "prisma generate && prisma migrate dev && prisma db seed && npm run swagger",
     "setup:ci": "prisma generate && prisma migrate deploy && prisma db seed && npm run swagger",
     "swagger": "ts-node -r dotenv/config src/utils/swagger.ts",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "delete": "ts-node src/utils/deleteAllEntries.ts"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

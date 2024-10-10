@@ -1,40 +1,70 @@
-// controllers/contributors.ts
 import prisma from "../utils/client";
-import { Contributor } from "@prisma/client";
+import { Contributor, Prisma } from "@prisma/client";
 
-const getContributors = async (): Promise<Contributor[]> => {
-  // TODO: Implement get contributors logic
-  // This should include handling filters, sorting, and pagination
-  throw new Error("getContributors method not implemented");
+// Get contributors with filtering, sorting, and pagination
+const getContributors = async (
+  filters?: { firstName?: string; lastName?: string; organizationId?: string },
+  sort?: { field: "firstName" | "lastName" | "createdAt"; order: "asc" | "desc" },
+  pagination?: { skip?: number; take?: number }
+): Promise<{ contributors: Contributor[]; total: number }> => {
+  try {
+    const where: Prisma.ContributorWhereInput = {
+      firstName: filters?.firstName ? { contains: filters.firstName, mode: "insensitive" } : undefined,
+      lastName: filters?.lastName ? { contains: filters.lastName, mode: "insensitive" } : undefined,
+      organizationId: filters?.organizationId,
+    };
+
+    const [contributors, total] = await prisma.$transaction([
+      prisma.contributor.findMany({
+        where,
+        orderBy: sort ? { [sort.field]: sort.order } : undefined,
+        skip: pagination?.skip || 0,
+        take: pagination?.take || 100,
+      }),
+      prisma.contributor.count({ where })
+    ]);
+
+    return { contributors, total };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to get contributors: ${error.message}`);
+    }
+    throw new Error("Failed to get contributors due to an unknown error");
+  }
 };
 
 const getContributorById = async (id: string): Promise<Contributor | null> => {
   try {
-    // find unique id from prisma
     const contributor = await prisma.contributor.findUnique({
       where: { id },
     });
     return contributor;
-    // else error finding
   } catch (error) {
-    throw new Error("Error fetching contributor by ID");
+    if (error instanceof Error) {
+      throw new Error(`Error fetching contributor by ID: ${error.message}`);
+    }
+    throw new Error("Error fetching contributor by ID due to an unknown error");
   }
 };
 
 const createContributor = async (
   contributorData: Omit<Contributor, "id" | "createdAt" | "updatedAt">
 ): Promise<Contributor> => {
-  //Error Handling
   try {
-    //Attempts to create a contributor
     const contributor = await prisma.contributor.create({
       data: contributorData,
     });
     return contributor;
-    //There was a problem creating a contributor so throw an error
   } catch (error) {
-    console.error("Error creating contributor:", error);
-    throw new Error(`Failed to create a contributor: ${error}`);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        throw new Error("A contributor with this name already exists in this organization");
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Failed to create a contributor: ${error.message}`);
+    }
+    throw new Error("Failed to create a contributor due to an unknown error");
   }
 };
 
@@ -42,34 +72,39 @@ const updateContributor = async (
   id: string,
   contributorData: Partial<Omit<Contributor, "id" | "createdAt" | "updatedAt">>
 ): Promise<Contributor> => {
-  //Error Handling
   try {
-    //Attempts to update the contributor with new data
-    const newContributor = await prisma.contributor.update({
-      where: { id: id },
+    const updatedContributor = await prisma.contributor.update({
+      where: { id },
       data: contributorData,
     });
-    //Returns the new updated contributor
-    return newContributor;
-    //There was a problem updating the contributor so thrown an error
+    return updatedContributor;
   } catch (error) {
-    console.error("Error updating contributor:", error);
-    throw new Error(`Failed to update the contributor: ${error}`);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        throw new Error("Contributor not found");
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Failed to update the contributor: ${error.message}`);
+    }
+    throw new Error("Failed to update the contributor due to an unknown error");
   }
 };
 
 const deleteContributor = async (id: string): Promise<Contributor> => {
-  // TODO: Implement delete contributor logic
   try {
     const contributor = await prisma.contributor.delete({ where: { id } });
     return contributor;
   } catch (error) {
-    //this allows us to propagate Prisma's error message
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    } else {
-      throw new Error("Couldn't delete use");
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        throw new Error("Contributor not found");
+      }
     }
+    if (error instanceof Error) {
+      throw new Error(`Failed to delete contributor: ${error.message}`);
+    }
+    throw new Error("Failed to delete contributor due to an unknown error");
   }
 };
 
