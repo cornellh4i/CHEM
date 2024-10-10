@@ -6,11 +6,37 @@ const organizationRouter = Router();
 
 // GET all organizations
 organizationRouter.get("/", async (req, res) => {
-  // TODO: Implement GET all organizations route
-  // This should handle query parameters for filtering, sorting, and pagination
-  res
-    .status(501)
-    .json({ error: "GET all organizations route not implemented" });
+  try {
+    // Extract filters, sort, and pagination from query parameters
+    const filters = {
+      name: req.query.name as string,
+      restriction: req.query.restriction as string,
+      type: req.query.type as string,
+    };
+    const sort = {
+      field:
+        (req.query.sortBy as "name" | "createdAt" | "units" | "amount") ||
+        "name",
+      order: (req.query.order as "asc" | "desc") || "asc",
+    };
+    const pagination = {
+      skip: Number(req.query.skip) || 0,
+      take: Number(req.query.take) || 10,
+    };
+
+    // Call getOrganizations with filters, sort, and pagination
+    const organizations = await controller.getOrganizations(
+      filters,
+      sort,
+      pagination
+    );
+
+    //Return organizations
+    res.status(501).json(organizations);
+  } catch (error) {
+    //Return error if any
+    res.status(400).json({ error: "Failed to get organizations" });
+  }
 });
 
 // GET a single organization by ID
