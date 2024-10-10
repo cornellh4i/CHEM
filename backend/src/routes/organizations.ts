@@ -41,10 +41,19 @@ organizationRouter.get("/", async (req, res) => {
 
 // GET a single organization by ID
 organizationRouter.get("/:id", async (req, res) => {
-  // TODO: Implement GET single organization route
-  res
-    .status(501)
-    .json({ error: "GET single organization route not implemented" });
+  try {
+    const { id } = req.params;
+
+    const organization = await controller.getOrganizationById(id);
+
+    if (organization) {
+      res.status(200).json(organization);
+    } else {
+      res.status(404).json({ error: "Organization not found" });
+    }
+  } catch (error) {
+    res.status(400).json({ error: "Failed to get organization" });
+  }
 });
 
 // POST a new organization
@@ -92,8 +101,18 @@ organizationRouter.put("/:id", async (req, res) => {
 
 // DELETE an organization
 organizationRouter.delete("/:id", async (req, res) => {
-  // TODO: Implement DELETE organization route
-  res.status(501).json({ error: "DELETE organization route not implemented" });
+  try {
+    const { id } = req.params;
+
+    // Call deleteOrganization with ID
+    await controller.deleteOrganization(id);
+
+    // Return a 204 No Content status on successful deletion
+    res.status(204).send();
+  } catch (error) {
+    res.status(400).json({ error: "Failed to delete organization" });
+  }
 });
+
 
 export default organizationRouter;
