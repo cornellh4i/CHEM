@@ -22,15 +22,38 @@ contributorRouter.get("/:id", async (req, res) => {
 // POST a new contributor
 contributorRouter.post("/", async (req, res) => {
   // TODO: Implement POST new contributor route
-  res.status(501).json({ error: "POST new contributor route not implemented" });
+  try {
+    //get contributor data from header
+    const contributorData = req.body;
+
+    //call createContributor with contributorData
+    const newContributor = await controller.createContributor(contributorData);
+    //return created contributor
+    res.status(201).json(newContributor);
+  } catch (error) {
+    if (error instanceof Error) res.status(400).json({ error: error.message });
+  }
 });
 
 // PUT (update) an existing contributor
 contributorRouter.put("/:id", async (req, res) => {
-  // TODO: Implement PUT (update) contributor route
-  res
-    .status(501)
-    .json({ error: "PUT update contributor route not implemented" });
+  //get information from header
+  const contributorId = req.params.id;
+  const contributorData = req.body;
+
+  try {
+    //call updateContributor and put the header data
+    const updatedContributor = await controller.updateContributor(
+      contributorId,
+      contributorData
+    );
+    //return updated contributor
+    res.status(200).json(updatedContributor);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 });
 
 // DELETE a contributor
