@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Organization" ADD COLUMN     "amount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "restriction" TEXT NOT NULL DEFAULT 'Restricted',
+ADD COLUMN     "type" TEXT NOT NULL DEFAULT 'Endowment',
+ADD COLUMN     "units" DOUBLE PRECISION NOT NULL DEFAULT 0;
