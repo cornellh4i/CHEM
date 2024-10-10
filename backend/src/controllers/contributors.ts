@@ -24,16 +24,38 @@ const getContributorById = async (id: string): Promise<Contributor | null> => {
 const createContributor = async (
   contributorData: Omit<Contributor, "id" | "createdAt" | "updatedAt">
 ): Promise<Contributor> => {
-  // TODO: Implement create contributor logic
-  throw new Error("createContributor method not implemented");
+  //Error Handling
+  try {
+    //Attempts to create a contributor
+    const contributor = await prisma.contributor.create({
+      data: contributorData,
+    });
+    return contributor;
+    //There was a problem creating a contributor so throw an error
+  } catch (error) {
+    console.error("Error creating contributor:", error);
+    throw new Error(`Failed to create a contributor: ${error}`);
+  }
 };
 
 const updateContributor = async (
   id: string,
   contributorData: Partial<Omit<Contributor, "id" | "createdAt" | "updatedAt">>
 ): Promise<Contributor> => {
-  // TODO: Implement update contributor logic
-  throw new Error("updateContributor method not implemented");
+  //Error Handling
+  try {
+    //Attempts to update the contributor with new data
+    const newContributor = await prisma.contributor.update({
+      where: { id: id },
+      data: contributorData,
+    });
+    //Returns the new updated contributor
+    return newContributor;
+    //There was a problem updating the contributor so thrown an error
+  } catch (error) {
+    console.error("Error updating contributor:", error);
+    throw new Error(`Failed to update the contributor: ${error}`);
+  }
 };
 
 const deleteContributor = async (id: string): Promise<Contributor> => {

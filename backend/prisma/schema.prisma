@@ -29,6 +29,10 @@ model Organization {
   id           String        @id @default(cuid())
   name         String
   description  String?
+  type         String        @default("Endowment")
+  restriction  String        @default("Restricted")
+  units        Float         @default(0)
+  amount       Float         @default(0)
   contributors Contributor[]
   transactions Transaction[]
   createdAt    DateTime      @default(now())
