@@ -9,8 +9,16 @@ const getContributors = async (): Promise<Contributor[]> => {
 };
 
 const getContributorById = async (id: string): Promise<Contributor | null> => {
-  // TODO: Implement get contributor by ID logic
-  throw new Error("getContributorById method not implemented");
+  try {
+    // find unique id from prisma
+    const contributor = await prisma.contributor.findUnique({
+      where: { id },
+    });
+    return contributor;
+    // else error finding
+  } catch (error) {
+    throw new Error("Error fetching contributor by ID");
+  }
 };
 
 const createContributor = async (
@@ -50,9 +58,19 @@ const updateContributor = async (
   }
 };
 
-const deleteContributor = async (id: string): Promise<void> => {
+const deleteContributor = async (id: string): Promise<Contributor> => {
   // TODO: Implement delete contributor logic
-  throw new Error("deleteContributor method not implemented");
+  try {
+    const contributor = await prisma.contributor.delete({ where: { id } });
+    return contributor;
+  } catch (error) {
+    //this allows us to propagate Prisma's error message
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Couldn't delete use");
+    }
+  }
 };
 
 export default {
