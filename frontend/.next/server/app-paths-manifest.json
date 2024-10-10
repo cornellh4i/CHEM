@@ -1,0 +1,5 @@
+{
+  "/backendtest/page": "app/backendtest/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js"
+}
