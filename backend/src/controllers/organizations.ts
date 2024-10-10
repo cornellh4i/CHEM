@@ -3,16 +3,20 @@ import prisma from "../utils/client";
 import { Organization } from "@prisma/client";
 
 const getOrganizations = async (
-  filters?: { name?: string; restriction?: string; type?: string }, //filter based on name, restriction, and type
+  //filter based on name, restriction, and type
+  filters?: { name?: string; restriction?: string; type?: string },
+  //sort based on either name, date, units, or amount in ascending or descending order
   sort?: {
     field: "name" | "createdAt" | "units" | "amount";
     order: "asc" | "desc";
-  }, //sort by name, date, units, or amount in ascending or descending order
-  pagination?: { skip?: number; take?: number } //pagination parameters
+  },
+  //pagination parameters
+  pagination?: { skip?: number; take?: number }
 ): Promise<Organization[]> => {
   try {
     // Get organizations using prisma
     const organizations = await prisma.organization.findMany({
+      //filter
       where: {
         name: filters?.name
           ? { contains: filters.name, mode: "insensitive" }
@@ -20,9 +24,11 @@ const getOrganizations = async (
         restriction: filters?.restriction, //filter based on restriction
         type: filters?.type, //filter based on type
       },
+      //sort
       orderBy: sort ? { [sort.field]: sort.order } : undefined, // sorting by field and order
-      skip: pagination?.skip || 0,
-      take: pagination?.take || 10,
+      //pagination
+      skip: pagination?.skip || 0, // skip organizations, 0 by default
+      take: pagination?.take || 10, // take organizations, 10 by default
     });
     // Return organizations
     return organizations;
@@ -35,8 +41,16 @@ const getOrganizations = async (
 const getOrganizationById = async (
   id: string
 ): Promise<Organization | null> => {
-  // TODO: Implement get organization by ID logic
-  throw new Error("getOrganizationById method not implemented");
+  try {
+    // Get organization by id using prisma
+    const organization = await prisma.organization.findUnique({
+      where: { id: id },
+    });
+    return organization;
+  } catch (error) {
+    // Throw error if any
+    throw new Error("Failed to get organization");
+  }
 };
 
 const createOrganization = async (
@@ -76,8 +90,15 @@ const updateOrganization = async (
 };
 
 const deleteOrganization = async (id: string): Promise<void> => {
-  // TODO: Implement delete organization logic
-  throw new Error("deleteOrganization method not implemented");
+  try {
+    // Delete organization using prisma
+    await prisma.organization.delete({
+      where: { id: id },
+    });
+  } catch (error) {
+    // Return error if any
+    throw new Error("Organization not found or delete failed");
+  }
 };
 
 export default {
