@@ -42,7 +42,12 @@ const deleteContributor = async (id: string): Promise<Contributor> => {
     const contributor = await prisma.contributor.delete({ where: { id } });
     return contributor;
   } catch (error) {
-    throw new Error("Couldn't delete user");
+    //this allows us to propagate Prisma's error message
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Couldn't delete use");
+    }
   }
 };
 

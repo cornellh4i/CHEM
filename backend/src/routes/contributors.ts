@@ -59,7 +59,12 @@ contributorRouter.delete("/:id", async (req, res) => {
     const contributor = await controller.deleteContributor(id);
     return res.status(200).json(contributor);
   } catch (error) {
-    return res.status(400).json({ error: "Error deleting user" });
+    //this allows us to get the propagated Prisma error message
+    if (error instanceof Error) {
+      return res.status(400).json(error.message);
+    } else {
+      return res.status(400).json("Couldn't delete user");
+    }
   }
 });
 
