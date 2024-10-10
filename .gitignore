@@ -15,6 +15,11 @@ node_modules/
 /.next/
 /out/
 
+node_modules
+.next
+.DS_Store
+*.log
+
 # production
 /build
 
