@@ -1,18 +1,11 @@
 import React from "react";
 
-// Define the custom interface for column definition
-interface ColumnDefinition {
-  label: string;
-  type: string;
+interface TableProps {
+  columns: Array<[string, "text" | "number" | "date"]>;
+  data: Array<string[]>;
 }
 
-// Define the props for the CustomTable component
-interface CustomTableProps {
-  columns: Array<[string, string]>; // Array of tuples: [column label, data type]
-  data: Array<string[]>; // Array of data rows, each row matching the column format
-}
-
-const Table: React.FC<CustomTableProps> = ({ columns, data }) => {
+const Table: React.FC<TableProps> = ({ columns, data }) => {
   // Render the custom table without using any external library
   return (
     <div
