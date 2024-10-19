@@ -1,14 +1,13 @@
 "use client";
 
 import React from "react";
-import { LoginTemplate, SignupForm } from "@/components";
+import { LoginTemplate, SignupFormCard } from "@/components";
 
 const SignupPage = () => {
   return (
-    <LoginTemplate>
-      <div className="mb-8 text-4xl">Sign Up</div>
-      <SignupForm />
-    </LoginTemplate>
+    <div>
+      <SignupFormCard />
+    </div>
   );
 };
 

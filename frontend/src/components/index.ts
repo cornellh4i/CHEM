@@ -7,6 +7,8 @@ export { default as Toast } from "./atoms/Toast";
 
 // Molecules
 export { default as Appbar } from "./molecules/Appbar";
+export { default as LoginFormCard} from "./molecules/LoginFormCard"
+export { default as SignupFormCard} from "./molecules/SignupFormCard"
 
 // Organisms
 export { default as ForgotPasswordForm } from "./organisms/ForgotPasswordForm";
