@@ -1,0 +1,14 @@
+{
+  "name": "chem",
+  "version": "1.0.0",
+  "description": "The CHEM project aims to create a robust endowment management system that helps in optimizing the use of endowment funds, tracking performance, and ensuring compliance.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chem": "^4.1.1"
+  }
+}

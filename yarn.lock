@@ -2,3 +2,20 @@
 # yarn lockfile v1
 
 
+chem@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.npmjs.org/chem/-/chem-4.1.1.tgz"
+  integrity sha512-NDOtUEuc0nDMONsId4ASW4ViNQC5C66d2GZRqYQXKawUCNWo4ep+l1PjPbBUjECiJnOQjr2QtWs3XTwEivkUcw==
+  dependencies:
+    pend "~1.1.3"
+    vec2d "~0.3.0"
+
+pend@~1.1.3:
+  version "1.1.3"
+  resolved "https://registry.npmjs.org/pend/-/pend-1.1.3.tgz"
+  integrity sha512-oQiRXTFeL4KY2IAVuBsaokdEw4+WpKUu8qr/bFyKEpaqpcaflo3M/v5AORXbKxd1liRNtoOEfAV5FRjzrr1jJA==
+
+vec2d@~0.3.0:
+  version "0.3.0"
+  resolved "https://registry.npmjs.org/vec2d/-/vec2d-0.3.0.tgz"
+  integrity sha512-SLjOInf7eJxBcpXIWq/w66hzVQq01KqJ/IGHtymTPFlWqeBkkk4+N8vdtmUkmsRkYsLFb5Q7ITvPkjZY2qMiKg==

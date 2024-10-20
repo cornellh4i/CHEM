@@ -13,6 +13,8 @@ const DashboardTemplate = ({ children }: DashboardTemplateProps) => {
     const handleSidebarToggle = () => {
         setIsCollapsed(!isCollapsed);
     };
+
 }
+
 
 

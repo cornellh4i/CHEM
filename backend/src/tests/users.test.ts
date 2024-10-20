@@ -1,6 +1,7 @@
 import request from "supertest";
 import app from "../utils/server";
 import controller from "../controllers/users";
+import controllerorg from "../controllers/organizations";
 
 describe("Sanity check", () => {
   test("Ensure tests run", async () => {
@@ -29,3 +30,4 @@ describe("GET /users/:userid", () => {
     expect(response.status).toBe(404);
   });
 });
+
