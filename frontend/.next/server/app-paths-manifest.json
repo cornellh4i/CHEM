@@ -1,5 +1,7 @@
 {
+  "/auth/forgot-password/page": "app/auth/forgot-password/page.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/about/page": "app/about/page.js",
   "/page": "app/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/backendtest/page": "app/backendtest/page.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js"
 }

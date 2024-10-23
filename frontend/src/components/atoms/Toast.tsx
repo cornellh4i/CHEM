@@ -1,77 +1,104 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
+import Snackbar from "@mui/material/Snackbar";
+import Slide from "@mui/material/Slide";
+import { TransitionProps } from "@mui/material/transitions";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface ToastProps {
   children: ReactNode;
   open: boolean;
   onClose: () => void;
+  duration?: number; // in milliseconds
+  type?: "success" | "error" | "warning" | "info"; // Optional type for custom styling
 }
 
-const Toast = ({ children, open, onClose }: ToastProps) => {
-  if (!open) {
-    return <></>;
+const getBackgroundColor = (type?: ToastProps["type"]) => {
+  switch (type) {
+    case "success":
+      return "#D1FAE5"; // Light green for success
+    case "error":
+      return "#FECACA"; // Light red for error
+    case "warning":
+      return "#FEF3C7"; // Light yellow for warning
+    case "info":
+      return "#BFDBFE"; // Light blue for info
+    default:
+      return "#F3F4F6"; // Light gray for default/neutral
   }
+};
+
+const getTextColor = (type?: ToastProps["type"]) => {
+  switch (type) {
+    case "success":
+      return "#065F46"; // Dark green for success
+    case "error":
+      return "#B91C1C"; // Dark red for error
+    case "warning":
+      return "#92400E"; // Dark yellow for warning
+    case "info":
+      return "#1E3A8A"; // Dark blue for info
+    default:
+      return "#000"; // Black for default/neutral
+  }
+};
+
+const Toast = ({
+  children,
+  open,
+  onClose,
+  duration = 3000,
+  type,
+}: ToastProps) => {
+  const [visible, setVisible] = useState(open);
+
+  useEffect(() => {
+    setVisible(open);
+    if (open) {
+      const timer = setTimeout(() => {
+        setVisible(false);
+        onClose();
+      }, duration);
+      return () => clearTimeout(timer);
+    }
+  }, [open, duration, onClose]);
 
   return (
-    <div className="fixed left-0 top-0 z-10 flex w-full p-4">
+    <Snackbar
+      open={visible}
+      autoHideDuration={duration}
+      onClose={onClose}
+      TransitionComponent={(props: TransitionProps) => (
+        <Slide {...props} direction="down" />
+      )}
+      anchorOrigin={{ vertical: "top", horizontal: "center" }}
+    >
       <div
-        id="toast-default"
-        className="mx-auto flex w-full max-w-md items-center rounded-lg bg-white
-          p-4 text-gray-500 shadow dark:bg-gray-800 dark:text-gray-400"
-        role="alert"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          backgroundColor: getBackgroundColor(type), // Dynamic background based on type
+          borderRadius: "8px",
+          padding: "10px 16px",
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+          maxWidth: "fit-content",
+        }}
       >
-        <div
-          className="inline-flex h-8 w-8 flex-shrink-0 items-center
-            justify-center rounded-lg bg-blue-100 text-blue-500 dark:bg-blue-800
-            dark:text-blue-200"
+        <span
+          style={{ flexGrow: 1, color: getTextColor(type), fontSize: "14px" }}
         >
-          <svg
-            className="h-4 w-4"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 18 20"
-          >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M15.147 15.085a7.159 7.159 0 0 1-6.189 3.307A6.713 6.713 0 0 1 3.1 15.444c-2.679-4.513.287-8.737.888-9.548A4.373 4.373 0 0 0 5 1.608c1.287.953 6.445 3.218 5.537 10.5 1.5-1.122 2.706-3.01 2.853-6.14 1.433 1.049 3.993 5.395 1.757 9.117Z"
-            />
-          </svg>
-          <span className="sr-only">Fire icon</span>
-        </div>
-        <div className="mr-5 ms-3 text-sm font-normal">{children}</div>
-        <button
-          type="button"
-          className="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center
-            justify-center rounded-lg bg-white p-1.5 text-gray-400
-            hover:bg-gray-100 hover:text-gray-900 focus:ring-2
-            focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-500
-            dark:hover:bg-gray-700 dark:hover:text-white"
-          data-dismiss-target="#toast-default"
-          aria-label="Close"
+          {children}
+        </span>
+        <IconButton
+          aria-label="close"
+          size="small"
           onClick={onClose}
+          style={{ color: getTextColor(type) }} // Dynamic icon color based on type
         >
-          <span className="sr-only">Close</span>
-          <svg
-            className="h-3 w-3"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 14 14"
-          >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-            />
-          </svg>
-        </button>
+          <CloseIcon fontSize="small" />
+        </IconButton>
       </div>
-    </div>
+    </Snackbar>
   );
 };
 
