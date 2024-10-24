@@ -105,13 +105,10 @@
         }
       },
       "post": {
-        "tags": [
-          "Users"
-        ],
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created"
           },
           "400": {
             "description": "Bad Request"
@@ -136,13 +133,13 @@
           },
           "404": {
             "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "put": {
-        "tags": [
-          "Users"
-        ],
         "description": "",
         "parameters": [
           {
@@ -162,9 +159,6 @@
         }
       },
       "patch": {
-        "tags": [
-          "Users"
-        ],
         "description": "",
         "parameters": [
           {
@@ -184,9 +178,6 @@
         }
       },
       "delete": {
-        "tags": [
-          "Users"
-        ],
         "description": "",
         "parameters": [
           {
@@ -209,17 +200,80 @@
     "/contributors/": {
       "get": {
         "description": "",
+        "parameters": [
+          {
+            "name": "firstName",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "lastName",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "organizationId",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
-          "501": {
-            "description": "Not Implemented"
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "post": {
         "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "example": "any"
+                },
+                "lastName": {
+                  "example": "any"
+                },
+                "organizationId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
-          "501": {
-            "description": "Not Implemented"
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         }
       }
@@ -236,8 +290,14 @@
           }
         ],
         "responses": {
-          "501": {
-            "description": "Not Implemented"
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -252,8 +312,11 @@
           }
         ],
         "responses": {
-          "501": {
-            "description": "Not Implemented"
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       },
@@ -268,8 +331,11 @@
           }
         ],
         "responses": {
-          "501": {
-            "description": "Not Implemented"
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         }
       }
@@ -277,17 +343,74 @@
     "/organizations/": {
       "get": {
         "description": "",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "restriction",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
-          "501": {
-            "description": "Not Implemented"
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "post": {
         "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
-          "501": {
-            "description": "Not Implemented"
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         }
       }
@@ -304,8 +427,14 @@
           }
         ],
         "responses": {
-          "501": {
-            "description": "Not Implemented"
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -320,8 +449,11 @@
           }
         ],
         "responses": {
-          "501": {
-            "description": "Not Implemented"
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       },
@@ -336,8 +468,11 @@
           }
         ],
         "responses": {
-          "501": {
-            "description": "Not Implemented"
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         }
       }

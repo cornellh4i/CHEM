@@ -1,36 +1,120 @@
-// controllers/contributors.ts
 import prisma from "../utils/client";
-import { Contributor } from "@prisma/client";
+import { Contributor, Prisma } from "@prisma/client";
 
-const getContributors = async (): Promise<Contributor[]> => {
-  // TODO: Implement get contributors logic
-  // This should include handling filters, sorting, and pagination
-  throw new Error("getContributors method not implemented");
+// Get contributors with filtering, sorting, and pagination
+const getContributors = async (
+  filters?: { firstName?: string; lastName?: string; organizationId?: string },
+  sort?: {
+    field: "firstName" | "lastName" | "createdAt";
+    order: "asc" | "desc";
+  },
+  pagination?: { skip?: number; take?: number }
+): Promise<{ contributors: Contributor[]; total: number }> => {
+  try {
+    const where: Prisma.ContributorWhereInput = {
+      firstName: filters?.firstName
+        ? { contains: filters.firstName, mode: "insensitive" }
+        : undefined,
+      lastName: filters?.lastName
+        ? { contains: filters.lastName, mode: "insensitive" }
+        : undefined,
+      organizationId: filters?.organizationId,
+    };
+
+    const [contributors, total] = await prisma.$transaction([
+      prisma.contributor.findMany({
+        where,
+        orderBy: sort ? { [sort.field]: sort.order } : undefined,
+        skip: pagination?.skip || 0,
+        take: pagination?.take || 100,
+      }),
+      prisma.contributor.count({ where }),
+    ]);
+
+    return { contributors, total };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to get contributors: ${error.message}`);
+    }
+    throw new Error("Failed to get contributors due to an unknown error");
+  }
 };
 
 const getContributorById = async (id: string): Promise<Contributor | null> => {
-  // TODO: Implement get contributor by ID logic
-  throw new Error("getContributorById method not implemented");
+  try {
+    const contributor = await prisma.contributor.findUnique({
+      where: { id },
+    });
+    return contributor;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Error fetching contributor by ID: ${error.message}`);
+    }
+    throw new Error("Error fetching contributor by ID due to an unknown error");
+  }
 };
 
 const createContributor = async (
   contributorData: Omit<Contributor, "id" | "createdAt" | "updatedAt">
 ): Promise<Contributor> => {
-  // TODO: Implement create contributor logic
-  throw new Error("createContributor method not implemented");
+  try {
+    const contributor = await prisma.contributor.create({
+      data: contributorData,
+    });
+    return contributor;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        throw new Error(
+          "A contributor with this name already exists in this organization"
+        );
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Failed to create a contributor: ${error.message}`);
+    }
+    throw new Error("Failed to create a contributor due to an unknown error");
+  }
 };
 
 const updateContributor = async (
   id: string,
   contributorData: Partial<Omit<Contributor, "id" | "createdAt" | "updatedAt">>
 ): Promise<Contributor> => {
-  // TODO: Implement update contributor logic
-  throw new Error("updateContributor method not implemented");
+  try {
+    const updatedContributor = await prisma.contributor.update({
+      where: { id },
+      data: contributorData,
+    });
+    return updatedContributor;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Contributor not found");
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Failed to update the contributor: ${error.message}`);
+    }
+    throw new Error("Failed to update the contributor due to an unknown error");
+  }
 };
 
-const deleteContributor = async (id: string): Promise<void> => {
-  // TODO: Implement delete contributor logic
-  throw new Error("deleteContributor method not implemented");
+const deleteContributor = async (id: string): Promise<Contributor> => {
+  try {
+    const contributor = await prisma.contributor.delete({ where: { id } });
+    return contributor;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Contributor not found");
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Failed to delete contributor: ${error.message}`);
+    }
+    throw new Error("Failed to delete contributor due to an unknown error");
+  }
 };
 
 export default {

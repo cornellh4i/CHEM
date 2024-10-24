@@ -1,8 +1,6 @@
-// controllers/users.ts
 import prisma from "../utils/client";
-import { User, Role } from "@prisma/client";
+import { User, Role, Prisma } from "@prisma/client";
 import { Users } from "../utils/types";
-import { Prisma } from "@prisma/client";
 
 const getUsers = async (
   filter?: {
@@ -12,138 +10,134 @@ const getUsers = async (
     role?: Role;
   },
   sort?: {
-    key: string;
+    key: keyof User;
     order: "asc" | "desc";
   },
   pagination?: {
     after?: string;
-    limit?: string;
+    limit?: number;
   }
 ): Promise<Users> => {
-  // where holds the filter params
-  const where: Prisma.UserWhereInput = {};
-  if (filter) {
-    if (filter.email) where.email = filter.email;
-    if (filter.firstName) where.firstName = filter.firstName;
-    if (filter.lastName) where.lastName = filter.lastName;
-    if (filter.role) where.role = filter.role;
-  }
+  const where: Prisma.UserWhereInput = {
+    ...(filter?.email && {
+      email: { contains: filter.email, mode: "insensitive" },
+    }),
+    ...(filter?.firstName && {
+      firstName: { contains: filter.firstName, mode: "insensitive" },
+    }),
+    ...(filter?.lastName && {
+      lastName: { contains: filter.lastName, mode: "insensitive" },
+    }),
+    ...(filter?.role && { role: filter.role }),
+  };
 
-  // orderBy holds the sort order if one is passed else then default is ascending
-  let orderBy: Prisma.UserOrderByWithRelationInput | undefined = undefined;
-  if (sort?.key) {
-    orderBy = {
-      [sort.key]: sort.order || Prisma.SortOrder.asc,
-    };
-  }
+  const orderBy: Prisma.UserOrderByWithRelationInput | undefined = sort
+    ? { [sort.key]: sort.order }
+    : undefined;
 
-  // pagination limits
-  const take = pagination?.limit ? parseInt(pagination.limit) : 10;
+  const take = pagination?.limit || 100;
   const cursor = pagination?.after ? { id: pagination.after } : undefined;
 
-  // db query
-  const users = await prisma.user.findMany({
-    where,
-    ...(orderBy && { orderBy }),
-    take,
-    ...(cursor && { cursor }),
-  });
+  try {
+    const [users, total] = await prisma.$transaction([
+      prisma.user.findMany({
+        where,
+        orderBy,
+        take,
+        ...(cursor && { cursor, skip: 1 }),
+      }),
+      prisma.user.count({ where }),
+    ]);
 
-  // total amount of users from this query, useful for pagination
-  const total = await prisma.user.count({ where });
-
-  // return object with the result, the next cursor for pagination and the total
-  // amount of users
-  return {
-    result: users,
-    nextCursor: users.length == take ? users[users.length - 1].id : undefined,
-    total,
-  };
+    return {
+      result: users,
+      nextCursor:
+        users.length === take ? users[users.length - 1].id : undefined,
+      total,
+    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch users: ${error.message}`);
+    }
+    throw new Error("An unknown error occurred while fetching users");
+  }
 };
 
-/**
- * Gets a user by userid
- *
- * @param userid - The id of user to be retrieved
- * @returns Promise with the retrieved user or null
- */
-const getUser = async (userid: string) => {
-  // uses findunique to find record associated with userid
+const getUser = async (userId: string): Promise<User | null> => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id: userid },
+      where: { id: userId },
     });
+    if (!user) throw new Error("User not found");
     return user;
-  } catch (error) {
-    throw new Error("User not found");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch user: ${error.message}`);
+    }
+    throw new Error("An unknown error occurred while fetching the user");
   }
 };
 
-/**
- * Creates a new user
- *
- * @param user - User object
- * @returns Promise with the created user
- */
-const createUser = async (user: User): Promise<User> => {
-  // TODO: Implement createUser function
-  // - Use prisma to create a new user
-  // - Return the created user
-
+const createUser = async (
+  userData: Omit<User, "id" | "createdAt" | "updatedAt">
+): Promise<User> => {
   try {
     const newUser = await prisma.user.create({
-      data: {
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-      },
+      data: userData,
     });
     return newUser;
-  } catch (error) {
-    throw new Error("Failed to create new User");
+  } catch (error: unknown) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        throw new Error("A user with this email already exists");
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Failed to create user: ${error.message}`);
+    }
+    throw new Error("An unknown error occurred while creating the user");
   }
 };
 
-/**
- * Updates the user with a new User object
- *
- * @param userid - The id of user to be updated
- * @param user - A complete User object
- * @returns A promise with the updated user
- */
-const updateUser = async (userid: string, user: User): Promise<User> => {
+const updateUser = async (
+  userId: string,
+  userData: Partial<Omit<User, "id" | "createdAt" | "updatedAt">>
+): Promise<User> => {
   try {
-    // Update user using prisma
     const updatedUser = await prisma.user.update({
-      where: { id: userid },
-      data: user,
+      where: { id: userId },
+      data: userData,
     });
-    // Return updated user
     return updatedUser;
-  } catch (error) {
-    // Return error if any
-    throw new Error("User not found or update failed");
+  } catch (error: unknown) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("User not found");
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Failed to update user: ${error.message}`);
+    }
+    throw new Error("An unknown error occurred while updating the user");
   }
 };
 
-/**
- * Deletes specified user by userid.
- *
- * @param userid - The id of the user to be deleted
- * @returns A promise with the deleted user
- */
-const deleteUser = async (userid: string): Promise<User> => {
+const deleteUser = async (userId: string): Promise<User> => {
   try {
-    // Delete user using prisma
     const deletedUser = await prisma.user.delete({
-      where: { id: userid },
+      where: { id: userId },
     });
-    // Return deleted user
     return deletedUser;
-  } catch (error) {
-    // Throw error message
-    throw new Error("User not found or failed to delete user");
+  } catch (error: unknown) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("User not found");
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Failed to delete user: ${error.message}`);
+    }
+    throw new Error("An unknown error occurred while deleting the user");
   }
 };
 

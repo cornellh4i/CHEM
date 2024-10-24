@@ -1,16 +1,13 @@
 {
-  "name": "chem",
-  "version": "1.0.0",
-  "description": "The CHEM project aims to create a robust endowment management system that helps in optimizing the use of endowment funds, tracking performance, and ensuring compliance.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "chem": "^4.1.1",
-    "react-pro-sidebar": "^1.1.0",
-    "react-router-dom": "^6.27.0"
-  }
+    "private": true,
+    "workspaces": [
+        "frontend",
+        "backend"
+    ],
+    "scripts": {
+        "start": "yarn workspace frontend start",
+        "dev": "yarn workspace frontend app",
+        "build": "yarn workspace frontend build"
+    },
+    "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
