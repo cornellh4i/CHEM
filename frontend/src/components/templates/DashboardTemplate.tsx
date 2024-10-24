@@ -23,6 +23,7 @@ const DashboardTemplate = ({ children }: DefaultTemplateProps) => {
       />
       <div
         className={`ml-0 flex-1 transition-all duration-300 ${collapsed ? "ml-20" : "ml-64"}`}
+        style={{ margin: 0 }}
       >
         <div className="mx-auto max-w-screen-xl p-16 pb-6 pt-12 sm:mt-0">
           {children}

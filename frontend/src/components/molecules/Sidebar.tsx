@@ -36,7 +36,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
         style={{
           position: "absolute",
           top: 16,
-          left: collapsed ? 80 : 200,
+          left: !isMobile ? (collapsed ? 80 : 200) : collapsed ? 12 : 200,
           zIndex: 1000,
         }}
       >
@@ -47,7 +47,12 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
       <Sidebar
         collapsed={collapsed}
         breakPoint={isMobile ? "always" : "md"}
-        style={{ width: collapsed ? "80px" : "200px", height: "100vh" }}
+        style={{
+          width: collapsed ? "80px" : isMobile ? "100vw" : "200px",
+          height: "100vh",
+          transition: "width 0.3s", // Smooth transition for width
+          left: isMobile && collapsed ? "-200px" : "0", // Hide offscreen when collapsed on mobile
+        }}
       >
         <Menu>
           <div
