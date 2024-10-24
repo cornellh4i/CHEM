@@ -7,8 +7,10 @@ import { LoginForm, LoginFormCard } from "@/components";
 
 const LoginPage = () => {
   return (
-    <div>
-      <LoginFormCard />
+    <div className="flex h-screen items-center justify-center bg-gray-700">
+      <div>
+        <LoginFormCard />
+      </div>
     </div>
   );
 };

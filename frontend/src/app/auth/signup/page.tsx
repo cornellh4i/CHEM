@@ -5,8 +5,10 @@ import { LoginTemplate, SignupFormCard } from "@/components";
 
 const SignupPage = () => {
   return (
-    <div>
-      <SignupFormCard />
+    <div className="flex h-screen items-center justify-center bg-gray-700">
+      <div>
+        <SignupFormCard />
+      </div>
     </div>
   );
 };
