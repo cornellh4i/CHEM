@@ -1,8 +1,6 @@
 import React, { ReactNode } from "react";
-import SidebarComponent from "@/components/molecules/Sidebar"; // Assuming this is where your Sidebar.tsx is located
+import SidebarComponent from "@/components/molecules/Sidebar";
 import { useState } from "react";
-import { IconButton } from "@mui/material";
-import { Menu as MenuIcon } from "@mui/icons-material";
 
 interface DefaultTemplateProps {
   children: ReactNode;
