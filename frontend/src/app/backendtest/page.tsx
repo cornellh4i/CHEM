@@ -140,10 +140,9 @@ const Dashboard = () => {
         if (entity === "users") fetchUsers();
         else if (entity === "contributors") {
           console.log("Contributor created, fetching updated list...");
-          await fetchOrganizations();  // Fetch organizations first
-          await fetchContributors();   // Then fetch contributors
-        }
-        else {
+          await fetchOrganizations(); // Fetch organizations first
+          await fetchContributors(); // Then fetch contributors
+        } else {
           console.log("Organization created, fetching updated list...");
           await fetchOrganizations();
         }
@@ -234,7 +233,9 @@ const Dashboard = () => {
         {contributors.length > 0 ? (
           <ul className="mb-4 list-disc pl-5">
             {contributors.map((contributor) => {
-              const organization = organizations.find(org => org.id === contributor.organizationId);
+              const organization = organizations.find(
+                (org) => org.id === contributor.organizationId
+              );
               return (
                 <li key={contributor.id}>
                   {contributor.firstName} {contributor.lastName} - Organization:{" "}

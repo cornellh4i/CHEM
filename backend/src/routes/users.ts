@@ -33,7 +33,10 @@ userRouter.get("/", async (req, res) => {
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "An error occurred while fetching users",
+      error:
+        error instanceof Error
+          ? error.message
+          : "An error occurred while fetching users",
     };
     res.status(500).json(errorResponse);
   }
@@ -52,7 +55,10 @@ userRouter.get("/:userid", async (req, res) => {
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "An error occurred while fetching user",
+      error:
+        error instanceof Error
+          ? error.message
+          : "An error occurred while fetching user",
     };
     res.status(500).json(errorResponse);
   }

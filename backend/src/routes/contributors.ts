@@ -12,21 +12,28 @@ contributorRouter.get("/", async (req, res) => {
       lastName: req.query.lastName as string | undefined,
       organizationId: req.query.organizationId as string | undefined,
     };
-    const sort = req.query.sortBy ? {
-      field: req.query.sortBy as "firstName" | "lastName" | "createdAt",
-      order: (req.query.order as "asc" | "desc") || "asc",
-    } : undefined;
+    const sort = req.query.sortBy
+      ? {
+          field: req.query.sortBy as "firstName" | "lastName" | "createdAt",
+          order: (req.query.order as "asc" | "desc") || "asc",
+        }
+      : undefined;
     const pagination = {
       skip: req.query.skip ? Number(req.query.skip) : undefined,
       take: req.query.take ? Number(req.query.take) : undefined,
     };
 
-    const { contributors, total } = await controller.getContributors(filters, sort, pagination);
+    const { contributors, total } = await controller.getContributors(
+      filters,
+      sort,
+      pagination
+    );
     res.status(200).json({ contributors, total });
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "Failed to get contributors",
+      error:
+        error instanceof Error ? error.message : "Failed to get contributors",
     };
     res.status(500).json(errorResponse);
   }
@@ -37,7 +44,7 @@ contributorRouter.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const contributor = await controller.getContributorById(id);
-    
+
     if (contributor) {
       res.status(200).json(contributor);
     } else {
@@ -46,7 +53,8 @@ contributorRouter.get("/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "Failed to get contributor",
+      error:
+        error instanceof Error ? error.message : "Failed to get contributor",
     };
     res.status(500).json(errorResponse);
   }
@@ -56,9 +64,17 @@ contributorRouter.get("/:id", async (req, res) => {
 contributorRouter.post("/", async (req, res) => {
   try {
     const contributorData = req.body;
-    
-    if (!contributorData.firstName || !contributorData.lastName || !contributorData.organizationId) {
-      return res.status(400).json({ error: "First name, last name, and organization ID are required" });
+
+    if (
+      !contributorData.firstName ||
+      !contributorData.lastName ||
+      !contributorData.organizationId
+    ) {
+      return res
+        .status(400)
+        .json({
+          error: "First name, last name, and organization ID are required",
+        });
     }
 
     const newContributor = await controller.createContributor(contributorData);
@@ -66,7 +82,8 @@ contributorRouter.post("/", async (req, res) => {
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "Failed to create contributor",
+      error:
+        error instanceof Error ? error.message : "Failed to create contributor",
     };
     res.status(400).json(errorResponse);
   }
@@ -78,12 +95,16 @@ contributorRouter.put("/:id", async (req, res) => {
   const contributorData = req.body;
 
   try {
-    const updatedContributor = await controller.updateContributor(id, contributorData);
+    const updatedContributor = await controller.updateContributor(
+      id,
+      contributorData
+    );
     res.status(200).json(updatedContributor);
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "Failed to update contributor",
+      error:
+        error instanceof Error ? error.message : "Failed to update contributor",
     };
     res.status(404).json(errorResponse);
   }
@@ -98,7 +119,8 @@ contributorRouter.delete("/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "Failed to delete contributor",
+      error:
+        error instanceof Error ? error.message : "Failed to delete contributor",
     };
     res.status(400).json(errorResponse);
   }

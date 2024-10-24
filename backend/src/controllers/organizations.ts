@@ -31,7 +31,7 @@ const getOrganizations = async (
         skip: pagination?.skip || 0, // skip organizations, 0 by default
         take: pagination?.take || 100, // take organizations, 10 by default
       }),
-      prisma.organization.count({ where })
+      prisma.organization.count({ where }),
     ]);
 
     // Return organizations and total count
@@ -83,20 +83,22 @@ const createOrganization = async (
     const organization = await prisma.organization.create({
       data: validData,
     });
-    
+
     // Return created organization
     return organization;
   } catch (error) {
     // Throw a more informative error
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2002') {
+      if (error.code === "P2002") {
         throw new Error("An organization with this name already exists");
       }
     }
     if (error instanceof Error) {
       throw new Error(`Failed to create the organization: ${error.message}`);
     }
-    throw new Error("Failed to create the organization due to an unknown error");
+    throw new Error(
+      "Failed to create the organization due to an unknown error"
+    );
   }
 };
 
@@ -118,7 +120,7 @@ const updateOrganization = async (
   } catch (error) {
     // Throw a more informative error
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
+      if (error.code === "P2025") {
         throw new Error("Organization not found");
       }
     }
@@ -141,7 +143,7 @@ const deleteOrganization = async (id: string): Promise<Organization> => {
   } catch (error) {
     // Throw a more informative error
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
+      if (error.code === "P2025") {
         throw new Error("Organization not found");
       }
     }

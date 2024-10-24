@@ -19,9 +19,15 @@ const getUsers = async (
   }
 ): Promise<Users> => {
   const where: Prisma.UserWhereInput = {
-    ...(filter?.email && { email: { contains: filter.email, mode: 'insensitive' } }),
-    ...(filter?.firstName && { firstName: { contains: filter.firstName, mode: 'insensitive' } }),
-    ...(filter?.lastName && { lastName: { contains: filter.lastName, mode: 'insensitive' } }),
+    ...(filter?.email && {
+      email: { contains: filter.email, mode: "insensitive" },
+    }),
+    ...(filter?.firstName && {
+      firstName: { contains: filter.firstName, mode: "insensitive" },
+    }),
+    ...(filter?.lastName && {
+      lastName: { contains: filter.lastName, mode: "insensitive" },
+    }),
     ...(filter?.role && { role: filter.role }),
   };
 
@@ -40,19 +46,20 @@ const getUsers = async (
         take,
         ...(cursor && { cursor, skip: 1 }),
       }),
-      prisma.user.count({ where })
+      prisma.user.count({ where }),
     ]);
 
     return {
       result: users,
-      nextCursor: users.length === take ? users[users.length - 1].id : undefined,
+      nextCursor:
+        users.length === take ? users[users.length - 1].id : undefined,
       total,
     };
   } catch (error: unknown) {
     if (error instanceof Error) {
       throw new Error(`Failed to fetch users: ${error.message}`);
     }
-    throw new Error('An unknown error occurred while fetching users');
+    throw new Error("An unknown error occurred while fetching users");
   }
 };
 
@@ -67,11 +74,13 @@ const getUser = async (userId: string): Promise<User | null> => {
     if (error instanceof Error) {
       throw new Error(`Failed to fetch user: ${error.message}`);
     }
-    throw new Error('An unknown error occurred while fetching the user');
+    throw new Error("An unknown error occurred while fetching the user");
   }
 };
 
-const createUser = async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> => {
+const createUser = async (
+  userData: Omit<User, "id" | "createdAt" | "updatedAt">
+): Promise<User> => {
   try {
     const newUser = await prisma.user.create({
       data: userData,
@@ -79,18 +88,21 @@ const createUser = async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>
     return newUser;
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2002') {
-        throw new Error('A user with this email already exists');
+      if (error.code === "P2002") {
+        throw new Error("A user with this email already exists");
       }
     }
     if (error instanceof Error) {
       throw new Error(`Failed to create user: ${error.message}`);
     }
-    throw new Error('An unknown error occurred while creating the user');
+    throw new Error("An unknown error occurred while creating the user");
   }
 };
 
-const updateUser = async (userId: string, userData: Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt'>>): Promise<User> => {
+const updateUser = async (
+  userId: string,
+  userData: Partial<Omit<User, "id" | "createdAt" | "updatedAt">>
+): Promise<User> => {
   try {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -99,14 +111,14 @@ const updateUser = async (userId: string, userData: Partial<Omit<User, 'id' | 'c
     return updatedUser;
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
-        throw new Error('User not found');
+      if (error.code === "P2025") {
+        throw new Error("User not found");
       }
     }
     if (error instanceof Error) {
       throw new Error(`Failed to update user: ${error.message}`);
     }
-    throw new Error('An unknown error occurred while updating the user');
+    throw new Error("An unknown error occurred while updating the user");
   }
 };
 
@@ -118,14 +130,14 @@ const deleteUser = async (userId: string): Promise<User> => {
     return deletedUser;
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
-        throw new Error('User not found');
+      if (error.code === "P2025") {
+        throw new Error("User not found");
       }
     }
     if (error instanceof Error) {
       throw new Error(`Failed to delete user: ${error.message}`);
     }
-    throw new Error('An unknown error occurred while deleting the user');
+    throw new Error("An unknown error occurred while deleting the user");
   }
 };
 
