@@ -4,7 +4,7 @@ import auth from "@/utils/firebase";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { Button, Input, Checkbox, Select, Toast } from "@/components";
+import { Button, Input, Radio, Select, Toast } from "@/components";
 import { useToast } from "@/utils/hooks";
 
 interface FormInputs {
@@ -119,6 +119,7 @@ const SignupForm = () => {
               },
             })}
           />
+          {/*}
           <Select
             label="Location"
             defaultValue=""
@@ -132,7 +133,7 @@ const SignupForm = () => {
             <option value="CA">Canada</option>
             <option value="FR">France</option>
             <option value="DE">Germany</option>
-          </Select>
+          </Select> */}
         </div>
         <div className="mb-6">
           <Input
@@ -176,7 +177,7 @@ const SignupForm = () => {
           />
         </div>
         <div className="mb-6 flex items-start">
-          <Checkbox
+          <Radio
             label={
               <>
                 I agree with the{" "}
