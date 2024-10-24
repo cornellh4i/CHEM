@@ -1,14 +1,17 @@
 "use client";
 
 import React from "react";
-import { LoginTemplate, LoginForm } from "@/components";
+import { LoginForm, LoginFormCard } from "@/components";
+
+// import LoginForm from "@/components/molecules";
 
 const LoginPage = () => {
   return (
-    <LoginTemplate>
-      <div className="mb-8 text-4xl">Log In</div>
-      <LoginForm />
-    </LoginTemplate>
+    <div className="flex h-screen items-center justify-center bg-gray-700">
+      <div>
+        <LoginFormCard />
+      </div>
+    </div>
   );
 };
 
