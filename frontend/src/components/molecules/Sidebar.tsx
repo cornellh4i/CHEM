@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
+import { Sidebar, Menu, MenuItem } from "react-pro-sidebar"; // Import Sidebar and Menu components from react-pro-sidebar
 import {
   CollectionsBookmark as LogoIcon,
   Home as DashboardIcon,
@@ -7,54 +7,56 @@ import {
   People as ContributorsIcon,
   BarChart as ActivityIcon,
   Menu as MenuIcon,
-  LineWeight,
-} from "@mui/icons-material";
-import { IconButton, useMediaQuery } from "@mui/material";
-import { calculateOverrideValues } from "next/dist/server/font-utils";
+} from "@mui/icons-material"; // Import Material-UI icons
+import { IconButton, useMediaQuery } from "@mui/material"; // Import IconButton and useMediaQuery from Material-UI
 
 interface SidebarProps {
-  collapsed: boolean;
-  handleToggleSidebar: () => void;
+  collapsed: boolean; // Indicates if the sidebar is collapsed
+  handleToggleSidebar: () => void; // Function to toggle the sidebar state
 }
 
 const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 768px)"); // Check if the screen size is mobile
 
-  const [activePage, setActivePage] = useState<string>("dashboard");
+  const [activePage, setActivePage] = useState<string>("dashboard"); // State to track the active page
 
+  // Function to set the active page when a menu item is clicked
   const handleMenuClick = (page: string) => {
     setActivePage(page);
   };
 
+  // Color definitions for selected and non-selected menu items
   const nonSelectedColor = "#838383";
   const selectedColor = "#000000";
 
   return (
     <div className="relative">
+      {" "}
+      {/* Sidebar toggle button */}
       <IconButton
-        onClick={handleToggleSidebar}
+        onClick={handleToggleSidebar} // Toggle sidebar on button click
         style={{
-          position: "absolute",
-          top: 16,
-          left: !isMobile ? (collapsed ? 80 : 200) : collapsed ? 12 : 200,
-          zIndex: 1000,
+          position: "absolute", // Position the button absolutely within the container
+          top: 16, // Distance from the top
+          left: !isMobile ? (collapsed ? 80 : 200) : collapsed ? 12 : 200, // Dynamic left position based on collapsed state and screen size
+          zIndex: 1000, // Ensure button is above other elements
         }}
       >
         <MenuIcon />
       </IconButton>
-
-      {/* Defines when sidebar will collapse, ensures sidebar always collapses on mobile devices. */}
+      {/* Sidebar */}
       <Sidebar
         collapsed={collapsed}
-        breakPoint={isMobile ? "always" : "md"}
+        breakPoint={isMobile ? "always" : "md"} // Always collapsed on mobile, collapsed on medium screens
         style={{
-          width: collapsed ? "80px" : isMobile ? "100vw" : "200px",
-          height: "100vh",
-          transition: "width 0.3s", // Smooth transition for width
-          left: isMobile && collapsed ? "-200px" : "0", // Hide offscreen when collapsed on mobile
+          width: collapsed ? "80px" : isMobile ? "100vw" : "200px", // 8z0px when collapsed, 200px on desktop, full width on mobile
+          height: "100vh", // Full height
+          transition: "width 0.3s", // Smooth width transition
+          left: isMobile && collapsed ? "-200px" : "0", // Offscreen when collapsed on mobile
         }}
       >
         <Menu>
+          {/* Sidebar header with logo */}
           <div
             style={{
               marginTop: "16px",
@@ -68,9 +70,12 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
           >
             <LogoIcon
               style={{ width: "20px", height: "auto", marginRight: "16px" }}
-            />
-            {!collapsed && "Odyssey Fund"}
+            />{" "}
+            {/* Logo icon */}
+            {!collapsed && "Odyssey Fund"}{" "}
+            {/* Display web name if not collapsed */}
           </div>
+          {/* Button to go to dashboard page */}
           <MenuItem
             icon={
               <DashboardIcon
@@ -80,11 +85,11 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
                   color:
                     activePage === "dashboard"
                       ? selectedColor
-                      : nonSelectedColor,
+                      : nonSelectedColor, // Color based on active state
                 }}
               />
             }
-            onClick={() => handleMenuClick("dashboard")}
+            onClick={() => handleMenuClick("dashboard")} // Click handler to set active page
             style={{
               color:
                 activePage === "dashboard" ? selectedColor : nonSelectedColor,
@@ -92,6 +97,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
           >
             Dashboard
           </MenuItem>
+          {/* Button to go to activity page */}
           <MenuItem
             icon={
               <ActivityIcon
@@ -113,6 +119,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
           >
             Activity
           </MenuItem>
+          {/* Button to go to funds page */}
           <MenuItem
             icon={
               <FundsIcon
@@ -131,6 +138,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
           >
             Funds
           </MenuItem>
+          {/* Button to go to contributor page */}
           <MenuItem
             icon={
               <ContributorsIcon
