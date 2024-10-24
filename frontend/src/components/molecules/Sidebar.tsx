@@ -1,36 +1,158 @@
-import React from 'react';
-import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
-import { Home as Home, Segment as Segment, ShowChart as Funds, People as Contributors, Menu as MenuIcon } from "@mui/icons-material";
+import React, { useState } from "react";
+import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
+import {
+  CollectionsBookmark as LogoIcon,
+  Home as DashboardIcon,
+  AccountBalance as FundsIcon,
+  People as ContributorsIcon,
+  BarChart as ActivityIcon,
+  Menu as MenuIcon,
+  LineWeight,
+} from "@mui/icons-material";
 import { IconButton, useMediaQuery } from "@mui/material";
+import { calculateOverrideValues } from "next/dist/server/font-utils";
 
 interface SidebarProps {
-    collapsed: boolean;
-    handleToggleSidebar: () => void;
+  collapsed: boolean;
+  handleToggleSidebar: () => void;
 }
 
 const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
-    const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
-    return (
-        <div className="relative">
-            <IconButton
-                onClick={handleToggleSidebar}
-                style={{ position: 'absolute', top: 16, left: collapsed ? 16 : 240 }}
-            >
-                <MenuIcon />
-            </IconButton>
+  const [activePage, setActivePage] = useState<string>("dashboard");
 
-            {/* Defines when sidebar will collapse, ensures sidebar always collapses on mobile devices. */}
-            <Sidebar collapsed={collapsed} breakPoint={isMobile ? "always" : "md"}>
-                <Menu>
-                    <MenuItem icon={<Home />}>Home</MenuItem>
-                    <MenuItem icon={<Segment />}>Activity</MenuItem>
-                    <MenuItem icon={<Funds />}>Funds</MenuItem>
-                    <MenuItem icon={<Contributors />}>Contributors</MenuItem>
-                </Menu>
-            </Sidebar>
-        </div>
-    );
-}
+  const handleMenuClick = (page: string) => {
+    setActivePage(page);
+  };
+
+  const nonSelectedColor = "#838383";
+  const selectedColor = "#000000";
+
+  return (
+    <div className="relative">
+      <IconButton
+        onClick={handleToggleSidebar}
+        style={{
+          position: "absolute",
+          top: 16,
+          left: collapsed ? 80 : 200,
+          zIndex: 1000,
+        }}
+      >
+        <MenuIcon />
+      </IconButton>
+
+      {/* Defines when sidebar will collapse, ensures sidebar always collapses on mobile devices. */}
+      <Sidebar
+        collapsed={collapsed}
+        breakPoint={isMobile ? "always" : "md"}
+        style={{ width: collapsed ? "80px" : "200px", height: "100vh" }}
+      >
+        <Menu>
+          <div
+            style={{
+              marginTop: "16px",
+              display: "flex",
+              alignItems: "center",
+              color: "#185F96",
+              fontWeight: "bold",
+              padding: "10px 20px",
+              paddingLeft: "28px",
+            }}
+          >
+            <LogoIcon
+              style={{ width: "20px", height: "auto", marginRight: "16px" }}
+            />
+            {!collapsed && "Odyssey Fund"}
+          </div>
+          <MenuItem
+            icon={
+              <DashboardIcon
+                style={{
+                  width: "20px",
+                  height: "auto",
+                  color:
+                    activePage === "dashboard"
+                      ? selectedColor
+                      : nonSelectedColor,
+                }}
+              />
+            }
+            onClick={() => handleMenuClick("dashboard")}
+            style={{
+              color:
+                activePage === "dashboard" ? selectedColor : nonSelectedColor,
+            }}
+          >
+            Dashboard
+          </MenuItem>
+          <MenuItem
+            icon={
+              <ActivityIcon
+                style={{
+                  width: "20px",
+                  height: "auto",
+                  color:
+                    activePage === "activity"
+                      ? selectedColor
+                      : nonSelectedColor,
+                }}
+              />
+            }
+            onClick={() => handleMenuClick("activity")}
+            style={{
+              color:
+                activePage === "activity" ? selectedColor : nonSelectedColor,
+            }}
+          >
+            Activity
+          </MenuItem>
+          <MenuItem
+            icon={
+              <FundsIcon
+                style={{
+                  width: "20px",
+                  height: "auto",
+                  color:
+                    activePage === "funds" ? selectedColor : nonSelectedColor,
+                }}
+              />
+            }
+            onClick={() => handleMenuClick("funds")}
+            style={{
+              color: activePage === "funds" ? selectedColor : nonSelectedColor,
+            }}
+          >
+            Funds
+          </MenuItem>
+          <MenuItem
+            icon={
+              <ContributorsIcon
+                style={{
+                  width: "20px",
+                  height: "auto",
+                  color:
+                    activePage === "contributors"
+                      ? selectedColor
+                      : nonSelectedColor,
+                }}
+              />
+            }
+            onClick={() => handleMenuClick("contributors")}
+            style={{
+              color:
+                activePage === "contributors"
+                  ? selectedColor
+                  : nonSelectedColor,
+            }}
+          >
+            Contributors
+          </MenuItem>
+        </Menu>
+      </Sidebar>
+    </div>
+  );
+};
 
 export default SidebarComponent;
