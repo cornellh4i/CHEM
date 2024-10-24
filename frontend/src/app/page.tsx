@@ -4,7 +4,7 @@ import type { NextPage } from "next";
 import { SimpleTable, Column } from "@/components/atoms/SimpleTable";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
-export type TableData = {
+type TableData = {
   fund: string;
   date: string;
   type: string;
@@ -226,7 +226,7 @@ const activityColumns: Column<TableData>[] = [
     accessor: "documentLink",
     dataType: "string",
     sortable: false,
-    Cell: (value, row) =>
+    Cell: (value) =>
       value ? (
         <a
           href={value}

@@ -13,36 +13,42 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
+// Define the type for table columns
 export type Column<T> = {
-  header: string;
-  accessor: keyof T | string;
-  dataType: "string" | "number" | "date";
-  sortable?: boolean;
-  Cell?: (value: any, row: T) => React.ReactNode;
-  className?: string;
-  headerClassName?: string;
+  header: string; // Display name of the column in the table header
+  accessor: keyof T | string; // Key to access data in each row object
+  dataType: "string" | "number" | "date"; // Data type for sorting logic
+  sortable?: boolean; // Indicates if the column is sortable
+  Cell?: (value: any, row: T) => React.ReactNode; // Custom cell rendering function
+  className?: string; // CSS classes for table cells
+  headerClassName?: string; // CSS classes for header cells
 };
 
+// Define the props for the SimpleTable component
 type SimpleTableProps<T> = {
-  data: T[];
-  columns: Column<T>[];
-  pageSize: number;
+  data: T[]; // Array of data objects to display
+  columns: Column<T>[]; // Configuration of table columns
+  pageSize: number; // Number of rows per page
 };
 
+// Reusable table component with sorting and pagination
 export function SimpleTable<T extends Record<string, any>>({
   data,
   columns,
   pageSize,
 }: SimpleTableProps<T>) {
+  // State for current page, sorting column, and sort order
   const [currentPage, setCurrentPage] = useState(1);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
 
+  // Handle sorting when a column header is clicked
   const handleSort = (column: Column<T>) => {
-    if (!column.sortable) return;
+    if (!column.sortable) return; // Ignore if column is not sortable
     const columnKey = column.accessor as string;
 
     if (sortColumn === columnKey) {
+      // Toggle sort order or reset if already descending
       if (sortOrder === "asc") {
         setSortOrder("desc");
       } else if (sortOrder === "desc") {
@@ -52,12 +58,14 @@ export function SimpleTable<T extends Record<string, any>>({
         setSortOrder("asc");
       }
     } else {
+      // Set new sort column and default to ascending
       setSortColumn(columnKey);
       setSortOrder("asc");
     }
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to first page when sorting changes
   };
 
+  // Memoized sorted data based on sort column and order
   const sortedData = useMemo(() => {
     if (!sortColumn || !sortOrder) {
       return data;
@@ -70,6 +78,7 @@ export function SimpleTable<T extends Record<string, any>>({
       const aValue = a[sortColumn as keyof T];
       const bValue = b[sortColumn as keyof T];
 
+      // Sort based on data type
       if (column.dataType === "date") {
         const aDate = new Date(aValue as string);
         const bDate = new Date(bValue as string);
@@ -84,25 +93,29 @@ export function SimpleTable<T extends Record<string, any>>({
         return aValue.localeCompare(bValue);
       }
 
-      return 0;
+      return 0; // Default case if data types do not match
     });
 
     return sortOrder === "desc" ? sorted.reverse() : sorted;
   }, [data, sortColumn, sortOrder, columns]);
 
+  // Calculate total pages for pagination
   const totalPages = Math.ceil(sortedData.length / pageSize);
 
+  // Get data for the current page
   const paginatedData = sortedData.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
 
+  // Helper function to handle empty values
   function checkEmpty(value: any): string {
     return value !== null && value !== undefined && String(value).trim() !== ""
       ? String(value)
       : "---";
   }
 
+  // Handle page change when pagination buttons are clicked
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
@@ -114,13 +127,14 @@ export function SimpleTable<T extends Record<string, any>>({
       <Table>
         <TableHeader>
           <TableRow>
+            {/* Render table headers */}
             {columns.map((column, index) => (
               <TableHead
                 key={index}
                 className={`cursor-pointer font-semibold text-black ${column.headerClassName}`}
                 onClick={() => handleSort(column)}
               >
-                {column.header}{" "}
+                {column.header} {/* Display sort icon if column is sorted */}
                 {sortColumn === column.accessor &&
                   (sortOrder === "asc" ? (
                     <ArrowDropUpIcon />
@@ -133,6 +147,7 @@ export function SimpleTable<T extends Record<string, any>>({
         </TableHeader>
 
         <TableBody>
+          {/* Render table rows */}
           {paginatedData.length ? (
             paginatedData.map((row, rowIndex) => (
               <TableRow key={rowIndex}>
@@ -140,6 +155,7 @@ export function SimpleTable<T extends Record<string, any>>({
                   const cellValue = row[column.accessor as keyof T];
                   return (
                     <TableCell key={colIndex} className={column.className}>
+                      {/* Use custom cell renderer if provided */}
                       {column.Cell
                         ? column.Cell(cellValue, row)
                         : checkEmpty(cellValue)}
@@ -149,6 +165,7 @@ export function SimpleTable<T extends Record<string, any>>({
               </TableRow>
             ))
           ) : (
+            // Display message if no data is available
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
                 No results.
@@ -158,7 +175,9 @@ export function SimpleTable<T extends Record<string, any>>({
         </TableBody>
       </Table>
 
+      {/* Pagination controls */}
       <div className="mt-4 flex items-center justify-center">
+        {/* Previous page button */}
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
@@ -168,10 +187,12 @@ export function SimpleTable<T extends Record<string, any>>({
           <ChevronLeftIcon />
         </button>
 
+        {/* Current page indicator */}
         <span className="px-3 py-2">
           Page {currentPage} of {totalPages}
         </span>
 
+        {/* Next page button */}
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
