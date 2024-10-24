@@ -11,6 +11,10 @@
     "app": "concurrently \"yarn dev\" \"yarn workspace backend dev\""
   },
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.5",
+    "@mui/material": "^6.1.5",
     "@tanstack/react-query": "^5.56.2",
     "firebase": "^10.14.0",
     "flowbite": "^2.5.2",
