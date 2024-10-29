@@ -13,10 +13,12 @@ organizationRouter.get("/", async (req, res) => {
       restriction: req.query.restriction as string | undefined,
       type: req.query.type as string | undefined,
     };
-    const sort = req.query.sortBy ? {
-      field: req.query.sortBy as "name" | "createdAt" | "units" | "amount",
-      order: (req.query.order as "asc" | "desc") || "asc",
-    } : undefined;
+    const sort = req.query.sortBy
+      ? {
+          field: req.query.sortBy as "name" | "createdAt" | "units" | "amount",
+          order: (req.query.order as "asc" | "desc") || "asc",
+        }
+      : undefined;
     const pagination = {
       skip: req.query.skip ? Number(req.query.skip) : undefined,
       take: req.query.take ? Number(req.query.take) : undefined,
@@ -34,7 +36,8 @@ organizationRouter.get("/", async (req, res) => {
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "Failed to get organizations",
+      error:
+        error instanceof Error ? error.message : "Failed to get organizations",
     };
     res.status(500).json(errorResponse);
   }
@@ -45,7 +48,7 @@ organizationRouter.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const organization = await controller.getOrganizationById(id);
-    
+
     if (organization) {
       res.status(200).json(organization);
     } else {
@@ -54,7 +57,8 @@ organizationRouter.get("/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "Failed to get organization",
+      error:
+        error instanceof Error ? error.message : "Failed to get organization",
     };
     res.status(500).json(errorResponse);
   }
@@ -64,18 +68,22 @@ organizationRouter.get("/:id", async (req, res) => {
 organizationRouter.post("/", async (req, res) => {
   try {
     const organizationData = req.body;
-    
+
     // Basic validation
     if (!organizationData.name) {
       return res.status(400).json({ error: "Organization name is required" });
     }
 
-    const newOrganization = await controller.createOrganization(organizationData);
+    const newOrganization =
+      await controller.createOrganization(organizationData);
     res.status(201).json(newOrganization);
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "Failed to create organization",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to create organization",
     };
     res.status(400).json(errorResponse);
   }
@@ -87,12 +95,18 @@ organizationRouter.put("/:id", async (req, res) => {
   const organizationData = req.body;
 
   try {
-    const updatedOrg = await controller.updateOrganization(orgId, organizationData);
+    const updatedOrg = await controller.updateOrganization(
+      orgId,
+      organizationData
+    );
     res.status(200).json(updatedOrg);
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "Failed to update organization",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to update organization",
     };
     res.status(404).json(errorResponse);
   }
@@ -107,7 +121,10 @@ organizationRouter.delete("/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "Failed to delete organization",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to delete organization",
     };
     res.status(400).json(errorResponse);
   }

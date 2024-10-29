@@ -4,13 +4,20 @@ import { Contributor, Prisma } from "@prisma/client";
 // Get contributors with filtering, sorting, and pagination
 const getContributors = async (
   filters?: { firstName?: string; lastName?: string; organizationId?: string },
-  sort?: { field: "firstName" | "lastName" | "createdAt"; order: "asc" | "desc" },
+  sort?: {
+    field: "firstName" | "lastName" | "createdAt";
+    order: "asc" | "desc";
+  },
   pagination?: { skip?: number; take?: number }
 ): Promise<{ contributors: Contributor[]; total: number }> => {
   try {
     const where: Prisma.ContributorWhereInput = {
-      firstName: filters?.firstName ? { contains: filters.firstName, mode: "insensitive" } : undefined,
-      lastName: filters?.lastName ? { contains: filters.lastName, mode: "insensitive" } : undefined,
+      firstName: filters?.firstName
+        ? { contains: filters.firstName, mode: "insensitive" }
+        : undefined,
+      lastName: filters?.lastName
+        ? { contains: filters.lastName, mode: "insensitive" }
+        : undefined,
       organizationId: filters?.organizationId,
     };
 
@@ -21,7 +28,7 @@ const getContributors = async (
         skip: pagination?.skip || 0,
         take: pagination?.take || 100,
       }),
-      prisma.contributor.count({ where })
+      prisma.contributor.count({ where }),
     ]);
 
     return { contributors, total };
@@ -57,8 +64,10 @@ const createContributor = async (
     return contributor;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2002') {
-        throw new Error("A contributor with this name already exists in this organization");
+      if (error.code === "P2002") {
+        throw new Error(
+          "A contributor with this name already exists in this organization"
+        );
       }
     }
     if (error instanceof Error) {
@@ -80,7 +89,7 @@ const updateContributor = async (
     return updatedContributor;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
+      if (error.code === "P2025") {
         throw new Error("Contributor not found");
       }
     }
@@ -97,7 +106,7 @@ const deleteContributor = async (id: string): Promise<Contributor> => {
     return contributor;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
+      if (error.code === "P2025") {
         throw new Error("Contributor not found");
       }
     }
