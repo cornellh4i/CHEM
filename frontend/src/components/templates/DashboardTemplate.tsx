@@ -1,3 +1,5 @@
+"use client";
+
 import React, { ReactNode } from "react";
 import SidebarComponent from "@/components/molecules/Sidebar";
 import { useState } from "react";
