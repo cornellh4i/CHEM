@@ -11,10 +11,14 @@
     "app": "concurrently \"yarn dev\" \"yarn workspace backend dev\""
   },
   "dependencies": {
+<<<<<<< HEAD
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.4",
     "@mui/material": "^6.1.4",
+=======
+    "@mui/icons-material": "^6.1.5",
+>>>>>>> ca352ad2ad6c49e64fc9857af51fa5631bca0880
     "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-table": "^8.20.5",
     "class-variance-authority": "^0.7.0",
@@ -30,8 +34,12 @@
     "react-dom": "^18",
     "react-firebase-hooks": "^5.1.1",
     "react-hook-form": "^7.53.0",
+<<<<<<< HEAD
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7"
+=======
+    "react-pro-sidebar": "^1.1.0"
+>>>>>>> ca352ad2ad6c49e64fc9857af51fa5631bca0880
   },
   "devDependencies": {
     "@types/node": "^22",

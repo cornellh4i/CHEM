@@ -1,4 +1,8 @@
 {
+<<<<<<< HEAD
   "/about/page": "app/about/page.js",
   "/page": "app/page.js"
+=======
+  "/activity/page": "app/activity/page.js"
+>>>>>>> ca352ad2ad6c49e64fc9857af51fa5631bca0880
 }

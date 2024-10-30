@@ -1,6 +1,10 @@
 // Atoms
 export { default as Button } from "./atoms/Button";
+<<<<<<< HEAD
 // export { default as Checkbox } from "./atoms/Checkbox";
+=======
+export { default as Checkbox } from "./atoms/Radio";
+>>>>>>> ca352ad2ad6c49e64fc9857af51fa5631bca0880
 export { default as Input } from "./atoms/Input";
 export { default as Select } from "./atoms/Select";
 export { default as Toast } from "./atoms/Toast";
@@ -22,4 +26,5 @@ export { default as VerifyEmailForm } from "./organisms/VerifyEmailForm";
 // Templates
 export { default as CenterTemplate } from "./templates/CenterTemplate";
 export { default as DefaultTemplate } from "./templates/DefaultTemplate";
+export { default as DashboardTemplate } from "./templates/DashboardTemplate";
 export { default as LoginTemplate } from "./templates/LoginTemplate";
