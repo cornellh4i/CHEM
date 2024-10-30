@@ -1333,13 +1333,10 @@ input[type="range"]::-ms-fill-lower {
   padding-top: 0.625rem;
   padding-bottom: 0.625rem;
 }
-<<<<<<< HEAD
 .py-3 {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
 }
-=======
->>>>>>> ca352ad2ad6c49e64fc9857af51fa5631bca0880
 .pb-6 {
   padding-bottom: 1.5rem;
 }
@@ -1349,12 +1346,9 @@ input[type="range"]::-ms-fill-lower {
 .pt-12 {
   padding-top: 3rem;
 }
-<<<<<<< HEAD
 .text-left {
   text-align: left;
 }
-=======
->>>>>>> ca352ad2ad6c49e64fc9857af51fa5631bca0880
 .text-center {
   text-align: center;
 }
@@ -1510,7 +1504,6 @@ input[type="range"]::-ms-fill-lower {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
-<<<<<<< HEAD
 .transition-colors {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -1536,11 +1529,6 @@ input[type="range"]::-ms-fill-lower {
 .duration-300 {
   animation-duration: 300ms;
 }
-=======
-.duration-300 {
-  transition-duration: 300ms;
-}
->>>>>>> ca352ad2ad6c49e64fc9857af51fa5631bca0880
 
 :root {
   --foreground-rgb: 0, 0, 0;
