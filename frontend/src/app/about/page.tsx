@@ -2,9 +2,10 @@
 
 import React from "react";
 import { DefaultTemplate } from "@/components";
+import DashboardTemplate from "@/components/templates/DashboardTemplate";
 
 const AboutPage = () => {
-  return <DefaultTemplate>This is an about page</DefaultTemplate>;
+  return <DashboardTemplate>This is an about page</DashboardTemplate>;
 };
 
 export default AboutPage;
