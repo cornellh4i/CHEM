@@ -16,7 +16,7 @@ const ActivitiesPage = () => {
         <h1 className="mb-12 text-3xl">Activity</h1>
         <div className="mb-12 flex items-center justify-center gap-x-4">
           <div className="flex-grow">
-            <SearchBar onSearch={handleSearch} width="100%" />
+            <SearchBar onSearch={handleSearch} width="50%" />
           </div>
           <Button variant="primary">Add Transaction</Button>
           <Button variant="primary">Import</Button>
