@@ -1,18 +1,14 @@
 // Atoms
 export { default as Button } from "./atoms/Button";
-<<<<<<< HEAD
 // export { default as Checkbox } from "./atoms/Checkbox";
-=======
-export { default as Checkbox } from "./atoms/Radio";
->>>>>>> ca352ad2ad6c49e64fc9857af51fa5631bca0880
 export { default as Input } from "./atoms/Input";
 export { default as Select } from "./atoms/Select";
 export { default as Toast } from "./atoms/Toast";
 
 // Molecules
 export { default as Appbar } from "./molecules/Appbar";
-export { default as LoginFormCard} from "./molecules/LoginFormCard"
-export { default as SignupFormCard} from "./molecules/SignupFormCard"
+export { default as LoginFormCard } from "./molecules/LoginFormCard";
+export { default as SignupFormCard } from "./molecules/SignupFormCard";
 
 // Organisms
 export { default as ForgotPasswordForm } from "./organisms/ForgotPasswordForm";
