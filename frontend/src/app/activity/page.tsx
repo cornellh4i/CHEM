@@ -4,7 +4,10 @@ import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import DummyTable from "@/components/molecules/DummyTable";
 import React, { useState } from "react";
 import SearchBar from "@/components/molecules/Searchbar";
-import { Button } from "@/components";
+import AddIcon from '@mui/icons-material/Add';
+import DownloadIcon from '@mui/icons-material/Download';
+import { Button } from "@mui/material";
+
 const ActivitiesPage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const handleSearch = (query: string) => {
@@ -18,8 +21,32 @@ const ActivitiesPage = () => {
           <div className="flex-grow">
             <SearchBar onSearch={handleSearch} width="50%" />
           </div>
-          <Button variant="primary">Add Transaction</Button>
-          <Button variant="primary">Import</Button>
+          <Button
+            variant="contained"
+            style={{
+              backgroundColor: "#E0E0E0",
+              color: "#000",
+              textTransform: "none",
+              borderRadius: "8px",
+              padding: "8px 16px",
+            }}
+            endIcon={<AddIcon />}
+          >
+            Add Transaction
+          </Button>
+          <Button
+            variant="contained"
+            style={{
+              backgroundColor: "#E0E0E0",
+              color: "#000",
+              textTransform: "none",
+              borderRadius: "8px",
+              padding: "8px 16px",
+            }}
+            endIcon={<DownloadIcon />}
+          >
+            Import
+          </Button>
         </div>
         <DummyTable />
       </div>
