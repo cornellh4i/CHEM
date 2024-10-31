@@ -6,13 +6,14 @@ import React, { useState } from "react";
 import SearchBar from "@/components/molecules/Searchbar";
 import AddIcon from '@mui/icons-material/Add';
 import DownloadIcon from '@mui/icons-material/Download';
-import { Button } from "@mui/material";
+import Button from "@/components/atoms/Button"; // Adjust path if needed
 
 const ActivitiesPage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const handleSearch = (query: string) => {
     console.log("Searching for:", query);
   };
+
   return (
     <DashboardTemplate>
       <div className="flex flex-col justify-items-center">
@@ -22,28 +23,14 @@ const ActivitiesPage = () => {
             <SearchBar onSearch={handleSearch} width="50%" />
           </div>
           <Button
-            variant="contained"
-            style={{
-              backgroundColor: "#E0E0E0",
-              color: "#000",
-              textTransform: "none",
-              borderRadius: "8px",
-              padding: "8px 16px",
-            }}
-            endIcon={<AddIcon />}
+            variant="primary"
+            icon={<AddIcon />}
           >
             Add Transaction
           </Button>
           <Button
-            variant="contained"
-            style={{
-              backgroundColor: "#E0E0E0",
-              color: "#000",
-              textTransform: "none",
-              borderRadius: "8px",
-              padding: "8px 16px",
-            }}
-            endIcon={<DownloadIcon />}
+            variant="primary"
+            icon={<DownloadIcon />}
           >
             Import
           </Button>
