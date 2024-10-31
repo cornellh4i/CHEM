@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   Card,
@@ -24,11 +24,13 @@ type ChartData = {
 type LineChartComponentProps = {
   title: string;
   description: string;
-  data: ChartData[]; // Type the data prop correctly
+  data: { [key: string]: ChartData[] };
   xAxisKey: string;
   yAxisKey: string;
   config: ChartConfig;
 };
+
+const timeFrames = ["Last Month", "Last Year", "All"];
 
 export function LineChartComponent({
   title,
@@ -38,6 +40,13 @@ export function LineChartComponent({
   yAxisKey,
   config,
 }: LineChartComponentProps) {
+  const [selectedTimeFrame, setSelectedTimeFrame] = useState(timeFrames[1]); //Last year by default
+
+  //Runs when we click button to change time frame
+  const handleTimeFrameChange = (timeFrame: string) => {
+    setSelectedTimeFrame(timeFrame);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -45,11 +54,28 @@ export function LineChartComponent({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Div for the time frame buttons */}
+        <div className="mb-4 flex gap-4">
+          {timeFrames.map((timeFrame) => (
+            <button
+              key={timeFrame}
+              className={`rounded px-4 py-2 ${
+              selectedTimeFrame === timeFrame
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200"
+              }`}
+              onClick={() => handleTimeFrameChange(timeFrame)}
+            >
+              {timeFrame}
+            </button>
+          ))}
+        </div>
+
         <ChartContainer config={config}>
           <LineChart
             width={300}
             height={200}
-            data={data}
+            data={data[selectedTimeFrame]} // Use the selected time frame's data
             margin={{
               left: 12,
               right: 12,

@@ -1,4 +1,15 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
+  "/auth/[oobcode]/reset-password/page": "app/auth/[oobcode]/reset-password/page.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/auth/forgot-password/page": "app/auth/forgot-password/page.js",
+  "/auth/[oobcode]/verify-email/page": "app/auth/[oobcode]/verify-email/page.js",
+  "/auth/send-verify-email/page": "app/auth/send-verify-email/page.js",
+  "/backendtest/page": "app/backendtest/page.js",
+  "/auth/signup/page": "app/auth/signup/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
   "/lineChart/page": "app/lineChart/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js"
+  "/page": "app/page.js",
+  "/users/[userid]/page": "app/users/[userid]/page.js",
+  "/about/page": "app/about/page.js"
 }
