@@ -1,4 +1,6 @@
 {
-  "/settings/profile/page": "app/settings/profile/page.js",
-  "/page": "app/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/page": "app/page.js",
+  "/test/backendtest/page": "app/test/backendtest/page.js",
+  "/test/modaltest/page": "app/test/modaltest/page.js"
 }
