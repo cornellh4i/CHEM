@@ -1,4 +1,4 @@
 {
-  "/about/page": "app/about/page.js",
+  "/settings/profile/page": "app/settings/profile/page.js",
   "/page": "app/page.js"
 }
