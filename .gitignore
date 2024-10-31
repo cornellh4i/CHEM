@@ -15,6 +15,15 @@ node_modules/
 /.next/
 /out/
 
+# Next.js
+frontend/.next/
+frontend/.next/*
+.next/
+*.next/
+
+# Yarn
+.yarn/install-state.gz
+
 node_modules
 .next
 .DS_Store
@@ -46,4 +55,9 @@ next-env.d.ts
 
 # Note: we can only comment out the entire .yarn folder since we strictly stick
 # to nodeLinker: node-modules. If using pnp, the folder contains important info
+<<<<<<< HEAD
 .yarn
+=======
+.yarn
+.env
+>>>>>>> origin/toast-component
