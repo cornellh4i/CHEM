@@ -1,8 +1,5 @@
-"use client";
-
-import { TrendingUp } from "lucide-react";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
-
+import React from "react";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -17,37 +14,42 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { TrendingUp } from "lucide-react";
 
-export const description = "A linear line chart";
+type ChartData = {
+  month: string;
+  desktop: number;
+};
 
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-];
+type LineChartComponentProps = {
+  title: string;
+  description: string;
+  data: ChartData[]; // Type the data prop correctly
+  xAxisKey: string;
+  yAxisKey: string;
+  config: ChartConfig;
+};
 
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig;
-
-export function LineChartComponent() {
+export function LineChartComponent({
+  title,
+  description,
+  data,
+  xAxisKey,
+  yAxisKey,
+  config,
+}: LineChartComponentProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Line Chart - Linear</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer config={config}>
           <LineChart
-            accessibilityLayer
-            data={chartData}
+            width={300}
+            height={200}
+            data={data}
             margin={{
               left: 12,
               right: 12,
@@ -55,20 +57,21 @@ export function LineChartComponent() {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey={xAxisKey}
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value) => value.slice(0, 3)}
             />
+            <YAxis />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
             <Line
-              dataKey="desktop"
+              dataKey={yAxisKey}
               type="linear"
-              stroke="var(--color-desktop)"
+              stroke={config.desktop.color}
               strokeWidth={2}
               dot={false}
             />
@@ -80,7 +83,7 @@ export function LineChartComponent() {
           Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Showing total contributions for the last 6 months
         </div>
       </CardFooter>
     </Card>
