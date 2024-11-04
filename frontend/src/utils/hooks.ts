@@ -1,3 +1,5 @@
+"use client";
+
 import { Auth } from "firebase/auth";
 import { useState, useEffect } from "react";
 import {

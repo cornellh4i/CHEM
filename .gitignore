@@ -56,8 +56,12 @@ next-env.d.ts
 # Note: we can only comment out the entire .yarn folder since we strictly stick
 # to nodeLinker: node-modules. If using pnp, the folder contains important info
 <<<<<<< HEAD
+<<<<<<< HEAD
 .yarn
 =======
 .yarn
 .env
 >>>>>>> origin/toast-component
+=======
+.yarnfrontend/.next
+>>>>>>> frontend-activities-page
