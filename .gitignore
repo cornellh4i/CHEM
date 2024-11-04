@@ -54,3 +54,5 @@ build/
 *.njsproj
 *.sln
 *.sw?
+node_modules/
+.yarn/install-state.gz
