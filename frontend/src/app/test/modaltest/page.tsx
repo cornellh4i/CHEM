@@ -1,5 +1,6 @@
 import React from "react";
 import Button from "@/components/atoms/Button";
+import TransactionModal from "@/components/molecules/AddTransactionModal";
 import {
   Dialog,
   DialogContent,
@@ -42,18 +43,23 @@ const Modal: React.FC<ModalProps> = ({
 const ExamplePage = () => {
   return (
     <div className="p-4">
-      <Modal
-        buttonText="Click me!"
-        title="Welcome"
-        description="This is a sample modal dialog"
-      >
-        <div className="space-y-4">
-          <p>This is the modal content.</p>
-          <p>You can put anything you want in here!</p>
-        </div>
-      </Modal>
+      <TransactionModal>
+        
+      </TransactionModal>
     </div>
   );
 };
 
 export default ExamplePage;
+
+
+{/* <Modal
+buttonText="Click me!"
+title="Welcome"
+description="This is a sample modal dialog"
+>
+<div className="space-y-4">
+  <p>This is the modal content.</p>
+  <p>You can put anything you want in here!</p>
+</div>
+</Modal> */}
