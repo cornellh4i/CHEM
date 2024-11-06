@@ -43,7 +43,7 @@ const ExamplePage = () => {
   const donorInfo = {
     date: "January 25, 2024",
     fund: "Milstein Fund",
-    amount: "$9,336.84"
+    amount: "$9,336.84",
   };
   const documents = [
     { name: "receipt.pdf", date: "Tue Mar 12 • 230 KB" },
