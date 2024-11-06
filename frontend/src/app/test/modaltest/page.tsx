@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import OpenContributorModal from "@/components/molecules/OpenContributorModal";
 
 interface ModalProps {
   buttonText?: string;
@@ -38,20 +39,25 @@ const Modal: React.FC<ModalProps> = ({
   );
 };
 
-// Example usage:
 const ExamplePage = () => {
+  const donorInfo = {
+    date: "January 25, 2024",
+    fund: "Milstein Fund",
+    amount: "$9,336.84"
+  };
+  const documents = [
+    { name: "receipt.pdf", date: "Tue Mar 12 • 230 KB" },
+    { name: "note.pdf", date: "Tue Mar 12 • 230 KB" },
+  ];
   return (
     <div className="p-4">
-      <Modal
-        buttonText="Click me!"
-        title="Welcome"
-        description="This is a sample modal dialog"
-      >
-        <div className="space-y-4">
-          <p>This is the modal content.</p>
-          <p>You can put anything you want in here!</p>
-        </div>
-      </Modal>
+      <OpenContributorModal
+        buttonText="Open Donor Modal"
+        title="Claire Lee"
+        description="This is a repeated donor and this is her fifth donation."
+        donorInfo={donorInfo}
+        documents={documents}
+      />
     </div>
   );
 };
