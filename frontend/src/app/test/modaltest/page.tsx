@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import OpenContributorModal from "@/components/molecules/OpenContributorModal";
 
 interface ModalProps {
   buttonText?: string;
@@ -39,27 +38,4 @@ const Modal: React.FC<ModalProps> = ({
   );
 };
 
-const ExamplePage = () => {
-  const donorInfo = {
-    date: "January 25, 2024",
-    fund: "Milstein Fund",
-    amount: "$9,336.84",
-  };
-  const documents = [
-    { name: "receipt.pdf", date: "Tue Mar 12 • 230 KB" },
-    { name: "note.pdf", date: "Tue Mar 12 • 230 KB" },
-  ];
-  return (
-    <div className="p-4">
-      <OpenContributorModal
-        buttonText="Open Donor Modal"
-        title="Claire Lee"
-        description="This is a repeated donor and this is her fifth donation."
-        donorInfo={donorInfo}
-        documents={documents}
-      />
-    </div>
-  );
-};
-
-export default ExamplePage;
+export default Modal;
