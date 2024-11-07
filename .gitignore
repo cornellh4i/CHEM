@@ -7,6 +7,14 @@ node_modules/
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+frontend/.next/
+frontend/.yarn/*
+frontend/node_modules
+frontend/out/
+frontend/build
+frontend/dist
+frontend/.env*.local
+frontend/coverage
 
 # testing
 /coverage
