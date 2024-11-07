@@ -5,7 +5,7 @@ import Input from "@/components/atoms/Input";
 import Radio from "@/components/atoms/Radio";
 import Select from "@/components/atoms/Select";
 import { ScrollArea } from "@/components/ui/scroll";
-import DatePicker from "@/components/atoms/DatePicker";
+import { DatePicker } from "@/components/atoms/DatePicker";
 import { Calendar } from "@/components/ui/calendar";
 
 import {
@@ -19,8 +19,6 @@ import {
 } from "@/components/ui/dialog";
 
 const TransactionModal = ({}) => {
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
-
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -34,13 +32,8 @@ const TransactionModal = ({}) => {
             </DialogTitle>
           </DialogHeader>
           <div className="mb-2 text-[22px]">Date</div>
-          <div className="h-[51px] w-[268px] rounded-lg bg-gray-200">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              className="rounded-md border"
-            />
+          <div>
+            <DatePicker></DatePicker>
           </div>
           <div className="mt-[32px] text-[22px]">Contributer</div>
           <Select
