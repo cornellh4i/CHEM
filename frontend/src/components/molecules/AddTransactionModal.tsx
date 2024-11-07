@@ -70,8 +70,8 @@ const TransactionModal = ({}) => {
             <div className="justify-start">
               <div className="text-[22px]">Type</div>
               <div className="ml-2 mt-3 space-y-2 text-[22px]">
-                <Radio label="Deposit"></Radio>
-                <Radio label="Withdrawl"></Radio>
+                <Radio label="Donation"></Radio>
+                <Radio label="Endowment"></Radio>
               </div>
             </div>
           </div>
@@ -81,7 +81,6 @@ const TransactionModal = ({}) => {
               Optional
             </div>
           </div>
-
           <textarea
             className="ml-0.5 mt-[42px] h-[150px] w-[95%] rounded-2xl border border-black"
             placeholder="Add a description"
