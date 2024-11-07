@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import Button from "../atoms/Button";
+import { useMediaQuery } from "@mui/material";
+import { Info as InfoIcon } from "@mui/icons-material";
 
 type FormData = {
   firstName: string;
@@ -12,6 +14,7 @@ type FormData = {
 };
 
 const ProfilePage = () => {
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const [formData, setFormData] = useState<FormData>({
     firstName: "Janice",
     lastName: "Smith",
@@ -34,7 +37,13 @@ const ProfilePage = () => {
         fontFamily: "Arial, sans-serif",
       }}
     >
-      <form style={{ display: "grid", gap: "1.5rem", width: "600px" }}>
+      <form
+        style={{
+          display: "grid",
+          gap: "1.5rem",
+          width: isMobile ? "100%" : "600px",
+        }}
+      >
         <div style={{ gap: "1rem" }}>
           <h2
             style={{
@@ -46,7 +55,13 @@ const ProfilePage = () => {
             Your Profile
           </h2>
           {/* First and Last Name */}
-          <div style={{ display: "flex", gap: "24px" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "24px",
+              flexDirection: isMobile ? "column" : "row",
+            }}
+          >
             <div style={{ flex: 1 }}>
               <label>First Name</label>
               <input
@@ -81,7 +96,13 @@ const ProfilePage = () => {
         </div>
 
         {/* Role and Email */}
-        <div style={{ display: "flex", gap: "24px" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "24px",
+            flexDirection: isMobile ? "column" : "row",
+          }}
+        >
           <div style={{ flex: 1 }}>
             <label>Your Role</label>
             <input
@@ -97,7 +118,21 @@ const ProfilePage = () => {
                 color: "#747474",
               }}
             />
-            <small style={{ color: "#888", fontSize: "0.875rem" }}>
+            <small
+              style={{
+                color: "#888",
+                fontSize: "12px",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <InfoIcon
+                style={{
+                  width: "15px",
+                  height: "auto",
+                  marginRight: "4px",
+                }}
+              />
               This was assigned by your administrator
             </small>
           </div>
