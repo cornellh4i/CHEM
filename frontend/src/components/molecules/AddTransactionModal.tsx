@@ -7,6 +7,7 @@ import Select from "@/components/atoms/Select";
 import { ScrollArea } from "@/components/ui/scroll";
 import { DatePicker } from "@/components/atoms/DatePicker";
 import { Calendar } from "@/components/ui/calendar";
+import DragDrop from "@/components/molecules/DragDrop";
 
 import {
   Dialog,
@@ -38,13 +39,13 @@ const TransactionModal = ({}) => {
           <div className="mt-[32px] text-[22px]">Contributer</div>
           <Select
             placeholder="Select a Contributer"
-            values={["Robert Fund", "Sophie Fund", "Edward Fund"]}
+            values={["Sarah Clay", "Theo Rumberg", "Brandon Wu"]}
             width="95%"
           ></Select>
           <div className="mt-[32px] text-[22px]">Fund</div>
           <Select
             placeholder="Select a Fund"
-            values={["Sarah Clay", "Theo Rumberg", "Brandon Wu"]}
+            values={["Robert Fund", "Sophie Fund", "Edward Fund"]}
             width="95%"
           ></Select>
           <div className="mb-2 mt-[32px] text-[22px]">Amount</div>
@@ -96,12 +97,12 @@ const TransactionModal = ({}) => {
               Optional
             </div>
           </div>
-          <div className="mt-[46px] h-[51px] w-[95%] rounded-lg bg-gray-200"></div>
-          <div className="relative mt-[100px]">
-            <Button className="absolute left-0 mb-2 me-2 rounded-2xl border border-black px-16 py-3 text-lg text-black hover:bg-grey-dark focus:outline-none focus:ring-4 focus:ring-gray-300">
+          <DragDrop></DragDrop>
+          <div className="relative mb-2 mt-[100px]">
+            <Button className="absolute left-0 mb-2 me-2 rounded-2xl border border-black px-16 py-3 text-lg text-black hover:bg-grey-dark focus:outline-none">
               Cancel
             </Button>
-            <Button className="absolute right-5 mb-2 me-2 rounded-2xl border border-black bg-gray-800 px-20 py-3 text-lg text-white hover:bg-grey-dark focus:outline-none focus:ring-4 focus:ring-gray-300">
+            <Button className="absolute right-5 mb-2 me-2 rounded-2xl border border-black bg-gray-800 px-20 py-3 text-lg text-white hover:bg-grey-dark focus:outline-none">
               Add
             </Button>
           </div>
