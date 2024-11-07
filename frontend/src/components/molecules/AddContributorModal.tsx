@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import Button from "@/components/atoms/Button";
 
-// Input component definition
+// Input component definitions
 const Input = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement>
