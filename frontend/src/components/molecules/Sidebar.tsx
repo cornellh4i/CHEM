@@ -7,6 +7,8 @@ import {
   People as ContributorsIcon,
   BarChart as ActivityIcon,
   Menu as MenuIcon,
+  Settings as SettingsIcon,
+  Portrait as PortraitIcon,
 } from "@mui/icons-material"; // Import Material-UI icons
 import { IconButton, useMediaQuery } from "@mui/material"; // Import IconButton and useMediaQuery from Material-UI
 
@@ -161,6 +163,54 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
             }}
           >
             Contributors
+          </MenuItem>
+          {/* SETTINGS AND PROFILE ICONS START HERE NICOLE whoop */}
+          <MenuItem
+            icon={
+              <SettingsIcon
+                style={{
+                  width: "20px",
+                  height: "auto",
+                  color:
+                    activePage === "contributors"
+                      ? selectedColor
+                      : nonSelectedColor,
+                }}
+              />
+            }
+            onClick={() => handleMenuClick("contributors")}
+            style={{
+              color:
+                activePage === "contributors"
+                  ? selectedColor
+                  : nonSelectedColor,
+            }}
+          >
+            Settings
+          </MenuItem>
+
+          <MenuItem
+            icon={
+              <PortraitIcon
+                style={{
+                  width: "20px",
+                  height: "auto",
+                  color:
+                    activePage === "contributors"
+                      ? selectedColor
+                      : nonSelectedColor,
+                }}
+              />
+            }
+            onClick={() => handleMenuClick("contributors")}
+            style={{
+              color:
+                activePage === "contributors"
+                  ? selectedColor
+                  : nonSelectedColor,
+            }}
+          >
+            Diego Marques
           </MenuItem>
         </Menu>
       </Sidebar>
