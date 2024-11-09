@@ -63,7 +63,7 @@ const routes = {
   adminPaths: ["/users", "/website"],
 
   /** Anyone can access */
-  publicPaths: ["/", "about", "/dashboard"],
+  publicPaths: ["/", "about", "/dashboard", "/profilepage"],
 };
 
 /** Middleware that runs for every protected route */

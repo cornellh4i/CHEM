@@ -2,6 +2,7 @@
 
 import React, { ReactNode } from "react";
 import SidebarComponent from "@/components/molecules/Sidebar";
+import DashboardPage from "@/app/dashboard/page";
 import { useState } from "react";
 
 interface DefaultTemplateProps {
