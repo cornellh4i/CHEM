@@ -7,8 +7,8 @@ export { default as Toast } from "./atoms/Toast";
 
 // Molecules
 export { default as Appbar } from "./molecules/Appbar";
-export { default as LoginFormCard} from "./molecules/LoginFormCard"
-export { default as SignupFormCard} from "./molecules/SignupFormCard"
+export { default as LoginFormCard } from "./molecules/LoginFormCard";
+export { default as SignupFormCard } from "./molecules/SignupFormCard";
 
 // Organisms
 export { default as ForgotPasswordForm } from "./organisms/ForgotPasswordForm";
@@ -23,3 +23,4 @@ export { default as VerifyEmailForm } from "./organisms/VerifyEmailForm";
 export { default as CenterTemplate } from "./templates/CenterTemplate";
 export { default as DefaultTemplate } from "./templates/DefaultTemplate";
 export { default as LoginTemplate } from "./templates/LoginTemplate";
+export { default as DashboardTemplate } from "./templates/DashboardTemplate";
