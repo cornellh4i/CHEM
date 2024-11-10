@@ -1,6 +1,9 @@
 import React, { ReactNode } from "react";
-import SidebarComponent from "@/components/molecules/Sidebar";
+import Sidebar from "@/components/molecules/Sidebar";
 import { useState } from "react";
+import { IconButton, useMediaQuery } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import MobileSidebar from "../molecules/MobileSidebar";
 
 interface DefaultTemplateProps {
   children: ReactNode;
@@ -9,6 +12,8 @@ interface DefaultTemplateProps {
 const DashboardTemplate = ({ children }: DefaultTemplateProps) => {
   // State to track whether the sidebar is collapsed or expanded
   const [collapsed, setCollapsed] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [activePage, setActivePage] = useState("dashboard");
 
   // Function to toggle the sidebar's collapsed state
   const handleToggleSidebar = () => {
@@ -20,10 +25,17 @@ const DashboardTemplate = ({ children }: DefaultTemplateProps) => {
     // Main container for the dashboard layout
     <div className="flex min-h-screen dark:bg-gray-900 dark:text-gray-300">
       {/* Display SidebarComponent, passing the current collapsed state and toggle function as props */}
-      <SidebarComponent
-        collapsed={collapsed}
-        handleToggleSidebar={handleToggleSidebar}
-      />
+      {isMobile ? (
+        <MobileSidebar
+          collapsed={collapsed}
+          handleToggleSidebar={handleToggleSidebar}
+        />
+      ) : (
+        <Sidebar
+          collapsed={collapsed}
+          handleToggleSidebar={handleToggleSidebar}
+        />
+      )}
       {/* Main content area */}
       <div
         className={`ml-0 flex-1 transition-all duration-300 ${collapsed ? "ml-20" : "ml-64"}`}
