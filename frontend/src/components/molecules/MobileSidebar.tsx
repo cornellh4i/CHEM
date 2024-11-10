@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import {
   CollectionsBookmark as LogoIcon,
@@ -6,19 +6,17 @@ import {
   AccountBalance as FundsIcon,
   People as ContributorsIcon,
   BarChart as ActivityIcon,
+  Menu as MenuIcon,
 } from "@mui/icons-material";
+import { IconButton } from "@mui/material"; 
 
 interface MobileSidebarProps {
   collapsed: boolean;
-  activePage: string;
-  onMenuClick: (page: string) => void;
+  handleToggleSidebar: () => void; // Function to toggle the sidebar state
 }
 
-const MobileSidebar = ({
-  collapsed,
-  activePage,
-  onMenuClick,
-}: MobileSidebarProps) => (
+const MobileSidebar = ({ collapsed, handleToggleSidebar }: MobileSidebarProps) => (
+  const [activePage, setActivePage] = useState<string>("dashboard");
   <Sidebar
     collapsed={collapsed}
     style={{
