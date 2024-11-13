@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode, useState } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -8,44 +8,27 @@ import {
 } from "@/components/ui/dialog";
 import Button from "@/components/atoms/Button";
 
-// Input component definitions
-const Input = React.forwardRef<
-  HTMLInputElement,
-  React.InputHTMLAttributes<HTMLInputElement>
->(({ className, ...props }, ref) => {
-  return (
-    <input
-      ref={ref}
-      className={`w-full rounded-md border border-gray-400 p-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-gray-500 ${className}`} // Adjusted border and focus styles for a cleaner look
-      {...props}
-    />
-  );
-});
-Input.displayName = "Input";
-
-// Label component definition
-const Label: React.FC<React.LabelHTMLAttributes<HTMLLabelElement>> = ({
-  children,
-  className,
-  ...props
-}) => {
-  return (
-    <label
-      className={`mb-1 block text-sm font-medium text-black ${className}`}
-      {...props}
-    >
-      {children}
-    </label>
-  );
+type AddContributorModalProps = {
+  children: ReactNode;
 };
 
-const AddContributorModal = () => {
+const AddContributorModal: React.FC<AddContributorModalProps> = ({
+  children,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOpen = () => setIsOpen(true);
+  const handleClose = () => setIsOpen(false);
+
+  const handleAdd = () => {
+    // Add contributor logic here
+    handleClose(); 
+  };
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="border-black text-black">
-          Add Contributor
-        </Button>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild onClick={handleOpen}>
+        {children}
       </DialogTrigger>
       <DialogContent className="rounded-lg border border-gray-300 bg-white p-8 shadow-lg sm:min-h-[475px] sm:max-w-lg">
         <DialogHeader>
@@ -55,31 +38,69 @@ const AddContributorModal = () => {
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" placeholder="Naomi Rufian" />
+            <label
+              htmlFor="name"
+              className="mb-1 block text-sm font-medium text-black"
+            >
+              Name
+            </label>
+            <input
+              id="name"
+              placeholder="Naomi Rufian"
+              className="w-full rounded-md border border-gray-400 p-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-gray-500"
+            />
           </div>
           <div>
-            <Label htmlFor="phone">Phone number</Label>
-            <Input id="phone" placeholder="+1 (718) 123-4567" />
+            <label
+              htmlFor="phone"
+              className="mb-1 block text-sm font-medium text-black"
+            >
+              Phone number
+            </label>
+            <input
+              id="phone"
+              placeholder="+1 (718) 123-4567"
+              className="w-full rounded-md border border-gray-400 p-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-gray-500"
+            />
           </div>
           <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" placeholder="123abc@gmail.com" />
+            <label
+              htmlFor="email"
+              className="mb-1 block text-sm font-medium text-black"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              placeholder="123abc@gmail.com"
+              className="w-full rounded-md border border-gray-400 p-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-gray-500"
+            />
           </div>
           <div>
-            <Label htmlFor="address">Mailing address</Label>
-            <Input id="address" placeholder="123 ABC Drive, Queens NY 11357" />
+            <label
+              htmlFor="address"
+              className="mb-1 block text-sm font-medium text-black"
+            >
+              Mailing address
+            </label>
+            <input
+              id="address"
+              placeholder="123 ABC Drive, Queens NY 11357"
+              className="w-full rounded-md border border-gray-400 p-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-gray-500"
+            />
           </div>
           <div className="flex justify-between space-x-4 pt-8">
             <Button
               variant="outline"
               className="rounded-md border border-gray-400 px-6 py-2 text-sm text-black hover:bg-gray-100"
+              onClick={handleClose} // Close modal on Cancel
             >
               Cancel
             </Button>
             <Button
               variant="primary"
               className="rounded-md border border-gray-700 bg-gray-700 px-8 py-2 text-sm text-white hover:bg-gray-800"
+              onClick={handleAdd} // Close modal on Add
             >
               Add
             </Button>
