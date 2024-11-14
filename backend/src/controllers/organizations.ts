@@ -154,6 +154,17 @@ const deleteOrganization = async (id: string): Promise<Organization> => {
   }
 };
 
+// TODO: Add getOrganizationContributors function
+// Should return all contributors for a specific organization
+// Include sorting options for firstName/lastName
+// Include pagination support
+// Handle errors if organization doesn't exist
+
+// TODO: Add addContributorToOrganization function
+// Should link a contributor to an organization
+// Validate that both organization and contributor exist
+// Handle case where link already exists
+
 export default {
   getOrganizations,
   getOrganizationById,
