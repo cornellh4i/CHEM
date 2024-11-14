@@ -28,19 +28,18 @@ const DashboardTemplate = ({ children }: DefaultTemplateProps) => {
 
       {/* Main content area with dynamic margin based on sidebar state */}
       <div
-        className={`transition-all duration-300 ${isMobile
-          ? "ml-0"                // No margin for mobile
-          : collapsed
-            ? "ml-20"             // Smaller margin for collapsed sidebar
-            : "ml-64"             // Full margin for expanded sidebar
-          } flex-1`}
+        className={"flex-1 transition-all duration-300"}
+        style={{
+          textAlign: "left",
+          maxWidth: "100%",
+          padding: "2rem",
+          marginLeft: collapsed ? "128px" : "268px",
+        }}
       >
-        <div className="mx-auto max-w-screen-xl p-4 sm:p-8 lg:p-16 pb-6 pt-12 sm:mt-0">
-          {children}
-        </div>
+        {children}
       </div>
 
-      {isMobile && (
+      {
         <IconButton
           onClick={handleToggleSidebar}
           style={{
@@ -50,8 +49,9 @@ const DashboardTemplate = ({ children }: DefaultTemplateProps) => {
             zIndex: 1000,
           }}
         >
+          <MenuIcon />
         </IconButton>
-      )}
+      }
     </div>
   );
 };

@@ -33,7 +33,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
         top: 0,
         left: 0,
         height: "100vh",
-        width: collapsed ? "80px" : isMobile ? "100vw" : "200px",
+        width: collapsed ? "80px" : isMobile ? "100vw" : "220px",
         backgroundColor: "#f0f0f0", // Gray background color
         zIndex: 20,
         display: "flex",
@@ -50,29 +50,42 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
         onClick={handleToggleSidebar}
         style={{
           alignSelf: "flex-start",
-          margin: "10px",
+          margin: "16px",
           color: "#000000",
         }}
-      >
-        <MenuIcon />
-      </IconButton>
+      ></IconButton>
 
       <Menu>
         {/* Menu Items */}
         <MenuItem
-          icon={<DashboardIcon style={{ color: activePage === "dashboard" ? selectedColor : nonSelectedColor }} />}
+          icon={
+            <DashboardIcon
+              style={{
+                color:
+                  activePage === "dashboard" ? selectedColor : nonSelectedColor,
+              }}
+            />
+          }
           onClick={() => handleMenuClick("dashboard")}
           style={{
-            color: activePage === "dashboard" ? selectedColor : nonSelectedColor,
+            color:
+              activePage === "dashboard" ? selectedColor : nonSelectedColor,
             display: "flex",
             justifyContent: isMobile ? "center" : "flex-start",
           }}
         >
-          {!collapsed && !isMobile && "Dashboard"}
+          {!collapsed && "Dashboard"}
         </MenuItem>
 
         <MenuItem
-          icon={<ActivityIcon style={{ color: activePage === "activity" ? selectedColor : nonSelectedColor }} />}
+          icon={
+            <ActivityIcon
+              style={{
+                color:
+                  activePage === "activity" ? selectedColor : nonSelectedColor,
+              }}
+            />
+          }
           onClick={() => handleMenuClick("activity")}
           style={{
             color: activePage === "activity" ? selectedColor : nonSelectedColor,
@@ -80,11 +93,18 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
             justifyContent: isMobile ? "center" : "flex-start",
           }}
         >
-          {!collapsed && !isMobile && "Activity"}
+          {!collapsed && "Activity"}
         </MenuItem>
 
         <MenuItem
-          icon={<FundsIcon style={{ color: activePage === "funds" ? selectedColor : nonSelectedColor }} />}
+          icon={
+            <FundsIcon
+              style={{
+                color:
+                  activePage === "funds" ? selectedColor : nonSelectedColor,
+              }}
+            />
+          }
           onClick={() => handleMenuClick("funds")}
           style={{
             color: activePage === "funds" ? selectedColor : nonSelectedColor,
@@ -92,19 +112,29 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
             justifyContent: isMobile ? "center" : "flex-start",
           }}
         >
-          {!collapsed && !isMobile && "Funds"}
+          {!collapsed && "Funds"}
         </MenuItem>
 
         <MenuItem
-          icon={<ContributorsIcon style={{ color: activePage === "contributors" ? selectedColor : nonSelectedColor }} />}
+          icon={
+            <ContributorsIcon
+              style={{
+                color:
+                  activePage === "contributors"
+                    ? selectedColor
+                    : nonSelectedColor,
+              }}
+            />
+          }
           onClick={() => handleMenuClick("contributors")}
           style={{
-            color: activePage === "contributors" ? selectedColor : nonSelectedColor,
+            color:
+              activePage === "contributors" ? selectedColor : nonSelectedColor,
             display: "flex",
             justifyContent: isMobile ? "center" : "flex-start",
           }}
         >
-          {!collapsed && !isMobile && "Contributors"}
+          {!collapsed && "Contributors"}
         </MenuItem>
       </Menu>
     </div>
