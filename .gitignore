@@ -11,6 +11,23 @@ node_modules
 !.yarn/sdks
 !.yarn/versions
 .yarn/install-state.gz
+frontend/.next/
+frontend/.yarn/*
+frontend/node_modules
+frontend/out/
+frontend/build
+frontend/dist
+frontend/.env*.local
+frontend/coverage
+
+frontend/.next/
+node_modules/
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
 # Next.js
 .next/
