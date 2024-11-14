@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import {
   Home as DashboardIcon,
@@ -10,6 +10,8 @@ import {
   Portrait as PortraitIcon,
 } from "@mui/icons-material";
 import { IconButton, useMediaQuery } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -19,9 +21,19 @@ interface SidebarProps {
 const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [activePage, setActivePage] = useState<string>("dashboard");
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const handleMenuClick = (page: string) => {
+  // Synchronize activePage with the current route
+  useEffect(() => {
+    const page = pathname.split("/")[1] || "dashboard";
     setActivePage(page);
+  }, [pathname]);
+
+  const handleMenuClick = (route: string) => {
+    const page = route.replace("/", "");
+    setActivePage(page);
+    router.push(route);
     if (isMobile) handleToggleSidebar(); // Close sidebar after selection on mobile
   };
 
@@ -36,12 +48,12 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
         left: 0,
         height: "100vh",
         width: collapsed ? "80px" : isMobile ? "100vw" : "220px",
-        backgroundColor: "#f0f0f0", // Gray background color
+        backgroundColor: "#f0f0f0",
         zIndex: 20,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "flex-start", // Align items to the top
+        justifyContent: "flex-start",
         boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
         overflowY: "auto",
         transition: "width 0.3s",
@@ -73,7 +85,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
                 }}
               />
             }
-            onClick={() => handleMenuClick("dashboard")}
+            onClick={() => handleMenuClick("/dashboard")}
             style={{
               color:
                 activePage === "dashboard" ? selectedColor : nonSelectedColor,
@@ -95,7 +107,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
                 }}
               />
             }
-            onClick={() => handleMenuClick("activity")}
+            onClick={() => handleMenuClick("/activity")}
             style={{
               color:
                 activePage === "activity" ? selectedColor : nonSelectedColor,
@@ -115,7 +127,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
                 }}
               />
             }
-            onClick={() => handleMenuClick("funds")}
+            onClick={() => handleMenuClick("/funds")}
             style={{
               color: activePage === "funds" ? selectedColor : nonSelectedColor,
               display: "flex",
@@ -136,7 +148,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
                 }}
               />
             }
-            onClick={() => handleMenuClick("contributors")}
+            onClick={() => handleMenuClick("/contributors")}
             style={{
               color:
                 activePage === "contributors"
@@ -155,8 +167,6 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
       <div style={{ width: "100%", marginTop: "auto", marginBottom: "24px" }}>
         <Menu>
           <MenuItem
-            component="a"
-            href="/profilepage"
             icon={
               <SettingsIcon
                 style={{
@@ -167,7 +177,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
                 }}
               />
             }
-            onClick={() => handleMenuClick("profilepage")}
+            onClick={() => handleMenuClick("/profilepage")}
             style={{
               color:
                 activePage === "profilepage" ? selectedColor : nonSelectedColor,
@@ -179,8 +189,6 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
           </MenuItem>
 
           <MenuItem
-            component="a"
-            href="/profilepage"
             icon={
               <PortraitIcon
                 style={{
@@ -191,7 +199,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
                 }}
               />
             }
-            onClick={() => handleMenuClick("profilepage")}
+            onClick={() => handleMenuClick("/profilepage")}
             style={{
               color:
                 activePage === "profilepage" ? selectedColor : nonSelectedColor,
