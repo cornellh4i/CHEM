@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import {
@@ -16,26 +15,20 @@ interface MobileSidebarProps {
 }
 
 const MobileSidebar = ({ collapsed, handleToggleSidebar }: MobileSidebarProps) => {
-  const [activePage, setActivePage] = useState<string>("dashboard");
-  const isMobile = useMediaQuery("(max-width: 768px)");
   const isSmallMobile = useMediaQuery("(max-width: 500px)");
-
-  // Function to handle menu item clicks and update active page
-  const onMenuClick = (page: string) => {
-    setActivePage(page);
-    handleToggleSidebar(); // Optionally close the sidebar on mobile after selection
-  };
 
   return (
     <Sidebar
-      collapsed={collapsed || isSmallMobile}
+      collapsed={collapsed}
       style={{
-        width: collapsed || isSmallMobile ? "80px" : "250px", // Width adjustment for collapsed state and small mobile
+        width: collapsed ? "0" : "80px", // Sidebar width when not collapsed
         height: "100vh",
         position: "fixed",
-        left: 0,
+        left: collapsed ? "-80px" : "0", // Slide in/out effect for sidebar
         top: 0,
-        transition: "width 0.3s ease",
+        backgroundColor: "#FFFFFF", // Solid background color
+        transition: "left 0.3s ease",
+        zIndex: 20, // Ensures sidebar is above other elements if needed
         overflow: "hidden",
       }}
     >
@@ -50,20 +43,19 @@ const MobileSidebar = ({ collapsed, handleToggleSidebar }: MobileSidebarProps) =
             padding: "10px 20px",
           }}
         >
-          <LogoIcon style={{ width: "24px", height: "24px", marginRight: collapsed || isSmallMobile ? "0" : "16px" }} />
-          {!collapsed && !isSmallMobile && "Odyssey Fund"}
+          <LogoIcon style={{ width: "24px", height: "24px" }} />
         </div>
-        <MenuItem icon={<DashboardIcon />} onClick={() => onMenuClick("dashboard")}>
-          {!collapsed && !isSmallMobile && "Dashboard"}
+        <MenuItem icon={<DashboardIcon />} onClick={handleToggleSidebar}>
+          {!isSmallMobile && "Dashboard"} {/* Only show text if not very narrow */}
         </MenuItem>
-        <MenuItem icon={<ActivityIcon />} onClick={() => onMenuClick("activity")}>
-          {!collapsed && !isSmallMobile && "Activity"}
+        <MenuItem icon={<ActivityIcon />} onClick={handleToggleSidebar}>
+          {!isSmallMobile && "Activity"}
         </MenuItem>
-        <MenuItem icon={<FundsIcon />} onClick={() => onMenuClick("funds")}>
-          {!collapsed && !isSmallMobile && "Funds"}
+        <MenuItem icon={<FundsIcon />} onClick={handleToggleSidebar}>
+          {!isSmallMobile && "Funds"}
         </MenuItem>
-        <MenuItem icon={<ContributorsIcon />} onClick={() => onMenuClick("contributors")}>
-          {!collapsed && !isSmallMobile && "Contributors"}
+        <MenuItem icon={<ContributorsIcon />} onClick={handleToggleSidebar}>
+          {!isSmallMobile && "Contributors"}
         </MenuItem>
       </Menu>
     </Sidebar>
@@ -71,4 +63,3 @@ const MobileSidebar = ({ collapsed, handleToggleSidebar }: MobileSidebarProps) =
 };
 
 export default MobileSidebar;
-
