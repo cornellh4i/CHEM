@@ -130,4 +130,31 @@ organizationRouter.delete("/:id", async (req, res) => {
   }
 });
 
+// GET transactions for a specific contributor
+organizationRouter.get("/:id/transactions", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Fetch the list of transaction amounts for the given contributor ID
+    const amounts = await controller.getOrganizationTransactions(id);
+
+    if (amounts.length > 0) {
+      res.status(200).json(amounts);
+    } else {
+      res
+        .status(404)
+        .json({ error: "No transactions found for this contributor" });
+    }
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch transactions for the contributor",
+    };
+    res.status(500).json(errorResponse);
+  }
+});
+
 export default organizationRouter;
