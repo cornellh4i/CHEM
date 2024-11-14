@@ -1,7 +1,7 @@
 import prisma from "../utils/client";
 import { Organization, Prisma } from "@prisma/client";
 
-// Get organizations with filtering, sorting, and pagination
+// Get organizations with filtering, sorting, and paginations
 const getOrganizations = async (
   // filter based on name, restriction, and type
   filters?: { name?: string; restriction?: string; type?: string },
