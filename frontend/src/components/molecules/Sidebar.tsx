@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar"; // Import Sidebar and Menu components from react-pro-sidebar
 import {
   CollectionsBookmark as LogoIcon,
@@ -9,6 +9,8 @@ import {
   Menu as MenuIcon,
 } from "@mui/icons-material"; // Import Material-UI icons
 import { IconButton, useMediaQuery } from "@mui/material"; // Import IconButton and useMediaQuery from Material-UI
+import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation"; // Import usePathname for route detection
 
 interface SidebarProps {
   collapsed: boolean; // Indicates if the sidebar is collapsed
@@ -20,10 +22,20 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
 
   const [activePage, setActivePage] = useState<string>("dashboard"); // State to track the active page
 
+  const router = useRouter();
+  const pathname = usePathname();
+
   // Function to set the active page when a menu item is clicked
   const handleMenuClick = (page: string) => {
-    setActivePage(page);
+    setActivePage(page); // Update the active page state
+    router.push(page); // Navigate to the selected page
   };
+
+  // Synchronize activePage with the current route
+  useEffect(() => {
+    const page = pathname.split("/")[1] || "dashboard"; // Extract the active page from the path
+    setActivePage(page);
+  }, [pathname]);
 
   // Color definitions for selected and non-selected menu items
   const nonSelectedColor = "#838383";
@@ -31,7 +43,6 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
 
   return (
     <div className="relative">
-      {" "}
       {/* Sidebar toggle button */}
       <IconButton
         onClick={handleToggleSidebar} // Toggle sidebar on button click
@@ -49,7 +60,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
         collapsed={collapsed}
         breakPoint={isMobile ? "always" : "md"} // Always collapsed on mobile, collapsed on medium screens
         style={{
-          width: collapsed ? "80px" : isMobile ? "100vw" : "200px", // 8z0px when collapsed, 200px on desktop, full width on mobile
+          width: collapsed ? "80px" : isMobile ? "100vw" : "200px", // 80px when collapsed, 200px on desktop, full width on mobile
           height: "100vh", // Full height
           transition: "width 0.3s", // Smooth width transition
           left: isMobile && collapsed ? "-200px" : "0", // Offscreen when collapsed on mobile
@@ -89,7 +100,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
                 }}
               />
             }
-            onClick={() => handleMenuClick("dashboard")} // Click handler to set active page
+            onClick={() => handleMenuClick("/dashboard")} // Click handler to set active page
             style={{
               color:
                 activePage === "dashboard" ? selectedColor : nonSelectedColor,
@@ -97,6 +108,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
           >
             Dashboard
           </MenuItem>
+
           {/* Button to go to activity page */}
           <MenuItem
             icon={
@@ -111,7 +123,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
                 }}
               />
             }
-            onClick={() => handleMenuClick("activity")}
+            onClick={() => handleMenuClick("/activity")}
             style={{
               color:
                 activePage === "activity" ? selectedColor : nonSelectedColor,
@@ -131,7 +143,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
                 }}
               />
             }
-            onClick={() => handleMenuClick("funds")}
+            onClick={() => handleMenuClick("/funds")}
             style={{
               color: activePage === "funds" ? selectedColor : nonSelectedColor,
             }}
@@ -152,7 +164,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
                 }}
               />
             }
-            onClick={() => handleMenuClick("contributors")}
+            onClick={() => handleMenuClick("/contributors")}
             style={{
               color:
                 activePage === "contributors"
