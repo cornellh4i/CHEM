@@ -50,7 +50,6 @@ const DashboardTemplate = ({ children }: DefaultTemplateProps) => {
             zIndex: 1000,
           }}
         >
-          <MenuIcon />
         </IconButton>
       )}
     </div>
