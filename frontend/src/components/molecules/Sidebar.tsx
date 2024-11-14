@@ -5,8 +5,9 @@ import {
   AccountBalance as FundsIcon,
   People as ContributorsIcon,
   BarChart as ActivityIcon,
+  Menu as MenuIcon,
 } from "@mui/icons-material";
-import { useMediaQuery } from "@mui/material";
+import { IconButton, useMediaQuery } from "@mui/material";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -14,7 +15,7 @@ interface SidebarProps {
 }
 
 const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
-  const isMobile = useMediaQuery("(max-width: 425px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const [activePage, setActivePage] = useState<string>("dashboard");
 
   const handleMenuClick = (page: string) => {
@@ -33,32 +34,30 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
         left: 0,
         height: "100vh",
         width: collapsed ? "80px" : isMobile ? "100vw" : "200px",
-        backgroundColor: "#f0f0f0", // Set a gray background color for the sidebar
+        backgroundColor: "#f0f0f0", // Gray background color
         zIndex: 20,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: isMobile ? "center" : "flex-start",
+        justifyContent: "flex-start", // Align items to the top
         boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
         overflowY: "auto",
         transition: "width 0.3s",
       }}
     >
-      <Menu>
-        <div
-          style={{
-            marginTop: isMobile ? "0" : "16px",
-            display: "flex",
-            alignItems: "center",
-            color: "#185F96",
-            fontWeight: "bold",
-            padding: isMobile ? "0" : "10px 20px",
-            justifyContent: "center",
-          }}
-        >
-          {!collapsed && !isMobile && "CHEM"}
-        </div>
+      {/* Menu Toggle Button */}
+      <IconButton
+        onClick={handleToggleSidebar}
+        style={{
+          alignSelf: "flex-start",
+          margin: "10px",
+          color: "#000000",
+        }}
+      >
+        <MenuIcon />
+      </IconButton>
 
+      <Menu>
         {/* Menu Items */}
         <MenuItem
           icon={<DashboardIcon style={{ color: activePage === "dashboard" ? selectedColor : nonSelectedColor }} />}
