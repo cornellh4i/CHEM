@@ -1,40 +1,49 @@
+
 import React, { ReactNode } from "react";
 import Sidebar from "@/components/molecules/Sidebar";
 import { useState } from "react";
-import { IconButton } from "@mui/material";
+import { IconButton, useMediaQuery } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import MobileSidebar from "../molecules/MobileSidebar";
 
 interface DefaultTemplateProps {
   children: ReactNode;
 }
 
 const DashboardTemplate = ({ children }: DefaultTemplateProps) => {
-  // State to track whether the sidebar is collapsed or expanded
+  //State to control sidebar collapse
   const [collapsed, setCollapsed] = useState(false);
+  //Check to see if screen is mobile size
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const [activePage, setActivePage] = useState("dashboard");
 
-  // Function to toggle the sidebar's collapsed state
+  //Toggle sidebar collapse
   const handleToggleSidebar = () => {
-    // Toggle the collapsed state to its opposite value
     setCollapsed(!collapsed);
   };
 
   return (
-    // Main container for the dashboard layout
     <div className="flex min-h-screen dark:bg-gray-900 dark:text-gray-300">
-      {/* Display SidebarComponent, passing the current collapsed state and toggle function as props */}
-      <Sidebar
-        collapsed={collapsed}
-        handleToggleSidebar={handleToggleSidebar}
-      />
-      {/* Main content area */}
+      {isMobile ? (
+        <MobileSidebar
+          collapsed={collapsed}
+          handleToggleSidebar={handleToggleSidebar}
+        />
+      ) : (
+        <Sidebar
+          collapsed={collapsed}
+          handleToggleSidebar={handleToggleSidebar}
+        />
+      )}
       <div
-        className={`ml-0 flex-1 transition-all duration-300 ${collapsed ? "ml-20" : "ml-64"}`}
-        style={{ margin: 0 }}
+        className={`transition-all duration-300 ${isMobile
+          ? "ml-0"
+          : collapsed
+            ? "ml-20"
+            : "ml-64"
+          } flex-1`}
       >
-        {/* Inner container for the content */}
-        <div className="mx-auto max-w-screen-xl p-16 pb-6 pt-12 sm:mt-0">
-          {/* Rendering any children components passed to the DashboardTemplate */}
+        <div className="mx-auto max-w-screen-xl p-4 sm:p-8 lg:p-16 pb-6 pt-12 sm:mt-0">
           {children}
         </div>
       </div>
@@ -43,3 +52,4 @@ const DashboardTemplate = ({ children }: DefaultTemplateProps) => {
 };
 
 export default DashboardTemplate;
+
