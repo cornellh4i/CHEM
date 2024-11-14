@@ -6,6 +6,8 @@ import {
   People as ContributorsIcon,
   BarChart as ActivityIcon,
   Menu as MenuIcon,
+  Settings as SettingsIcon,
+  Portrait as PortraitIcon,
 } from "@mui/icons-material";
 import { IconButton, useMediaQuery } from "@mui/material";
 
@@ -53,90 +55,154 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
           margin: "16px",
           color: "#000000",
         }}
-      ></IconButton>
+      >
+        <MenuIcon />
+      </IconButton>
 
-      <Menu>
-        {/* Menu Items */}
-        <MenuItem
-          icon={
-            <DashboardIcon
-              style={{
-                color:
-                  activePage === "dashboard" ? selectedColor : nonSelectedColor,
-              }}
-            />
-          }
-          onClick={() => handleMenuClick("dashboard")}
-          style={{
-            color:
-              activePage === "dashboard" ? selectedColor : nonSelectedColor,
-            display: "flex",
-            justifyContent: isMobile ? "center" : "flex-start",
-          }}
-        >
-          {!collapsed && "Dashboard"}
-        </MenuItem>
+      {/* Main Menu */}
+      <div style={{ flex: 1, width: "100%" }}>
+        <Menu>
+          <MenuItem
+            icon={
+              <DashboardIcon
+                style={{
+                  color:
+                    activePage === "dashboard"
+                      ? selectedColor
+                      : nonSelectedColor,
+                }}
+              />
+            }
+            onClick={() => handleMenuClick("dashboard")}
+            style={{
+              color:
+                activePage === "dashboard" ? selectedColor : nonSelectedColor,
+              display: "flex",
+              justifyContent: isMobile ? "center" : "flex-start",
+            }}
+          >
+            {!collapsed && "Dashboard"}
+          </MenuItem>
 
-        <MenuItem
-          icon={
-            <ActivityIcon
-              style={{
-                color:
-                  activePage === "activity" ? selectedColor : nonSelectedColor,
-              }}
-            />
-          }
-          onClick={() => handleMenuClick("activity")}
-          style={{
-            color: activePage === "activity" ? selectedColor : nonSelectedColor,
-            display: "flex",
-            justifyContent: isMobile ? "center" : "flex-start",
-          }}
-        >
-          {!collapsed && "Activity"}
-        </MenuItem>
+          <MenuItem
+            icon={
+              <ActivityIcon
+                style={{
+                  color:
+                    activePage === "activity"
+                      ? selectedColor
+                      : nonSelectedColor,
+                }}
+              />
+            }
+            onClick={() => handleMenuClick("activity")}
+            style={{
+              color:
+                activePage === "activity" ? selectedColor : nonSelectedColor,
+              display: "flex",
+              justifyContent: isMobile ? "center" : "flex-start",
+            }}
+          >
+            {!collapsed && "Activity"}
+          </MenuItem>
 
-        <MenuItem
-          icon={
-            <FundsIcon
-              style={{
-                color:
-                  activePage === "funds" ? selectedColor : nonSelectedColor,
-              }}
-            />
-          }
-          onClick={() => handleMenuClick("funds")}
-          style={{
-            color: activePage === "funds" ? selectedColor : nonSelectedColor,
-            display: "flex",
-            justifyContent: isMobile ? "center" : "flex-start",
-          }}
-        >
-          {!collapsed && "Funds"}
-        </MenuItem>
+          <MenuItem
+            icon={
+              <FundsIcon
+                style={{
+                  color:
+                    activePage === "funds" ? selectedColor : nonSelectedColor,
+                }}
+              />
+            }
+            onClick={() => handleMenuClick("funds")}
+            style={{
+              color: activePage === "funds" ? selectedColor : nonSelectedColor,
+              display: "flex",
+              justifyContent: isMobile ? "center" : "flex-start",
+            }}
+          >
+            {!collapsed && "Funds"}
+          </MenuItem>
 
-        <MenuItem
-          icon={
-            <ContributorsIcon
-              style={{
-                color:
-                  activePage === "contributors"
-                    ? selectedColor
-                    : nonSelectedColor,
-              }}
-            />
-          }
-          onClick={() => handleMenuClick("contributors")}
-          style={{
-            color:
-              activePage === "contributors" ? selectedColor : nonSelectedColor,
-            display: "flex",
-            justifyContent: isMobile ? "center" : "flex-start",
-          }}
-        >
-          {!collapsed && "Contributors"}
-        </MenuItem>
-      </Menu>
+          <MenuItem
+            icon={
+              <ContributorsIcon
+                style={{
+                  color:
+                    activePage === "contributors"
+                      ? selectedColor
+                      : nonSelectedColor,
+                }}
+              />
+            }
+            onClick={() => handleMenuClick("contributors")}
+            style={{
+              color:
+                activePage === "contributors"
+                  ? selectedColor
+                  : nonSelectedColor,
+              display: "flex",
+              justifyContent: isMobile ? "center" : "flex-start",
+            }}
+          >
+            {!collapsed && "Contributors"}
+          </MenuItem>
+        </Menu>
+      </div>
+
+      {/* Bottom Menu */}
+      <div style={{ width: "100%", marginTop: "auto", marginBottom: "24px" }}>
+        <Menu>
+          <MenuItem
+            component="a"
+            href="/profilepage"
+            icon={
+              <SettingsIcon
+                style={{
+                  color:
+                    activePage === "profilepage"
+                      ? selectedColor
+                      : nonSelectedColor,
+                }}
+              />
+            }
+            onClick={() => handleMenuClick("profilepage")}
+            style={{
+              color:
+                activePage === "profilepage" ? selectedColor : nonSelectedColor,
+              display: "flex",
+              justifyContent: isMobile ? "center" : "flex-start",
+            }}
+          >
+            {!collapsed && "Settings"}
+          </MenuItem>
+
+          <MenuItem
+            component="a"
+            href="/profilepage"
+            icon={
+              <PortraitIcon
+                style={{
+                  color:
+                    activePage === "profilepage"
+                      ? selectedColor
+                      : nonSelectedColor,
+                }}
+              />
+            }
+            onClick={() => handleMenuClick("profilepage")}
+            style={{
+              color:
+                activePage === "profilepage" ? selectedColor : nonSelectedColor,
+              display: "flex",
+              justifyContent: isMobile ? "center" : "flex-start",
+            }}
+          >
+            {!collapsed && "Diego Marques"}
+          </MenuItem>
+        </Menu>
+      </div>
     </div>
   );
 };

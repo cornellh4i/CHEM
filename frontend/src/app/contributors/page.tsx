@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { SimpleTable, Column } from "@/components/molecules/SimpleTable";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
