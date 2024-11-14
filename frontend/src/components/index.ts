@@ -24,3 +24,4 @@ export { default as CenterTemplate } from "./templates/CenterTemplate";
 export { default as DefaultTemplate } from "./templates/DefaultTemplate";
 export { default as DashboardTemplate } from "./templates/DashboardTemplate";
 export { default as LoginTemplate } from "./templates/LoginTemplate";
+export { default as DashboardTemplate } from "./templates/DashboardTemplate";

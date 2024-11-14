@@ -1,43 +1,57 @@
-"use client";
-
 import React, { ReactNode } from "react";
-import SidebarComponent from "@/components/molecules/Sidebar";
-import DashboardPage from "@/app/dashboard/page";
+import Sidebar from "@/components/molecules/Sidebar";
 import { useState } from "react";
+import { IconButton, useMediaQuery } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 
 interface DefaultTemplateProps {
   children: ReactNode;
 }
 
 const DashboardTemplate = ({ children }: DefaultTemplateProps) => {
-  // State to track whether the sidebar is collapsed or expanded
+  // State to control sidebar collapse
   const [collapsed, setCollapsed] = useState(false);
+  // Check if screen size is mobile
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
-  // Function to toggle the sidebar's collapsed state
+  // Toggle sidebar collapse
   const handleToggleSidebar = () => {
-    // Toggle the collapsed state to its opposite value
     setCollapsed(!collapsed);
   };
 
   return (
-    // Main container for the dashboard layout
     <div className="flex min-h-screen dark:bg-gray-900 dark:text-gray-300">
-      {/* Display SidebarComponent, passing the current collapsed state and toggle function as props */}
-      <SidebarComponent
+      <Sidebar
         collapsed={collapsed}
         handleToggleSidebar={handleToggleSidebar}
       />
-      {/* Main content area */}
+
+      {/* Main content area with dynamic margin based on sidebar state */}
       <div
-        className={`ml-0 flex-1 transition-all duration-300 ${collapsed ? "ml-20" : "ml-64"}`}
-        style={{ margin: 0 }}
+        className={"flex-1 transition-all duration-300"}
+        style={{
+          textAlign: "left",
+          maxWidth: "100%",
+          padding: "2rem",
+          marginLeft: collapsed ? "128px" : "268px",
+        }}
       >
-        {/* Inner container for the content */}
-        <div className="mx-auto max-w-screen-xl p-16 pb-6 pt-12 sm:mt-0">
-          {/* Rendering any children components passed to the DashboardTemplate */}
-          {children}
-        </div>
+        {children}
       </div>
+
+      {
+        <IconButton
+          onClick={handleToggleSidebar}
+          style={{
+            position: "fixed",
+            top: 16,
+            left: 16,
+            zIndex: 1000,
+          }}
+        >
+          <MenuIcon />
+        </IconButton>
+      }
     </div>
   );
 };

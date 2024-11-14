@@ -42,7 +42,11 @@ coverage/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+<<<<<<< HEAD
 *.log
+=======
+frontend/.next
+>>>>>>> frontend-default-dashboard-layout
 
 # Local env files
 .env
