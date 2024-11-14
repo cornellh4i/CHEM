@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import {
-  CollectionsBookmark as LogoIcon,
   Home as DashboardIcon,
   AccountBalance as FundsIcon,
   People as ContributorsIcon,
@@ -46,7 +45,6 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
       }}
     >
       <Menu>
-        {/* Logo and Title */}
         <div
           style={{
             marginTop: isMobile ? "0" : "16px",
@@ -58,8 +56,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
             justifyContent: "center",
           }}
         >
-          <LogoIcon style={{ width: "24px", height: "24px", marginBottom: isMobile ? "16px" : "0" }} />
-          {!collapsed && !isMobile && "Odyssey Fund"}
+          {!collapsed && !isMobile && "CHEM"}
         </div>
 
         {/* Menu Items */}
