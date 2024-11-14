@@ -7,7 +7,7 @@ import AddIcon from "@mui/icons-material/Add";
 import LaunchIcon from "@mui/icons-material/Launch";
 import { OutlinedInput, InputAdornment, Box, Typography } from "@mui/material";
 import Button from "@/components/atoms/Button";
-import { Input } from "@/components";
+import AddContributorModal from "@/components/molecules/AddContributorModal";
 
 const ContributorsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -88,19 +88,22 @@ const ContributorsPage = () => {
           width={{ xs: "100%", sm: "auto" }}
           flexWrap="wrap"
         >
-          <Button
-            variant="primary"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              height: "40px",
-              padding: "0 16px",
-              marginBottom: 8,
-            }}
-          >
-            Add Contributor
-            <AddIcon style={{ marginLeft: "6px" }} />
-          </Button>
+          <AddContributorModal>
+            <Button
+              variant="primary"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                height: "40px",
+                padding: "0 16px",
+                marginBottom: 8,
+              }}
+            >
+              Add Contributor
+              <AddIcon style={{ marginLeft: "6px" }} />
+            </Button>
+          </AddContributorModal>
+
           <Button
             variant="primary"
             style={{
