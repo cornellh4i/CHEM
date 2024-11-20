@@ -67,7 +67,7 @@ const createTransaction = async (
 
         return transaction;
     } catch (error) {
-        
+
         if (error instanceof Error) {
             throw new Error(`Failed to create transaction: ${error.message}`);
         }
@@ -79,6 +79,52 @@ const createTransaction = async (
 // TODO: Implement updateTransaction function
 
 // TODO: Implement deleteTransaction function
+
+const deleteTransaction = async (id: string): Promise<Transaction> => {
+    try {
+        const transaction = await prisma.transaction.findUnique({
+            where: { id },
+        });
+
+        if (!transaction) {
+            throw new Error("Unable to locate transaction");
+        }
+        if (transaction.organizationId) {
+            await prisma.organization.update({
+                where: { id: transaction.organizationId },
+                data: {
+                    amount: {
+                        decrement: transaction.amount,
+                    },
+                    units: transaction.units
+                        ? {
+                            decrement: transaction.units,
+                        }
+                        : undefined,
+                },
+            });
+        }
+
+        // Delete the transaction
+        const deletedTransaction = await prisma.transaction.delete({
+            where: { id },
+        });
+        // Return the deleted transaction
+        return deletedTransaction;
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2025") {
+                throw new Error("Transaction not found.");
+            }
+        }
+        if (error instanceof Error) {
+            throw new Error(`Unable to delete transaction: ${error.message}`);
+        }
+        throw new Error("Unable to delete transaction due to an unknown error.");
+    }
+};
+
+
 
 /* TODO: Add getOrganizationTransactions function
  * Should return all transactions for an organization
