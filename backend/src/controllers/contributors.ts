@@ -1,5 +1,5 @@
 import prisma from "../utils/client";
-import { Contributor, Transactions, Prisma } from "@prisma/client";
+import { Contributor, Prisma } from "@prisma/client";
 
 // Get contributors with filtering, sorting, and pagination
 const getContributors = async (
@@ -126,17 +126,19 @@ const getContributorTransactions = async (
     type TransactionAmount = { amount: number };
 
     // Fetch only the 'amount' of each transaction, sorted by 'date' in ascending order
-    const transactions: TransactionAmount[] = await prisma.transaction.findMany({
-      where: {
-        contributorId,
-      },
-      select: {
-        amount: true,
-      },
-      orderBy: {
-        date: "asc",
-      },
-    });
+    const transactions: TransactionAmount[] = await prisma.transaction.findMany(
+      {
+        where: {
+          contributorId,
+        },
+        select: {
+          amount: true,
+        },
+        orderBy: {
+          date: "asc",
+        },
+      }
+    );
 
     // Extract and return the list of amounts
     return transactions.map((transaction) => transaction.amount);

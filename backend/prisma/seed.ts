@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { PrismaClient, Role, TransactionType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -50,6 +50,7 @@ async function main() {
   // Create Contributors
   const charlie = await prisma.contributor.create({
     data: {
+      id: "charlie-id",
       firstName: "Charlie",
       lastName: "Brown",
       organization: {
@@ -68,7 +69,51 @@ async function main() {
     },
   });
 
-  console.log({ techCorp, ecoFoundation, alice, bob, charlie, diana });
+  // Seed three transactions for Charlie
+  const charlieTransaction1 = await prisma.transaction.create({
+    data: {
+      organizationId: techCorp.id,
+      contributorId: charlie.id,
+      type: TransactionType.DONATION,
+      date: new Date("2024-01-01"),
+      amount: 100,
+      description: "Donation of $100 by Charlie",
+    },
+  });
+
+  const charlieTransaction2 = await prisma.transaction.create({
+    data: {
+      organizationId: techCorp.id,
+      contributorId: charlie.id,
+      type: TransactionType.DONATION,
+      date: new Date("2024-01-02"),
+      amount: 200,
+      description: "Donation of $200 by Charlie",
+    },
+  });
+
+  const charlieTransaction3 = await prisma.transaction.create({
+    data: {
+      organizationId: techCorp.id,
+      contributorId: charlie.id,
+      type: TransactionType.DONATION,
+      date: new Date("2024-01-03"),
+      amount: 300,
+      description: "Donation of $300 by Charlie",
+    },
+  });
+
+  console.log({
+    techCorp,
+    ecoFoundation,
+    alice,
+    bob,
+    charlie,
+    diana,
+    charlieTransaction1,
+    charlieTransaction2,
+    charlieTransaction3,
+  });
 }
 
 main()
