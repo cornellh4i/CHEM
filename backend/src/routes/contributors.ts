@@ -70,11 +70,9 @@ contributorRouter.post("/", async (req, res) => {
       !contributorData.lastName ||
       !contributorData.organizationId
     ) {
-      return res
-        .status(400)
-        .json({
-          error: "First name, last name, and organization ID are required",
-        });
+      return res.status(400).json({
+        error: "First name, last name, and organization ID are required",
+      });
     }
 
     const newContributor = await controller.createContributor(contributorData);
@@ -123,6 +121,28 @@ contributorRouter.delete("/:id", async (req, res) => {
         error instanceof Error ? error.message : "Failed to delete contributor",
     };
     res.status(400).json(errorResponse);
+  }
+});
+
+// GET CONTRIBUTOR ORGANIZATIONS
+contributorRouter.get("/:id/organizations", async (req, res) => {
+  const { id } = req.params; // Extract the contributor ID from the URL
+  try {
+    const organizations = await controller.getContributorOrganizations(id);
+    if (organizations.length > 0) {
+      res.status(200).json(organizations);
+    } else {
+      res
+        .status(404)
+        .json({ error: "No organizations found for this contributor" });
+    }
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error:
+        error instanceof Error ? error.message : "Failed to get organizations",
+    };
+    res.status(500).json(errorResponse);
   }
 });
 

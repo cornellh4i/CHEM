@@ -1,5 +1,5 @@
 import prisma from "../utils/client";
-import { Contributor, Prisma } from "@prisma/client";
+import { Contributor, Prisma, Organization } from "@prisma/client";
 
 // Get contributors with filtering, sorting, and pagination
 const getContributors = async (
@@ -119,10 +119,32 @@ const deleteContributor = async (id: string): Promise<Contributor> => {
   }
 };
 
+const getContributorOrganizations = async (
+  contributorId: string
+): Promise<Organization[]> => {
+  try {
+    // Query the join table to get all organizations associated with the given contributorId
+    const organizations = await prisma.organizationContributor.findMany({
+      where: {
+        contributorId: contributorId,
+      },
+      include: {
+        organization: true, // Include the related organization data
+      },
+    });
+    // Return only the organization data (not the join table)
+    return organizations.map((orgContrib) => orgContrib.organization);
+  } catch (error) {
+    console.error("Error fetching organizations:", error);
+    throw new Error("Unable to fetch organizations");
+  }
+};
+
 export default {
   getContributors,
   getContributorById,
   createContributor,
   updateContributor,
   deleteContributor,
+  getContributorOrganizations,
 };
