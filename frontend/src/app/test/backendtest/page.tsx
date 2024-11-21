@@ -26,6 +26,18 @@ interface Organization {
   description: string | null;
 }
 
+interface Transactions {
+  id: string;
+  organization: Organization;
+  organizationId: string;
+  contributor: Contributor;
+  contributorId: string;
+  date: Date;
+  units: Float32Array | null;
+  amount: Float32Array;
+  description: string | null;
+}
+
 const API_URL = "http://localhost:8000";
 
 const Dashboard = () => {

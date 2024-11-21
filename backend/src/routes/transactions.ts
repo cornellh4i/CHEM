@@ -2,7 +2,6 @@ import { Router } from "express";
 import controller from "../controllers/transactions";
 import { ErrorMessage } from "../utils/types";
 import { TransactionType } from "@prisma/client";
-import transactions from "../controllers/transactions";
 import { notify } from "../utils/helpers";
 
 const transactionRouter = Router();
