@@ -33,8 +33,8 @@ interface Transactions {
   contributor: Contributor;
   contributorId: string;
   date: Date;
-  units: Float32Array | null;
-  amount: Float32Array;
+  units: number | null,
+  amount: number,
   description: string | null;
 }
 
@@ -44,6 +44,8 @@ const Dashboard = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [transactions, setTransactions] = useState<Transactions[]>([]);
+
 
   const [newUser, setNewUser] = useState<Omit<User, "id">>({
     email: "",
@@ -66,10 +68,21 @@ const Dashboard = () => {
     name: "",
     description: "",
   });
+  const [newTransaction, setNewTransaction] = useState<Omit<Transactions, "id" | "organization" | "contributor">>({
+    organizationId: "",
+    contributorId: "",
+    date: new Date(),
+    units: null,
+    amount: 0,
+    description: "",
+  });
+
 
   useEffect(() => {
     fetchUsers();
     fetchOrganizations().then(() => fetchContributors());
+    fetchTransactions();
+
   }, []);
 
   const fetchUsers = async () => {
@@ -123,6 +136,24 @@ const Dashboard = () => {
       setOrganizations([]);
     }
   };
+  const fetchTransactions = async () => {
+    try {
+      const response = await fetch(`${API_URL}/transactions`);
+      const data = await response.json();
+      if (Array.isArray(data.transactions)) {
+        setTransactions(data.transactions);
+      } else if (Array.isArray(data)) {
+        setTransactions(data);
+      } else {
+        console.error("Unexpected transactions data format:", data);
+        setTransactions([]);
+      }
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      setTransactions([]);
+    }
+  };
+
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -177,6 +208,52 @@ const Dashboard = () => {
       console.error(`Error creating ${entity.slice(0, -1)}:`, error);
     }
   };
+  //Transaction Submit Logic 
+  const handleTransactionSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`${API_URL}/transactions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newTransaction),
+      });
+      if (response.ok) {
+        console.log("Transaction created successfully");
+        setNewTransaction({
+          organizationId: "",
+          contributorId: "",
+          date: new Date(),
+          units: null,
+          amount: 0,
+          description: "",
+        });
+        fetchTransactions();
+      } else {
+        const errorData = await response.json();
+        console.error("Error creating transaction:", errorData);
+      }
+    } catch (error) {
+      console.error("Error creating transaction:", error);
+    }
+  };
+  // Delete transaction
+  const handleTransactionDelete = async (transactionId: string) => {
+    try {
+      const response = await fetch(`${API_URL}/transactions/${transactionId}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        console.log("Transaction deleted successfully");
+        fetchTransactions();
+      } else {
+        const errorData = await response.json();
+        console.error("Error deleting transaction:", errorData);
+      }
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+    }
+  };
+
 
   return (
     <div className="container mx-auto p-4">
@@ -347,6 +424,92 @@ const Dashboard = () => {
           </button>
         </form>
       </section>
+      {/* Transactions Section */}
+      <section className="mb-8">
+        <h2 className="mb-2 text-xl font-semibold">Transactions</h2>
+        {transactions.length > 0 ? (
+          <ul className="mb-4 list-disc pl-5">
+            {transactions.map((transaction) => (
+              <li key={transaction.id}>
+                {transaction.description || "No description"} - Amount: {transaction.amount} - Organization:{" "}
+                {organizations.find((org) => org.id === transaction.organizationId)?.name || "Unknown"}{" "}
+                - Contributor:{" "}
+                {contributors.find((cont) => cont.id === transaction.contributorId)?.firstName || "Anonymous"}
+                <button
+                  className="ml-4 text-red-500"
+                  onClick={() => handleTransactionDelete(transaction.id)}
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No transactions found.</p>
+        )}
+        <form onSubmit={handleTransactionSubmit} className="space-y-4">
+          <select
+            name="organizationId"
+            value={newTransaction.organizationId}
+            onChange={(e) => handleInputChange(e, setNewTransaction)}
+            required
+            className="block w-full rounded-md border-gray-300 shadow-sm"
+          >
+            <option value="">Select Organization</option>
+            {organizations.map((org) => (
+              <option key={org.id} value={org.id}>
+                {org.name}
+              </option>
+            ))}
+          </select>
+          <select
+            name="contributorId"
+            value={newTransaction.contributorId}
+            onChange={(e) => handleInputChange(e, setNewTransaction)}
+            required
+            className="block w-full rounded-md border-gray-300 shadow-sm"
+          >
+            <option value="">Select Contributor</option>
+            {contributors.map((contributor) => (
+              <option key={contributor.id} value={contributor.id}>
+                {contributor.firstName} {contributor.lastName}
+              </option>
+            ))}
+          </select>
+          <input
+            type="number"
+            name="amount"
+            value={newTransaction.amount}
+            onChange={(e) => handleInputChange(e, setNewTransaction)}
+            placeholder="Amount"
+            required
+            className="block w-full rounded-md border-gray-300 shadow-sm"
+          />
+          <input
+            type="number"
+            name="units"
+            value={newTransaction.units || ""}
+            onChange={(e) => handleInputChange(e, setNewTransaction)}
+            placeholder="Units (optional)"
+            className="block w-full rounded-md border-gray-300 shadow-sm"
+          />
+          <input
+            type="text"
+            name="description"
+            value={newTransaction.description || ""}
+            onChange={(e) => handleInputChange(e, setNewTransaction)}
+            placeholder="Description (optional)"
+            className="block w-full rounded-md border-gray-300 shadow-sm"
+          />
+          <button
+            type="submit"
+            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          >
+            Add Transaction
+          </button>
+        </form>
+      </section>
+
     </div>
   );
 };
