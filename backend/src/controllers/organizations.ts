@@ -1,5 +1,10 @@
 import prisma from "../utils/client";
-import { Organization, Prisma } from "@prisma/client";
+import {
+  Contributor,
+  Organization,
+  Prisma,
+  OrganizationContributor,
+} from "@prisma/client";
 
 // Get organizations with filtering, sorting, and paginations
 const getOrganizations = async (
@@ -154,16 +159,103 @@ const deleteOrganization = async (id: string): Promise<Organization> => {
   }
 };
 
-// TODO: Add getOrganizationContributors function
-// Should return all contributors for a specific organization
-// Include sorting options for firstName/lastName
-// Include pagination support
-// Handle errors if organization doesn't exist
+// Get contributors for a specific organization
+const getOrganizationContributors = async (
+  organizationId: string,
+  sort?: { field: "firstName" | "lastName"; order: "asc" | "desc" },
+  pagination?: { skip?: number; take?: number }
+): Promise<Contributor[]> => {
+  try {
+    const organization = await prisma.organization.findUnique({
+      where: { id: organizationId },
+    });
 
-// TODO: Add addContributorToOrganization function
-// Should link a contributor to an organization
-// Validate that both organization and contributor exist
-// Handle case where link already exists
+    // org not found
+    if (!organization) {
+      const error = new Error("Organization not found");
+      (error as any).status = 404;
+      throw error;
+    }
+
+    const contributors = await prisma.organizationContributor.findMany({
+      where: { organizationId },
+      include: { contributor: true },
+      orderBy: sort ? { contributor: { [sort.field]: sort.order } } : undefined,
+      skip: pagination?.skip,
+      take: pagination?.take,
+    });
+
+    return contributors.map((link) => link.contributor);
+  } catch (error) {
+    if ((error as any).status === 404) {
+      throw error;
+    }
+    const internalError = new Error("Failed to fetch contributors");
+    (internalError as any).status = 500;
+    throw internalError;
+  }
+};
+
+// Add a contributor to a specific organization
+const addContributorToOrganization = async (
+  organizationId: string,
+  contributorId: string
+): Promise<OrganizationContributor> => {
+  try {
+    const organization = await prisma.organization.findUnique({
+      where: { id: organizationId },
+    });
+
+    // org not found
+    if (!organization) {
+      const error = new Error("Organization not found");
+      (error as any).status = 404;
+      throw error;
+    }
+
+    const contributor = await prisma.contributor.findUnique({
+      where: { id: contributorId },
+    });
+
+    // contributor id invalid
+    if (!contributor) {
+      const error = new Error("Contributor not found");
+      (error as any).status = 404;
+      throw error;
+    }
+
+    const existingLink = await prisma.organizationContributor.findUnique({
+      where: {
+        organizationId_contributorId: { organizationId, contributorId },
+      },
+    });
+
+    // alr linked
+    if (existingLink) {
+      const error = new Error(
+        "Contributor is already linked to this organization"
+      );
+      (error as any).status = 400;
+      throw error;
+    }
+
+    const link = await prisma.organizationContributor.create({
+      data: { organizationId, contributorId },
+    });
+
+    return link;
+  } catch (error) {
+    if ((error as any).status) {
+      throw error; // Re-throw known errors
+    }
+    console.error("Unexpected error:", error);
+    const internalError = new Error(
+      "Failed to add contributor to organization"
+    );
+    (internalError as any).status = 500;
+    throw internalError;
+  }
+};
 
 export default {
   getOrganizations,
@@ -171,4 +263,6 @@ export default {
   createOrganization,
   updateOrganization,
   deleteOrganization,
+  getOrganizationContributors,
+  addContributorToOrganization,
 };

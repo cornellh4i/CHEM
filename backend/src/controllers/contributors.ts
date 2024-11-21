@@ -18,7 +18,9 @@ const getContributors = async (
       lastName: filters?.lastName
         ? { contains: filters.lastName, mode: "insensitive" }
         : undefined,
-      organizationId: filters?.organizationId,
+      organizations: filters?.organizationId
+        ? { some: { organizationId: filters.organizationId } }
+        : undefined,
     };
 
     const [contributors, total] = await prisma.$transaction([
