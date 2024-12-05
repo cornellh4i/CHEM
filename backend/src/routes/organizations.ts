@@ -130,4 +130,70 @@ organizationRouter.delete("/:id", async (req, res) => {
   }
 });
 
+// GET contributors for a specific organization
+organizationRouter.get("/:id/contributors", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const sort = req.query.sortBy
+      ? {
+          field: req.query.sortBy as "firstName" | "lastName",
+          order: (req.query.order as "asc" | "desc") || "asc",
+        }
+      : undefined;
+
+    const pagination = {
+      skip: req.query.skip ? parseInt(req.query.skip as string, 10) : undefined,
+      take: req.query.take ? parseInt(req.query.take as string, 10) : undefined,
+    };
+
+    const contributors = await controller.getOrganizationContributors(
+      id,
+      sort,
+      pagination
+    );
+
+    res.status(200).json(contributors);
+  } catch (error) {
+    console.error(error);
+    const errorResponse = {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to get contributors for the organization",
+    };
+    res.status((error as any).status || 500).json(errorResponse);
+  }
+});
+
+// POST a contributor to a specific organization
+organizationRouter.post("/:id/contributors", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { contributorId } = req.body;
+
+    if (!contributorId) {
+      return res
+        .status(400)
+        .json({ error: "Contributor ID is required to add a contributor" });
+    }
+
+    const link = await controller.addContributorToOrganization(
+      id,
+      contributorId
+    );
+
+    res.status(201).json(link);
+  } catch (error) {
+    console.error(error);
+    const errorResponse = {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to add contributor to the organization",
+    };
+    res.status((error as any).status || 500).json(errorResponse);
+  }
+});
+
 export default organizationRouter;
