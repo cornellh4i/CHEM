@@ -24,7 +24,7 @@
     "next": "15.0.3",
     "react": "^18",
     "react-confetti": "^6.1.0",
-    "react-dom": "^18",
+    "react-dom": "^19",
     "react-firebase-hooks": "^5.1.1",
     "react-hook-form": "^7.53.0",
     "react-pro-sidebar": "^1.1.0",
