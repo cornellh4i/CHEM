@@ -117,10 +117,44 @@ const deleteContributor = async (id: string): Promise<Contributor> => {
   }
 };
 
+// TODO: getContributorTransactions
+const getContributorTransactions = async (
+  contributorId: string
+): Promise<number[]> => {
+  try {
+    // Define the specific type for the selected field
+    type TransactionAmount = { amount: number };
+
+    // Fetch only the 'amount' of each transaction, sorted by 'date' in ascending order
+    const transactions: TransactionAmount[] = await prisma.transaction.findMany(
+      {
+        where: {
+          contributorId,
+        },
+        select: {
+          amount: true,
+        },
+        orderBy: {
+          date: "asc",
+        },
+      }
+    );
+
+    // Extract and return the list of amounts
+    return transactions.map((transaction) => transaction.amount);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to get transactions: ${error.message}`);
+    }
+    throw new Error("Failed to get transactions due to an unknown error");
+  }
+};
+
 export default {
   getContributors,
   getContributorById,
   createContributor,
   updateContributor,
   deleteContributor,
+  getContributorTransactions,
 };
