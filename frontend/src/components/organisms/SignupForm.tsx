@@ -119,9 +119,10 @@ const SignupForm = () => {
               },
             })}
           />
-          // TODO: some bug that has to do with props and children, whoever ends
+          {/* TODO: some bug that has to do with props and children, whoever ends
           up working the signup components please fix before connecting to
-          backend
+          backend */}
+
           {/* <Select
             label="Location"
             defaultValue=""
@@ -178,8 +179,9 @@ const SignupForm = () => {
             })}
           />
         </div>
-        // TODO: need to replace this checkbox with an external checkbox package
-        preferrably from ShadCN
+        {/* TODO: need to replace this checkbox with an external checkbox package
+        preferrably from ShadCN */}
+
         {/* <div className="mb-6 flex items-start">
           <Checkbox
             label={
