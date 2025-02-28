@@ -1,5 +1,5 @@
 import prisma from "../utils/client";
-import { Organization, Prisma } from "@prisma/client";
+import { Organization, Contributor, Prisma } from "@prisma/client";
 
 // Get organizations with filtering, sorting, and pagination
 const getOrganizations = async (
@@ -160,6 +160,52 @@ const deleteOrganization = async (id: string): Promise<Organization> => {
 // Include pagination support
 // Handle errors if organization doesn't exist
 
+const getOrganizationContributors = async (
+  id: string, 
+  //sort based on either first name, last name, in ascending or descending order
+  sort?: {
+    field: "firstName" | "lastName";
+    order: "asc" | "desc";
+  },
+  // pagination parameters
+  pagination?: { skip?: number; take?: number }
+): Promise<{ contributors: Contributor[]; total: number }> => {
+  try { 
+    //Check if organization exists
+    const organizationExists = await prisma.organization.findUniqueOrThrow({
+      where: {id},
+      select: {id: true}
+    })
+
+    // Use Prisma's transaction to get contributors and total count
+    const [contributors, total] = await prisma.$transaction([
+      prisma.contributor.findMany({
+        where: {organizationId : id},
+        orderBy: sort ? { [sort.field]: sort.order } : undefined, // sorting by field and order
+        skip: pagination?.skip || 0, // skip organizations, 0 by default
+        take: pagination?.take || 100, // take organizations, 100 by default
+      }),
+      prisma.contributor.count({ where: {organizationId : id} }),
+    ]);
+
+    // Return organizations and total count
+    return { contributors, total };
+
+  } catch (error) {
+    // Throw organization not found error
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Organization not found");
+      }
+    }
+    // Throw a more informative error
+    if (error instanceof Error) {
+      throw new Error(`Failed to get contributors: ${error.message}`);
+    }
+    throw new Error("Failed to get organization due to an unknown error");
+  }
+};
+
 // TODO: Add addContributorToOrganization function
 // Should link a contributor to an organization
 // Validate that both organization and contributor exist
@@ -171,4 +217,5 @@ export default {
   createOrganization,
   updateOrganization,
   deleteOrganization,
+  getOrganizationContributors,
 };

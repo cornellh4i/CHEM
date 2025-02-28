@@ -130,4 +130,52 @@ organizationRouter.delete("/:id", async (req, res) => {
   }
 });
 
+organizationRouter.get("/:id/contributors", async (req, res) => {
+  try {
+    // Get inputs
+    const sortBy = req.query.sortBy as string;
+    const order = req.query.order as string;
+    const { id } = req.params
+    // Validate inputs
+    const validSortField = new Set(["firstName", "lastName"]);
+    const validOrders = new Set(["asc", "desc"]);
+
+    // Extract sort, and pagination from query parameters
+    const sort = sortBy && validSortField.has(sortBy) 
+      ? {
+          field: sortBy as "firstName" | "lastName",
+          order: validOrders.has(order) ? order as "asc" | "desc" : "asc",
+        }
+      : undefined;
+    const pagination = {
+      skip: req.query.skip ? Number(req.query.skip) : undefined,
+      take: req.query.take ? Number(req.query.take) : undefined,
+    };
+
+    // Fetch contributors from database using sort and pagination
+    const { contributors, total } = await controller.getOrganizationContributors(
+      id,
+      sort,
+      pagination
+    );
+
+    // Return contributors with total count
+    res.status(200).json({ contributors, total });
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error:
+        error instanceof Error ? error.message : "Failed to get organization's contributors",
+    };
+    // 404 org not found
+    if (errorResponse.error == "Organization not found") { 
+      res.status(404).json(errorResponse); 
+    }
+    else {
+      // all other errors
+      res.status(500).json(errorResponse);
+    }    
+  }
+});
+
 export default organizationRouter;
