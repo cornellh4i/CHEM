@@ -49,6 +49,21 @@ The CHEM project aims to create a robust endowment management system that helps 
 
 ## Contributors
 
+### Spring 2025
+
+- Leads
+  - Tanvi Mavani
+  - Nicole Qiu
+- Developers
+  - Akhil Kagithapu
+  - Akul Maheshwari
+  - Alisha Varma
+  - Ashlie Zhang
+  - Leon Huang
+  - Rohan Sedhain
+  - Sanya Mahajan
+  - Sydney Chin
+
 ### Fall 2024
 
 - Leads
