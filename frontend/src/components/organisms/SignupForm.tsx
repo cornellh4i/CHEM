@@ -4,7 +4,7 @@ import auth from "@/utils/firebase";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { Button, Input, Checkbox, Select, Toast } from "@/components";
+import { Button, Input, Select, Toast } from "@/components";
 import { useToast } from "@/utils/hooks";
 
 interface FormInputs {
@@ -119,7 +119,10 @@ const SignupForm = () => {
               },
             })}
           />
-          <Select
+          // TODO: some bug that has to do with props and children, whoever ends
+          up working the signup components please fix before connecting to
+          backend
+          {/* <Select
             label="Location"
             defaultValue=""
             error={errors.location?.message}
@@ -132,7 +135,7 @@ const SignupForm = () => {
             <option value="CA">Canada</option>
             <option value="FR">France</option>
             <option value="DE">Germany</option>
-          </Select>
+          </Select> */}
         </div>
         <div className="mb-6">
           <Input
@@ -175,14 +178,16 @@ const SignupForm = () => {
             })}
           />
         </div>
-        <div className="mb-6 flex items-start">
+        // TODO: need to replace this checkbox with an external checkbox package
+        preferrably from ShadCN
+        {/* <div className="mb-6 flex items-start">
           <Checkbox
             label={
               <>
                 I agree with the{" "}
                 <a
                   href="#"
-                  className="text-blue-600 hover:underline dark:text-blue-500"
+                  className="text-blue-600 dark:text-blue-500 hover:underline"
                 >
                   terms and conditions
                 </a>
@@ -194,7 +199,7 @@ const SignupForm = () => {
               required: { value: true, message: "Required" },
             })}
           />
-        </div>
+        </div> */}
         <Button type="submit">Sign up</Button>
       </form>
     </div>
