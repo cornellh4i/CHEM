@@ -10,8 +10,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-
-
 const ModalTestPage = () => {
   return (
     <div className="p-4">
@@ -20,4 +18,4 @@ const ModalTestPage = () => {
   );
 };
 
-export default ExamplePage;
+export default ModalTestPage;
