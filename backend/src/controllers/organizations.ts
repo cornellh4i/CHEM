@@ -210,6 +210,53 @@ const getOrganizationContributors = async (
 // Should link a contributor to an organization
 // Validate that both organization and contributor exist
 // Handle case where link already exists
+const addContributorToOrganization = async (
+  organizationId: string,
+  contributorId: string
+): Promise<Contributor> => {
+  try {
+    // check if organization exists
+    const organization = await prisma.organization.findUnique({
+      where: { id: organizationId }
+    });
+
+    if (!organization) {
+      throw new Error("Organization not found");
+    }
+
+    // check if the contributor exists
+    const contributor = await prisma.contributor.findUnique({
+      where: { id: contributorId },
+    });
+
+    if (!contributor) {
+      throw new Error("Contributor not found");
+    }
+
+    // check if the contributor is already linked to the organization
+    if (contributor.organizationId === organizationId) {
+      throw new Error("Contributor is already linked to this organization");
+    }
+
+    const updatedContributor = await prisma.contributor.update({
+      where: { id: contributorId },
+      data: { organizationId: organizationId },
+    });
+
+    return updatedContributor;
+
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Organization or contributor not found");
+      }
+    }
+  if (error instanceof Error) {
+    throw new Error(`Failed to link contributor: ${error.message}`);
+  }
+  throw new Error("Failed to link contributor due to an unknown error");
+}
+};
 
 export default {
   getOrganizations,
