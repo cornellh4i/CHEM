@@ -51,13 +51,17 @@ const ensureValidTransaction = (data: any) => {
           );
         }
       }
+      // Validate transaction type
+      if (!Object.values(TransactionType).includes(transactionData.type as TransactionType)) {
+        throw new Error(`Invalid transaction type: ${transactionData.type}`);
+      }  
   
       const validData: Prisma.TransactionCreateInput = {
         organization: { connect: { id: transactionData.organizationId } },
         contributor: transactionData.contributorId
           ? { connect: { id: transactionData.contributorId } }
           : undefined,
-        type: transactionData.type,
+        type: transactionData.type as TransactionType,
         date: new Date(transactionData.date),
         amount: transactionData.amount,
         units: transactionData.units || undefined,
