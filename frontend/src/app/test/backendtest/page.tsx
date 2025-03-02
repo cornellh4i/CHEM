@@ -72,7 +72,7 @@ const Dashboard = () => {
   >({
     organizationId: "",
     type: TransactionType.DONATION,
-    date: new Date().toISOString,
+    date: new Date().toISOString(),
     amount: 0,
 
 
