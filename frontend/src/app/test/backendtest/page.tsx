@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {TransactionType} from "@prisma/client";
+import { TransactionType } from "@prisma/client";
 
 // Define the types we need
 type Role = "USER" | "ADMIN";
@@ -27,11 +27,11 @@ interface Organization {
   description: string | null;
 }
 interface Transaction {
-  id: string; 
+  id: string;
   organizationId: string;
   contributorId?: string;
   units?: GLfloat;
-  description?: string; 
+  description?: string;
   type: TransactionType;
   date: string;
   amount: number;
@@ -71,6 +71,7 @@ const Dashboard = () => {
     Omit<Transaction, "id">
   >({
     organizationId: "",
+    contributorId: "",
     type: TransactionType.DONATION,
     date: new Date().toISOString(),
     amount: 0,
@@ -81,6 +82,7 @@ const Dashboard = () => {
   useEffect(() => {
     fetchUsers();
     fetchOrganizations().then(() => fetchContributors());
+    fetchTransactions();
   }, []);
 
   const fetchUsers = async () => {
@@ -134,6 +136,33 @@ const Dashboard = () => {
       setOrganizations([]);
     }
   };
+
+  const fetchTransactions = async () => {
+    try {
+      console.log("Fetching transactions...");
+      const response = await fetch(`${API_URL}/transactions`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Transactions data:", data);
+
+      if (Array.isArray(data.transactions)) {
+        setTransactions(data.transactions);
+      } else if (Array.isArray(data)) {
+        setTransactions(data);
+      } else {
+        console.error("Unexpected transactions data format:", data);
+        setTransactions([]);
+      }
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      setTransactions([]); // Ensure state is reset in case of an error
+    }
+  };
+
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
