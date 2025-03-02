@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import {TransactionType} from "@prisma/client";
 
 // Define the types we need
 type Role = "USER" | "ADMIN";
@@ -25,6 +26,13 @@ interface Organization {
   name: string;
   description: string | null;
 }
+interface Transaction {
+  id: string; 
+  organizationId: string;
+  type: TransactionType;
+  date: string;
+  amount: number;
+}
 
 const API_URL = "http://localhost:8000";
 
@@ -32,6 +40,7 @@ const Dashboard = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const [newUser, setNewUser] = useState<Omit<User, "id">>({
     email: "",
