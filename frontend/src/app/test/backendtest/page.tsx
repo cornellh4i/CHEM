@@ -29,6 +29,9 @@ interface Organization {
 interface Transaction {
   id: string; 
   organizationId: string;
+  contributorId?: string;
+  units?: GLfloat;
+  description?: string; 
   type: TransactionType;
   date: string;
   amount: number;
@@ -62,6 +65,17 @@ const Dashboard = () => {
   >({
     name: "",
     description: "",
+  });
+
+  const [newTransaction, setNewTransaction] = useState<
+    Omit<Transaction, "id">
+  >({
+    organizationId: "",
+    type: TransactionType.DONATION,
+    date: new Date().toISOString,
+    amount: 0,
+
+
   });
 
   useEffect(() => {
