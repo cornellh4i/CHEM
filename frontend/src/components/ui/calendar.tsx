@@ -58,7 +58,7 @@ function Calendar({
         PreviousMonthButton: ({ ...props }) => (
           <button
             {...props}
-            className="h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+            className="bg-transparent h-7 w-7 p-0 opacity-50 hover:opacity-100"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -66,7 +66,7 @@ function Calendar({
         NextMonthButton: ({ ...props }) => (
           <button
             {...props}
-            className="absolute right-1 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+            className="bg-transparent absolute right-1 h-7 w-7 p-0 opacity-50 hover:opacity-100"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
