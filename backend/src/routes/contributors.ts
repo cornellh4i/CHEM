@@ -1,8 +1,23 @@
 import { Router } from "express";
 import controller from "../controllers/contributors";
 import { ErrorMessage } from "../utils/types";
+import express from "express";
+import orgController from "../controllers/organizations";
 
 const contributorRouter = Router();
+
+contributorRouter.get("/:id/transactions", async (req, res) => {
+  try {
+    const transactions = await orgController.getOrganizationTransactions(
+      req.params.id
+    );
+    res.json(transactions);
+  } catch (error) {
+    res.status(500).json({
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
 
 // GET all contributors
 contributorRouter.get("/", async (req, res) => {
@@ -70,11 +85,9 @@ contributorRouter.post("/", async (req, res) => {
       !contributorData.lastName ||
       !contributorData.organizationId
     ) {
-      return res
-        .status(400)
-        .json({
-          error: "First name, last name, and organization ID are required",
-        });
+      return res.status(400).json({
+        error: "First name, last name, and organization ID are required",
+      });
     }
 
     const newContributor = await controller.createContributor(contributorData);
