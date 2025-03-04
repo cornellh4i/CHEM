@@ -559,8 +559,8 @@ const Dashboard = () => {
                 >
                   <option value={TransactionType.DONATION}>Donation</option>
                   <option value={TransactionType.WITHDRAWAL}>Withdrawal</option>
+                  <option value={TransactionType.INVESTMENT}>Income</option>
                   <option value={TransactionType.EXPENSE}>Expense</option>
-                  <option value={TransactionType.INCOME}>Income</option>
                 </select>
               </div>
               
