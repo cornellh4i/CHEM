@@ -130,6 +130,7 @@ organizationRouter.delete("/:id", async (req, res) => {
   }
 });
 
+// GET an organization's contributors
 organizationRouter.get("/:id/contributors", async (req, res) => {
   try {
     // Get inputs
@@ -177,5 +178,46 @@ organizationRouter.get("/:id/contributors", async (req, res) => {
     }    
   }
 });
+
+// POST - link a contributor to an organization
+organizationRouter.post("/:id/contributors", async (req, res) => {
+  try {
+    // extract parameters to get inputs
+    const { id: organizationId } = req.params;
+    const { contributorId } = req.body;
+
+    // validate inputs
+    if (!contributorId) {
+      return res.status(400).json({ error: "Contributor ID is required"});
+    }
+
+    // call corresponding controller function to link the contributor to the organizaton
+    const updatedContributor = await controller.addContributorToOrganization(
+      organizationId,
+      contributorId
+    );
+
+    // return the updated contributor
+    res.status(200).json(updatedContributor);
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error:
+        error instanceof Error ? error.message : "Failed to link contributor to organization",
+    };
+
+    if (errorResponse.error === "Organization not found") {
+      res.status(404).json(errorResponse);
+    } else if (errorResponse.error === "Contributor not found") {
+      res.status(404).json(errorResponse);
+    } else if (errorResponse.error === "Contributor is already linked to this organizzation") {
+      res.status(400).json(errorResponse);
+    } else {
+      // all other errors
+      res.status(500).json(errorResponse);
+    }
+  };
+})
+
 
 export default organizationRouter;
