@@ -1,5 +1,5 @@
 import prisma from "../utils/client";
-import { Organization, Prisma } from "@prisma/client";
+import { Organization, Transaction, Prisma } from "@prisma/client";
 
 // Get organizations with filtering, sorting, and pagination
 const getOrganizations = async (
@@ -61,6 +61,39 @@ const getOrganizationById = async (
       throw new Error(`Failed to get organization: ${error.message}`);
     }
     throw new Error("Failed to get organization due to an unknown error");
+  }
+};
+
+// Get organization transactions by ID
+const getOrganizationTransactions = async (
+  organizationId: string
+): Promise<number[]> => {
+  try {
+    // Define the specific type for the selected field
+    type TransactionAmount = { amount: number };
+
+    // Fetch only the 'amount' of each transaction, sorted by 'date' in ascending order
+    const transactions: TransactionAmount[] = await prisma.transaction.findMany(
+      {
+        where: {
+          organizationId,
+        },
+        select: {
+          amount: true,
+        },
+        orderBy: {
+          date: "asc",
+        },
+      }
+    );
+
+    // Extract and return the list of amounts
+    return transactions.map((transaction) => transaction.amount);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to get transactions: ${error.message}`);
+    }
+    throw new Error("Failed to get transactions due to an unknown error");
   }
 };
 
@@ -154,21 +187,11 @@ const deleteOrganization = async (id: string): Promise<Organization> => {
   }
 };
 
-// TODO: Add getOrganizationContributors function
-// Should return all contributors for a specific organization
-// Include sorting options for firstName/lastName
-// Include pagination support
-// Handle errors if organization doesn't exist
-
-// TODO: Add addContributorToOrganization function
-// Should link a contributor to an organization
-// Validate that both organization and contributor exist
-// Handle case where link already exists
-
 export default {
   getOrganizations,
   getOrganizationById,
   createOrganization,
   updateOrganization,
   deleteOrganization,
+  getOrganizationTransactions
 };
