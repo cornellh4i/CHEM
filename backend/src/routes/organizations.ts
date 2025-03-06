@@ -1,8 +1,29 @@
 import { Router } from "express";
 import controller from "../controllers/organizations";
 import { ErrorMessage } from "../utils/types";
+import express from "express";
+import orgController from "../controllers/organizations";
 
 const organizationRouter = Router();
+
+organizationRouter.get("/:id/transactions", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const transactions = await orgController.getOrganizationTransactions(req.params.id);
+
+    if (!transactions || transactions.length === 0) {
+      return res.status(404).json({ error: "No transactions found for this organization" });
+    }
+
+    res.status(200).json({ transactions });
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error: error instanceof Error ? error.message : "Failed to fetch transactions",
+    };
+    res.status(500).json(errorResponse);
+  }
+});
 
 // GET all organizations
 organizationRouter.get("/", async (req, res) => {
