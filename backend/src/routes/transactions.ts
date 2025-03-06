@@ -9,59 +9,58 @@ const transactionRouter = Router();
 // TODO: Implement GET /transactions route
 
 // TODO: Implement GET /transactions/:id route
-transactionRouter.post("/", async (req, res) => {
-    try {
-      const transactionData = req.body;
-  
-      // Basic validation
-      if (
-        !transactionData.organizationId ||
-        !transactionData.contributorId ||
-        !transactionData.type ||
-        !transactionData.date ||
-        !transactionData.units ||
-        !transactionData.amount ||
-        !transactionData.description
-      ) {
-        return res.status(400).json({
-          error:
-            "Transaction organiation ID, contributor ID, type, date, units, amount, and description are required",
-        });
-      }
-  
-      const newTransaction = await controller.createTransaction(transactionData);
-      res.status(201).json(newTransaction);
-    } catch (error) {
-      console.error(error);
-      const errorResponse: ErrorMessage = {
-        error:
-          error instanceof Error ? error.message : "Failed to create transaction",
-      };
-      res.status(400).json(errorResponse);
-    }
-  });
 
-// TODO: Implement POST /transactions route
+// TODO: POST /transactions route
+transactionRouter.post("/", async (req, res) => {
+  try {
+    const transactionData = req.body;
+
+    // Basic validation
+    if (
+      !transactionData.organizationId ||
+      !transactionData.contributorId ||
+      !transactionData.type ||
+      !transactionData.date ||
+      !transactionData.units ||
+      !transactionData.amount ||
+      !transactionData.description
+    ) {
+      return res.status(400).json({
+        error:
+          "Transaction organiation ID, contributor ID, type, date, units, amount, and description are required",
+      });
+    }
+
+    const newTransaction = await controller.createTransaction(transactionData);
+    res.status(201).json(newTransaction);
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error:
+        error instanceof Error ? error.message : "Failed to create transaction",
+    };
+    res.status(400).json(errorResponse);
+  }
+});
 
 // TODO: Implement PUT /transactions/:id route
+
+// DELETE /transactions/:id route
 transactionRouter.delete("/:id", async (req, res) => {
-    try {
-      const id = req.params.id;
-      const deletedTransaction = await controller.deleteTransaction(id);
-      res.status(200).json(deletedTransaction);
-      notify(`/transactions/${id}`);
-    } catch (error) {
-      console.error(error);
-      const errorResponse: ErrorMessage = {
-        error:
-          error instanceof Error ? error.message : "Error deleting transaction",
-      };    
-      res.status(404).json(errorResponse);
-    }
-  });
-
-// TODO: Implement DELETE /transactions/:id route
-
+  try {
+    const id = req.params.id;
+    const deletedTransaction = await controller.deleteTransaction(id);
+    res.status(200).json(deletedTransaction);
+    notify(`/transactions/${id}`);
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error:
+        error instanceof Error ? error.message : "Error deleting transaction",
+    };
+    res.status(404).json(errorResponse);
+  }
+});
 
 /* TODO: Implement GET /organizations/:id/transactions route
  * Support query parameters for:
