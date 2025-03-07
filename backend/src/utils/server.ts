@@ -4,8 +4,8 @@ import swaggerUI from "swagger-ui-express";
 import userRouter from "../routes/users";
 import contributorRouter from "../routes/contributors";
 import organizationRouter from "../routes/organizations";
-import swaggerFile from "../../api-spec.json";
 import transactionRouter from "../routes/transactions";
+import swaggerFile from "../../api-spec.json";
 
 const app = express();
 
