@@ -5,6 +5,7 @@ import userRouter from "../routes/users";
 import contributorRouter from "../routes/contributors";
 import organizationRouter from "../routes/organizations";
 import swaggerFile from "../../api-spec.json";
+import transactionRouter from "../routes/transactions";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use("/users", userRouter);
 app.use("/contributors", contributorRouter);
 app.use("/organizations", organizationRouter);
+app.use("/transactions", transactionRouter);
 
 // Root route
 // #swagger.ignore = true
