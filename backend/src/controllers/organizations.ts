@@ -1,5 +1,5 @@
 import prisma from "../utils/client";
-import { Organization, Contributor, Prisma } from "@prisma/client";
+import { Organization, Contributor, Transaction, Prisma } from "@prisma/client";
 
 // Get organizations with filtering, sorting, and pagination
 const getOrganizations = async (
@@ -61,6 +61,39 @@ const getOrganizationById = async (
       throw new Error(`Failed to get organization: ${error.message}`);
     }
     throw new Error("Failed to get organization due to an unknown error");
+  }
+};
+
+// Get organization transactions by ID
+const getOrganizationTransactions = async (
+  organizationId: string
+): Promise<number[]> => {
+  try {
+    // Define the specific type for the selected field
+    type TransactionAmount = { amount: number };
+
+    // Fetch only the 'amount' of each transaction, sorted by 'date' in ascending order
+    const transactions: TransactionAmount[] = await prisma.transaction.findMany(
+      {
+        where: {
+          organizationId,
+        },
+        select: {
+          amount: true,
+        },
+        orderBy: {
+          date: "asc",
+        },
+      }
+    );
+
+    // Extract and return the list of amounts
+    return transactions.map((transaction) => transaction.amount);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to get transactions: ${error.message}`);
+    }
+    throw new Error("Failed to get transactions due to an unknown error");
   }
 };
 
@@ -258,6 +291,8 @@ export default {
   createOrganization,
   updateOrganization,
   deleteOrganization,
+  getOrganizationTransactions
   getOrganizationContributors,
   addContributorToOrganization,
 };
+
