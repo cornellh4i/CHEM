@@ -227,6 +227,7 @@ const deleteTransaction = async (id: string): Promise<Transaction> => {
     if (!transaction) {
       throw new Error("Unable to locate transaction");
     }
+    // update the associated organization's totals (units & amounts) cuz it's cooked
     if (transaction.organizationId) {
       await prisma.organization.update({
         where: { id: transaction.organizationId },
@@ -299,9 +300,11 @@ pagination?: PaginationOptions
 ) {
   //Validate contributor exists
   const contributor = await prisma.contributor.findUnique({
-    where: { id: contributorId },
+    where: { id: contributorId}, 
+    select: {id: true} ,
   });
   if (!contributor) {
+    //contributor not found = 404
     throw new Error("Contributor not found.");
   }
   //setting up the filter
@@ -313,20 +316,34 @@ pagination?: PaginationOptions
 
   if (filters.organizationId) {
     where.organizationId = filters.organizationId;
+    const organization = await prisma.contributor.findUnique({
+      where: { id: filters.organizationId}, 
+      select: {id: true} ,
+    });
+    if (!organization) {
+      //organization not found = 404
+      throw new Error("Organization not found.");
+    }
   }
 
   if (filters.startDate || filters.endDate) {
     where.date = {};
-    if (filters.startDate) {
-      where.date.gte = new Date(filters.startDate);
+    try {
+      if (filters.startDate) {
+        where.date.gte = new Date(filters.startDate);
+      }
+      if (filters.endDate) {
+        where.date.lte = new Date(filters.endDate);
+      }
     }
-    if (filters.endDate) {
-      where.date.lte = new Date(filters.endDate);
+    catch (e){
+      //Invalid Query Input
+      throw new Error("Invalid Date Format.")
     }
   }
 
   const orderBy = sort ? { [sort.field]: sort.order } : undefined;
-
+  //actual query
   const [transactions, total] = await Promise.all([
     prisma.transaction.findMany({
       where,
