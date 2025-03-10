@@ -288,10 +288,63 @@ const deleteTransaction = async (id: string): Promise<Transaction> => {
  * Return transactions array and total count
  */
 
+async function getContributorTransactions(contributorId: string, filters: {
+  type?: string;
+  organizationId?: string;
+  startDate?: string;
+  endDate?: string;
+},
+sort?: SortOptions,
+pagination?: PaginationOptions
+) {
+  //Validate contributor exists
+  const contributor = await prisma.contributor.findUnique({
+    where: { id: contributorId },
+  });
+  if (!contributor) {
+    throw new Error("Contributor not found.");
+  }
+  //setting up the filter
+  const where: Prisma.TransactionWhereInput = { contributorId};
+
+  if (filters.type) {
+    where.type = filters.type as TransactionType;
+  }
+
+  if (filters.organizationId) {
+    where.organizationId = filters.organizationId;
+  }
+
+  if (filters.startDate || filters.endDate) {
+    where.date = {};
+    if (filters.startDate) {
+      where.date.gte = new Date(filters.startDate);
+    }
+    if (filters.endDate) {
+      where.date.lte = new Date(filters.endDate);
+    }
+  }
+
+  const orderBy = sort ? { [sort.field]: sort.order } : undefined;
+
+  const [transactions, total] = await Promise.all([
+    prisma.transaction.findMany({
+      where,
+      skip: pagination?.skip,
+      take: pagination?.take,
+      orderBy,
+    }),
+    prisma.transaction.count({ where }),
+  ]);
+
+  return { transactions, total };
+}
+
 export default {
   createTransaction,
   deleteTransaction,
   getTransactions,
   getTransactionById,
   updateTransaction,
+  getContributorTransactions,
 };
