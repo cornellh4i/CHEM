@@ -1,5 +1,5 @@
 import prisma from "../utils/client";
-import { Organization, Transaction, Prisma } from "@prisma/client";
+import { Organization, Contributor, Transaction, Prisma } from "@prisma/client";
 
 // Get organizations with filtering, sorting, and pagination
 const getOrganizations = async (
@@ -187,6 +187,104 @@ const deleteOrganization = async (id: string): Promise<Organization> => {
   }
 };
 
+// Get an organization's contributor
+const getOrganizationContributors = async (
+  id: string, 
+  //sort based on either first name, last name, in ascending or descending order
+  sort?: {
+    field: "firstName" | "lastName";
+    order: "asc" | "desc";
+  },
+  // pagination parameters
+  pagination?: { skip?: number; take?: number }
+): Promise<{ contributors: Contributor[]; total: number }> => {
+  try { 
+    //Check if organization exists
+    const organizationExists = await prisma.organization.findUniqueOrThrow({
+      where: {id},
+      select: {id: true}
+    })
+
+    // Use Prisma's transaction to get contributors and total count
+    const [contributors, total] = await prisma.$transaction([
+      prisma.contributor.findMany({
+        where: {organizationId : id},
+        orderBy: sort ? { [sort.field]: sort.order } : undefined, // sorting by field and order
+        skip: pagination?.skip || 0, // skip organizations, 0 by default
+        take: pagination?.take || 100, // take organizations, 100 by default
+      }),
+      prisma.contributor.count({ where: {organizationId : id} }),
+    ]);
+
+    // Return organizations and total count
+    return { contributors, total };
+
+  } catch (error) {
+    // Throw organization not found error
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Organization not found");
+      }
+    }
+    // Throw a more informative error
+    if (error instanceof Error) {
+      throw new Error(`Failed to get contributors: ${error.message}`);
+    }
+    throw new Error("Failed to get organization due to an unknown error");
+  }
+};
+
+// Add contributor to an organization
+const addContributorToOrganization = async (
+  organizationId: string,
+  contributorId: string
+): Promise<Contributor> => {
+  try {
+    // check if organization exists
+    const organization = await prisma.organization.findUnique({
+      where: { id: organizationId }
+    });
+
+    if (!organization) {
+      throw new Error("Organization not found");
+    }
+
+    // check if the contributor exists
+    const contributor = await prisma.contributor.findUnique({
+      where: { id: contributorId },
+    });
+
+    if (!contributor) {
+      throw new Error("Contributor not found");
+    }
+
+    // check if the contributor is already linked to the organization
+    if (contributor.organizationId === organizationId) {
+      throw new Error("Contributor is already linked to this organization");
+    }
+
+    const updatedContributor = await prisma.contributor.update({
+      where: { id: contributorId },
+      data: { organizationId: organizationId },
+    });
+
+    return updatedContributor;
+
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Organization or contributor not found");
+      }
+    }
+  if (error instanceof Error) {
+    throw new Error(`Failed to link contributor: ${error.message}`);
+  }
+  throw new Error("Failed to link contributor due to an unknown error");
+}
+};
+
+// TODO: Implement updateContributorOrg function to handle updating a contributor's organization
+
 export default {
   getOrganizations,
   getOrganizationById,
@@ -194,4 +292,7 @@ export default {
   updateOrganization,
   deleteOrganization,
   getOrganizationTransactions
+  getOrganizationContributors,
+  addContributorToOrganization,
 };
+
