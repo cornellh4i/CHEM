@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 import Radio from "@/components/atoms/Radio";
@@ -19,7 +19,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-const TransactionModal = ({}) => {
+type TransactionModalProps = {
+  children: ReactNode;
+};
+
+const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOpen = () => setIsOpen(true);
+  const handleClose = () => setIsOpen(false);
+
+  const handleAdd = () => {
+    // Add transaction logic here
+    handleClose();
+  };
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -52,12 +65,12 @@ const TransactionModal = ({}) => {
           <Input
             id="amount"
             defaultValue="$"
-            className="mr-4 block w-[95%] rounded-lg border border-black px-2 py-3.5 text-sm text-gray-900 placeholder-gray-500 hover:bg-gray-100"
+            className="border-black text-gray-900 placeholder-gray-500 hover:bg-gray-100 mr-4 block w-[95%] rounded-lg border px-2 py-3.5 text-sm"
           />
           <div className="mb-2 mt-[32px] text-[22px]">Units purchased</div>
           <Input
             id="units purchased"
-            className="mr-4 block w-[95%] rounded-lg border border-gray-900 bg-gray-200 px-2 py-3.5 text-sm text-gray-900 placeholder-gray-500 hover:bg-gray-100"
+            className="border-gray-900 bg-gray-200 text-gray-900 placeholder-gray-500 hover:bg-gray-100 mr-4 block w-[95%] rounded-lg border px-2 py-3.5 text-sm"
           />
           <div className="mt-[32px] grid grid-cols-2">
             <div className="justify-start">
@@ -77,31 +90,31 @@ const TransactionModal = ({}) => {
           </div>
           <div className="relative mt-[32px]">
             <div className="absolute left-0 text-[22px]">Description</div>
-            <div className="absolute right-10 text-[22px] italic text-gray-300">
+            <div className="text-gray-300 absolute right-10 text-[22px] italic">
               Optional
             </div>
           </div>
           <textarea
-            className="ml-0.5 mt-[42px] h-[150px] w-[95%] rounded-2xl border border-black"
+            className="border-black ml-0.5 mt-[42px] h-[150px] w-[95%] rounded-2xl border"
             placeholder="Add a description"
             rows={4}
             cols={40}
           />
           <div className="mt-[32px] text-[22px]">Additional documents</div>
           <div className="relative mt-2">
-            <div className="absolute left-0 text-[18px] text-gray-300">
+            <div className="text-gray-300 absolute left-0 text-[18px]">
               Upload a file (5MB max)
             </div>
-            <div className="absolute right-10 text-[22px] italic text-gray-300">
+            <div className="text-gray-300 absolute right-10 text-[22px] italic">
               Optional
             </div>
           </div>
           <DragDrop></DragDrop>
           <div className="relative mb-2 mt-[100px]">
-            <Button className="absolute left-0 mb-2 me-2 rounded-2xl border border-black px-16 py-3 text-lg text-black hover:bg-grey-dark focus:outline-none">
+            <Button className="border-black text-black absolute left-0 mb-2 me-2 rounded-2xl border px-16 py-3 text-lg hover:bg-grey-dark focus:outline-none">
               Cancel
             </Button>
-            <Button className="absolute right-5 mb-2 me-2 rounded-2xl border border-black bg-gray-800 px-20 py-3 text-lg text-white hover:bg-grey-dark focus:outline-none">
+            <Button className="border-black bg-gray-800 text-white absolute right-5 mb-2 me-2 rounded-2xl border px-20 py-3 text-lg hover:bg-grey-dark focus:outline-none">
               Add
             </Button>
           </div>
