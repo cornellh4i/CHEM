@@ -34,20 +34,18 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
     setFirstName("");
     setLastName("");
     setPhone("");
-    setEmail("");
     setAddress("");
     setError("");
   };
 
   const handleAdd = async () => {
-    // Validate form fields
-    if (!firstName || !lastName) {
-      setError("First name and last name are required");
+    // Validation code remains the same
+    if (!firstName.trim()) {
+      setError("First name is required");
       return;
     }
-
-    if (!email) {
-      setError("Email is required");
+    if (!lastName.trim()) {
+      setError("Last name is required");
       return;
     }
 
@@ -55,18 +53,16 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
     setError("");
 
     try {
-      // Create payload that matches what backend expects
       const contributorData = {
         firstName,
         lastName,
-        email,
-        phone,
-        address,
         organizationId,
       };
 
-      // Send API request to create a new contributor
-      const response = await fetch("http://localhost:5000/api/contributors", {
+      // Remove the no-cors mode
+      // In your AddContributorModal.tsx
+      const response = await fetch("http://localhost:8000/api/contributors", {
+        mode: "no-cors",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,29 +70,37 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
         body: JSON.stringify(contributorData),
       });
 
+      // Check if response is ok before trying to parse JSON
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to add contributor");
+        const errorText = await response.text(); // Try to get text instead of JSON first
+        let errorMessage;
+
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage =
+            errorData.message ||
+            `Error: ${response.status} ${response.statusText}`;
+        } catch (e) {
+          // If it's not valid JSON, use the status text
+          errorMessage = `Error: ${response.status} ${response.statusText}`;
+        }
+
+        throw new Error(errorMessage);
       }
 
-      // Successfully added contributor
+      // Only try to parse JSON if the response was successful
       const result = await response.json();
       console.log("Contributor added:", result);
 
-      // Close modal and reset form
       handleClose();
-
-      // Show success message
       alert("Contributor added successfully!");
     } catch (err) {
-      // Handle errors
       console.error("Error adding contributor:", err);
       setError(err instanceof Error ? err.message : "Error adding contributor");
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild onClick={handleOpen}>
