@@ -1,28 +1,43 @@
+import express from "express";
+import cors from "cors";
 import wss from "./utils/websocket";
-import app from "./utils/server";
+import contributorsRouter from "./routes/contributors"; // ✅ Import API routes
 
-// Express server
-const server = app.listen(process.env.PORT || 8000);
+const app = express();
 
-server.on("listening", () => {
-  console.log("✅ Server is up and running at http://localhost:8000");
+// ✅ Middleware
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Allow frontend requests
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
+app.use(express.json()); // ✅ Ensure JSON parsing
+
+
+// Start Express server
+const PORT = process.env.PORT || 8000;
+const server = app.listen(PORT, () => {
+  console.log(`✅ Server is running at http://localhost:${PORT}`);
 });
 
 server.on("error", (error) => {
-  console.log("❌ Server failed to start due to error: %s", error);
+  console.error("❌ Server failed to start due to error:", error);
 });
 
-// WebSocket server
+// ✅ WebSocket server
 wss.on("connection", (ws) => {
-  // Error handling
   ws.on("error", console.error);
-
-  // What happens when the server receives data
   ws.on("message", (data) => {
-    console.log("received: %s", data);
-    ws.send("server received your message!");
+    console.log("Received:", data);
+    ws.send("Server received your message!");
   });
 
-  // Default message to send when connected
-  ws.send("something");
+  ws.send("Connected to WebSocket server");
+});
+
+// ✅ Handle undefined routes (Fix for "You have reached a route not defined in this API")
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found in this API" });
 });
