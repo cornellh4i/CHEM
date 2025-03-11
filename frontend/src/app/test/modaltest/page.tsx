@@ -1,19 +1,23 @@
-import React from "react";
-import Button from "@/components/atoms/Button";
-import TransactionModal from "@/components/molecules/AddTransactionModal";
+"use client"; // Add this line at the very top!
+
+import React, { ReactNode, useState } from "react";
 import {
   Dialog,
+  DialogTrigger,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import Button from "@/components/atoms/Button";
+
+import AddContributorModal from "@/components/molecules/AddContributorModal"; // Make sure the path is correct
 
 const ModalTestPage = () => {
   return (
     <div className="p-4">
-      <TransactionModal></TransactionModal>
+      <AddContributorModal>
+        <Button variant="primary">Open Contributor Modal</Button>
+      </AddContributorModal>
     </div>
   );
 };
