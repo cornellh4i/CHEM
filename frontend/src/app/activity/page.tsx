@@ -1,7 +1,7 @@
 "use client";
 
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
-import DummyTable from "@/components/molecules/DummyTable";
+import TransactionsTable from "@/components/molecules/TransactionsTable";
 import React, { useState } from "react";
 import SearchBar from "@/components/molecules/Searchbar";
 import AddIcon from '@mui/icons-material/Add';
@@ -35,7 +35,7 @@ const ActivitiesPage = () => {
             Import
           </Button>
         </div>
-        <DummyTable />
+        <TransactionsTable />
       </div>
     </DashboardTemplate>
   );

@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import DummyTable from "@/components/molecules/DummyTable";
+import TransactionsTable from "@/components/molecules/TransactionsTable";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 
 const DashboardPage = () => {
@@ -59,7 +59,7 @@ const DashboardPage = () => {
         </button>
       </div>
 
-      <DummyTable></DummyTable>
+      <TransactionsTable />
 
       <div className="mt-12 flex items-center justify-between">
         <div className="text-3xl font-medium">Activity Level</div>
