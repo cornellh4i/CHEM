@@ -1,12 +1,16 @@
+"use client";
+
 import React, { ReactNode, useState } from "react";
+import Button from "@/components/atoms/Button";
+import { ScrollArea } from "@/components/ui/scroll";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import Button from "@/components/atoms/Button";
 
 type AddContributorModalProps = {
   children: ReactNode;
@@ -20,11 +24,9 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [orgID, setOrgID] = useState(organizationId);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleOpen = () => setIsOpen(true);
 
@@ -33,13 +35,12 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
     // Reset form fields
     setFirstName("");
     setLastName("");
-    setPhone("");
-    setAddress("");
+    setOrgID(organizationId); // Reset to default or empty
     setError("");
   };
 
   const handleAdd = async () => {
-    // Validation code remains the same
+    // Basic validation
     if (!firstName.trim()) {
       setError("First name is required");
       return;
@@ -56,13 +57,10 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
       const contributorData = {
         firstName,
         lastName,
-        organizationId,
+        organizationId: orgID,
       };
 
-      // Remove the no-cors mode
-      // In your AddContributorModal.tsx
       const response = await fetch("http://localhost:8000/api/contributors", {
-        mode: "no-cors",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -70,145 +68,100 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
         body: JSON.stringify(contributorData),
       });
 
-      // Check if response is ok before trying to parse JSON
       if (!response.ok) {
-        const errorText = await response.text(); // Try to get text instead of JSON first
+        const errorText = await response.text();
         let errorMessage;
-
         try {
           const errorData = JSON.parse(errorText);
           errorMessage =
             errorData.message ||
             `Error: ${response.status} ${response.statusText}`;
         } catch (e) {
-          // If it's not valid JSON, use the status text
           errorMessage = `Error: ${response.status} ${response.statusText}`;
         }
-
         throw new Error(errorMessage);
       }
 
-      // Only try to parse JSON if the response was successful
       const result = await response.json();
       console.log("Contributor added:", result);
 
-      handleClose();
       alert("Contributor added successfully!");
+      handleClose();
     } catch (err) {
-      console.error("Error adding contributor:", err);
-      setError(err instanceof Error ? err.message : "Error adding contributor");
+      console.error("HELLO Error adding contributor:", err);
+      console.log(err);
+      // setError(
+      //   err instanceof Error ? err.message : "HELLO Error adding contributor"
+      // );
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      {/* Trigger Button/Element */}
       <DialogTrigger asChild onClick={handleOpen}>
         {children}
       </DialogTrigger>
-      <DialogContent className="border-gray-300 bg-white rounded-lg border p-8 shadow-lg sm:min-h-[475px] sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="mb-4 text-lg font-semibold">
-            Add a Contributor
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label
-                htmlFor="firstName"
-                className="text-black mb-1 block text-sm font-medium"
-              >
-                First Name
-              </label>
-              <input
-                id="firstName"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="John"
-                className="border-gray-400 text-black focus:ring-gray-500 w-full rounded-md border p-2 text-sm focus:outline-none focus:ring-2"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="lastName"
-                className="text-black mb-1 block text-sm font-medium"
-              >
-                Last Name
-              </label>
-              <input
-                id="lastName"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Doe"
-                className="border-gray-400 text-black focus:ring-gray-500 w-full rounded-md border p-2 text-sm focus:outline-none focus:ring-2"
-              />
-            </div>
-          </div>
-          <div>
-            <label
-              htmlFor="phone"
-              className="text-black mb-1 block text-sm font-medium"
-            >
-              Phone number
-            </label>
-            <input
-              id="phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+1 (718) 123-4567"
-              className="border-gray-400 text-black focus:ring-gray-500 w-full rounded-md border p-2 text-sm focus:outline-none focus:ring-2"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="email"
-              className="text-black mb-1 block text-sm font-medium"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="john.doe@example.com"
-              className="border-gray-400 text-black focus:ring-gray-500 w-full rounded-md border p-2 text-sm focus:outline-none focus:ring-2"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="address"
-              className="text-black mb-1 block text-sm font-medium"
-            >
-              Mailing address
-            </label>
-            <input
-              id="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="123 ABC Drive, Queens NY 11357"
-              className="border-gray-400 text-black focus:ring-gray-500 w-full rounded-md border p-2 text-sm focus:outline-none focus:ring-2"
-            />
-          </div>
-          <div className="flex justify-between space-x-4 pt-8">
+
+      <DialogContent className="h-[800px] w-[810px] justify-center rounded-[40px] px-[100px] pt-[100px]">
+        <ScrollArea className="h-full w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="mb-[48px] text-[32px]">
+              Add Contributor
+            </DialogTitle>
+          </DialogHeader>
+
+          {error && <p className="text-red-500 mb-4 text-sm">{error}</p>}
+
+          {/* First Name */}
+          <div className="mb-2 text-[22px]">First Name</div>
+          <input
+            className="border-black text-gray-900 placeholder-gray-500 mb-[32px] w-[95%] rounded-lg border px-2 py-3.5 text-sm"
+            placeholder="John"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
+
+          {/* Last Name */}
+          <div className="mb-2 text-[22px]">Last Name</div>
+          <input
+            className="border-black text-gray-900 placeholder-gray-500 mb-[32px] w-[95%] rounded-lg border px-2 py-3.5 text-sm"
+            placeholder="Doe"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+          />
+
+          {/* Organization ID (if needed) */}
+          <div className="mb-2 text-[22px]">Organization ID</div>
+          <input
+            className="border-black text-gray-900 placeholder-gray-500 mb-[32px] w-[95%] rounded-lg border px-2 py-3.5 text-sm"
+            placeholder="Optional org ID"
+            value={orgID}
+            onChange={(e) => setOrgID(e.target.value)}
+          />
+
+          {/* Footer buttons */}
+          <div className="relative mt-[50px]">
             <Button
-              className="border-gray-400 text-black hover:bg-gray-100 rounded-md border px-6 py-2 text-sm"
+              className="border-black text-black hover:bg-gray-100 absolute left-0 mb-2 me-2 rounded-2xl border px-16 py-3 text-lg"
               onClick={handleClose}
               disabled={loading}
             >
               Cancel
             </Button>
             <Button
-              variant="primary"
-              className="border-gray-700 bg-gray-700 text-white hover:bg-gray-800 rounded-md border px-8 py-2 text-sm"
+              className="border-black bg-gray-800 text-white hover:bg-gray-600 absolute right-5 mb-2 me-2 rounded-2xl border px-20 py-3 text-lg"
               onClick={handleAdd}
               disabled={loading}
             >
               {loading ? "Adding..." : "Add"}
             </Button>
           </div>
-        </div>
+
+          <DialogFooter />
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
