@@ -93,6 +93,7 @@ contributorRouter.post("/", async (req, res) => {
     const newContributor = await controller.createContributor(contributorData);
     res.status(201).json(newContributor);
   } catch (error) {
+    console.log("hadkhdkad");
     console.error(error);
     const errorResponse: ErrorMessage = {
       error:
