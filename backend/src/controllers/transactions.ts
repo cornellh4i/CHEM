@@ -227,19 +227,16 @@ const deleteTransaction = async (id: string): Promise<Transaction> => {
     if (!transaction) {
       throw new Error("Unable to locate transaction");
     }
-    // update the associated organization's totals (units & amounts) cuz it's cooked
+    // update the associated organization's totals (units & amounts, based on transaction type)
+    const amountUpdated = transaction.type === "DONATION" || transaction.type === "INVESTMENT" ? {decrement: transaction.amount} : {increment: transaction.amount};
+    const unitsUpdated = transaction.units ? transaction.type === "DONATION" || transaction.type === "INVESTMENT" ? {decrement: transaction.units} : {increment: transaction.units}: undefined;
+
     if (transaction.organizationId) {
       await prisma.organization.update({
         where: { id: transaction.organizationId },
         data: {
-          amount: {
-            decrement: transaction.amount,
-          },
-          units: transaction.units
-            ? {
-                decrement: transaction.units,
-              }
-            : undefined,
+          amount: amountUpdated,
+          units: unitsUpdated,
         },
       });
     }
