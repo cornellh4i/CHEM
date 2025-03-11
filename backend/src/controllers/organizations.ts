@@ -291,7 +291,7 @@ export default {
   createOrganization,
   updateOrganization,
   deleteOrganization,
-  getOrganizationTransactions
+  getOrganizationTransactions,
   getOrganizationContributors,
   addContributorToOrganization,
 };
