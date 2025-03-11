@@ -273,6 +273,73 @@ const deleteTransaction = async (id: string): Promise<Transaction> => {
  * Return transactions array and total count
  */
 
+const getOrganizationTransactions = async (
+  id: string,
+  filter?: {
+    type?: TransactionType;
+    startDate?: Date;
+    endDate?: Date;
+    contributorId?: string;
+  },
+  sort?: {
+    field: "date" | "amount" | "units";
+    order: "asc" | "desc";
+  },
+  pagination?: { skip?: number; take?: number }
+  
+): Promise<{ transactions: Transaction[]; total: number }> => {
+  try {
+    // Validate organization exists
+    const organizationExists = await prisma.organization.findUnique({
+      where: { id },
+    });
+
+    if (!organizationExists) {
+      throw new Error("Organization not found");
+    }
+
+    // Construct the where clause for filtering
+    const where: Prisma.TransactionWhereInput = {
+      organizationId: id,
+      ...(filter?.type && { type: filter.type }), // Filter by transaction type
+      ...(filter?.contributorId && { contributorId: filter.contributorId }), // Filter by contributorId
+      ...((filter?.startDate || filter?.endDate) && {
+        date: {
+          ...(filter.startDate && { gte: filter.startDate }), // Filter by start date
+          ...(filter.endDate && { lte: filter.endDate }), // Filter by end date
+        },
+      }),
+    };
+    // Use Prisma's transaction to get transactions and total count/number of transactions
+    const [transactions, total] = await prisma.$transaction([
+      prisma.transaction.findMany({
+        where,
+        orderBy: sort ? { [sort.field]: sort.order } : undefined, // Sorting by field and order
+        skip: pagination?.skip || 0, // Skip transactions, 0 by default
+        take: pagination?.take || 100, // Take organizations, 100 by default
+        include: {
+          contributor: true, // Include contributor details
+        }
+      }),
+      prisma.transaction.count({ where }), // Total count of transactions
+    ]);
+
+    // Return transactions and total count
+    return { transactions, total };
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Organization not found.");
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Unable to get transactions: ${error.message}`);
+    }
+    throw new Error("Unable to get transaction due to an unknown error.");
+  }
+};
+
+
 /* TODO: Add getContributorTransactions function
  * Should return all transactions for a contributor
  * Include filtering by:
@@ -360,5 +427,6 @@ export default {
   getTransactions,
   getTransactionById,
   updateTransaction,
+  getOrganizationTransactions,
   getContributorTransactions,
 };
