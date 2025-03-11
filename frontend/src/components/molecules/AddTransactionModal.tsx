@@ -33,10 +33,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
     // Add transaction logic here
     handleClose();
   };
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button>Add Transaction</Button>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild onClick={handleOpen}>
+        {children}
       </DialogTrigger>
       <DialogContent className="h-[800px] w-[810px] justify-center rounded-[40px] px-[100px] pt-[100px]">
         <ScrollArea className="h-full w-[600px]">
@@ -111,10 +112,16 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
           </div>
           <DragDrop></DragDrop>
           <div className="relative mb-2 mt-[100px]">
-            <Button className="border-black text-black absolute left-0 mb-2 me-2 rounded-2xl border px-16 py-3 text-lg hover:bg-grey-dark focus:outline-none">
+            <Button
+              className="border-black text-black absolute left-0 mb-2 me-2 rounded-2xl border px-16 py-3 text-lg hover:bg-grey-dark focus:outline-none"
+              onClick={handleClose}
+            >
               Cancel
             </Button>
-            <Button className="border-black bg-gray-800 text-white absolute right-5 mb-2 me-2 rounded-2xl border px-20 py-3 text-lg hover:bg-grey-dark focus:outline-none">
+            <Button
+              className="border-black bg-gray-800 text-white absolute right-5 mb-2 me-2 rounded-2xl border px-20 py-3 text-lg hover:bg-grey-dark focus:outline-none"
+              onClick={handleAdd}
+            >
               Add
             </Button>
           </div>
