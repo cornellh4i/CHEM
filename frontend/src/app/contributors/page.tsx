@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { SimpleTable, Column } from "@/components/molecules/SimpleTable";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
+import ContributorsTable from "@/components/molecules/ContributorsTable";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import LaunchIcon from "@mui/icons-material/Launch";
@@ -122,6 +123,7 @@ const ContributorsPage = () => {
       </Box>
 
       <SimpleTable data={contributorData} columns={columns} pageSize={5} />
+      <ContributorsTable />
     </DashboardTemplate>
   );
 };

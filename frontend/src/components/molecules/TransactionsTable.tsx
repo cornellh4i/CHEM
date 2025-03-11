@@ -50,7 +50,7 @@ const TransactionsTable = () => {
   const [transactions, setTransactions] = useState<TableData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     fetchTransactions();
   }, []);
@@ -58,34 +58,36 @@ const TransactionsTable = () => {
   const fetchTransactions = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetch(`${API_URL}/contributors`);
-      
+      const response = await fetch(`${API_URL}/transactions`);
+
       if (!response.ok) {
-        const statusText = response.statusText || 'Unknown error';
+        const statusText = response.statusText || "Unknown error";
         throw new Error(`HTTP error! Status: ${response.status} ${statusText}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data && data.transactions) {
-        const mappedData = data.transactions.map((transaction: Transaction) => ({
-          id: transaction.id,
-          date: new Date(transaction.date).toLocaleDateString(),
-          contributor: transaction.contributor 
-            ? `${transaction.contributor.firstName} ${transaction.contributor.lastName}`
-            : "---",
-          contributorId: transaction.contributorId || undefined,
-          fund: transaction.organization.name,
-          fundId: transaction.organizationId,
-          type: formatTransactionType(transaction.type),
-          units: transaction.units || undefined,
-          amount: transaction.amount,
-          restriction: transaction.organization.restriction,
-          documentLink: undefined, 
-        }));
-        
+        const mappedData = data.transactions.map(
+          (transaction: Transaction) => ({
+            id: transaction.id,
+            date: new Date(transaction.date).toLocaleDateString(),
+            contributor: transaction.contributor
+              ? `${transaction.contributor.firstName} ${transaction.contributor.lastName}`
+              : "---",
+            contributorId: transaction.contributorId || undefined,
+            fund: transaction.organization.name,
+            fundId: transaction.organizationId,
+            type: formatTransactionType(transaction.type),
+            units: transaction.units || undefined,
+            amount: transaction.amount,
+            restriction: transaction.organization.restriction,
+            documentLink: undefined,
+          })
+        );
+
         setTransactions(mappedData);
       }
     } catch (err) {
@@ -130,13 +132,13 @@ const TransactionsTable = () => {
       accessor: "documentLink",
       dataType: "string",
       sortable: false,
-      Cell: (value) => 
+      Cell: (value) =>
         value ? (
           <a
             href={value}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center space-x-1 text-gray-500 underline"
+            className="text-gray-500 flex items-center space-x-1 underline"
           >
             <span>Open documents</span>
             <OpenInNewIcon className="inline h-3.5 w-3.5" />
@@ -175,9 +177,7 @@ const TransactionsTable = () => {
 
   if (error) {
     return (
-      <div className="p-3 text-sm bg-red-100 text-red-700 rounded">
-        {error}
-      </div>
+      <div className="bg-red-100 text-red-700 rounded p-3 text-sm">{error}</div>
     );
   }
 
