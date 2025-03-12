@@ -1,13 +1,18 @@
 "use client";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useState, useRef, useEffect } from "react";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 import Radio from "@/components/atoms/Radio";
 import Select from "@/components/atoms/Select";
 import { ScrollArea } from "@/components/ui/scroll";
-import { DatePicker } from "@/components/atoms/DatePicker";
 import { Calendar } from "@/components/ui/calendar";
 import DragDrop from "@/components/molecules/DragDrop";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs, { Dayjs } from "dayjs";
+import Toast from "@/components/atoms/Toast"; // Import Toast component
 
 import {
   Dialog,
@@ -23,112 +28,281 @@ type TransactionModalProps = {
   children: ReactNode;
 };
 
+// Define a type for our transaction data
+type TransactionData = {
+  date: Dayjs | null;
+  contributor: string;
+  fund: string;
+  amount: string;
+  unitsPurchased: string;
+  transactionType: "Deposit" | "Withdrawl" | null;
+  type: "Donation" | "Endowment" | null;
+  description: string;
+  documents: File[];
+};
+
 const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  // Initial transaction state
+  const initialTransactionState: TransactionData = {
+    date: dayjs("2022-04-17"),
+    contributor: "",
+    fund: "",
+    amount: "$",
+    unitsPurchased: "",
+    transactionType: null,
+    type: null,
+    description: "",
+    documents: [],
+  };
+
+  // State to store all form values
+  const [transaction, setTransaction] = useState<TransactionData>(
+    initialTransactionState
+  );
 
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
 
+  // References to track input values
+  const amountInputRef = useRef<HTMLInputElement>(null);
+  const unitsPurchasedRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  // Effect to update state from refs when needed
+  useEffect(() => {
+    // This would be used for any custom logic needed after component mounts
+  }, []);
+
+  // Handle input changes
+  const handleInputChange = (field: keyof TransactionData, value: any) => {
+    setTransaction((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  // Validate required fields
+  const validateForm = () => {
+    // Check if all required fields are filled
+    if (!transaction.date) {
+      showError("Please select a date");
+      return false;
+    }
+    if (!transaction.contributor) {
+      showError("Please select a contributor");
+      return false;
+    }
+    if (!transaction.fund) {
+      showError("Please select a fund");
+      return false;
+    }
+    if (!transaction.amount || transaction.amount === "$") {
+      showError("Please enter an amount");
+      return false;
+    }
+    if (!transaction.unitsPurchased) {
+      showError("Please enter units purchased");
+      return false;
+    }
+    if (!transaction.transactionType) {
+      showError("Please select transaction type (Deposit or Withdrawl)");
+      return false;
+    }
+    if (!transaction.type) {
+      showError("Please select type (Donation or Endowment)");
+      return false;
+    }
+
+    return true;
+  };
+
+  // Show error toast
+  const showError = (message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+  };
+
+  // Handle form submission
   const handleAdd = () => {
-    // Add transaction logic here
-    handleClose();
+    if (validateForm()) {
+      // All required fields are filled, process the transaction
+      console.log("Transaction data:", transaction);
+
+      // Log individual fields for clarity
+      console.log("Date:", transaction.date?.format("YYYY-MM-DD"));
+      console.log("Contributor:", transaction.contributor);
+      console.log("Fund:", transaction.fund);
+      console.log("Amount:", transaction.amount);
+      console.log("Units Purchased:", transaction.unitsPurchased);
+      console.log("Transaction Type:", transaction.transactionType);
+      console.log("Type:", transaction.type);
+      console.log("Description:", transaction.description);
+      console.log(
+        "Documents:",
+        transaction.documents.map((doc) => doc.name).join(", ")
+      );
+
+      // You can add API call or further processing here
+
+      // Reset the transaction state to initial values
+      setTransaction(initialTransactionState);
+
+      // Close the modal
+      handleClose();
+    }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild onClick={handleOpen}>
-        {children}
-      </DialogTrigger>
-      <DialogContent className="h-[800px] w-[810px] justify-center rounded-[40px] px-[100px] pt-[100px]">
-        <ScrollArea className="h-full w-[600px]">
-          <DialogHeader>
-            <DialogTitle className="mb-[48px] text-[32px]">
-              Add Transaction
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mb-2 text-[22px]">Date</div>
-          <div>
-            <DatePicker></DatePicker>
-          </div>
-          <div className="mt-[32px] text-[22px]">Contributer</div>
-          <Select
-            placeholder="Select a Contributer"
-            values={["Sarah Clay", "Theo Rumberg", "Brandon Wu"]}
-            width="95%"
-          ></Select>
-          <div className="mt-[32px] text-[22px]">Fund</div>
-          <Select
-            placeholder="Select a Fund"
-            values={["Robert Fund", "Sophie Fund", "Edward Fund"]}
-            width="95%"
-          ></Select>
-          <div className="mb-2 mt-[32px] text-[22px]">Amount</div>
-          <Input
-            id="amount"
-            defaultValue="$"
-            className="border-black text-gray-900 placeholder-gray-500 hover:bg-gray-100 mr-4 block w-[95%] rounded-lg border px-2 py-3.5 text-sm"
-          />
-          <div className="mb-2 mt-[32px] text-[22px]">Units purchased</div>
-          <Input
-            id="units purchased"
-            className="border-gray-900 bg-gray-200 text-gray-900 placeholder-gray-500 hover:bg-gray-100 mr-4 block w-[95%] rounded-lg border px-2 py-3.5 text-sm"
-          />
-          <div className="mt-[32px] grid grid-cols-2">
-            <div className="justify-start">
-              <div className="text-[22px]">Transaction</div>
-              <div className="ml-2 mt-3 space-y-2 text-[22px]">
-                <Radio label="Deposit"></Radio>
-                <Radio label="Withdrawl"></Radio>
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild onClick={handleOpen}>
+          {children}
+        </DialogTrigger>
+        <DialogContent className="h-[800px] w-[810px] justify-center rounded-[40px] px-[100px] pt-[100px]">
+          <ScrollArea className="h-full w-[600px]">
+            <DialogHeader>
+              <DialogTitle className="mb-[48px] text-[32px]">
+                Add Transaction
+              </DialogTitle>
+            </DialogHeader>
+            <div className="mb-2 text-[22px]">Date</div>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                value={transaction.date}
+                onChange={(newValue) => handleInputChange("date", newValue)}
+              />
+            </LocalizationProvider>
+
+            <div className="mt-[32px] text-[22px]">Contributer</div>
+            <Select
+              placeholder="Select a Contributer"
+              values={["Sarah Clay", "Theo Rumberg", "Brandon Wu"]}
+              width="95%"
+              onSelect={(value: string) =>
+                handleInputChange("contributor", value)
+              }
+            ></Select>
+
+            <div className="mt-[32px] text-[22px]">Fund</div>
+            <Select
+              placeholder="Select a Fund"
+              values={["Robert Fund", "Sophie Fund", "Edward Fund"]}
+              width="95%"
+              onSelect={(value: string) => handleInputChange("fund", value)}
+            ></Select>
+
+            <div className="mb-2 mt-[32px] text-[22px]">Amount</div>
+            <Input
+              id="amount"
+              defaultValue="$"
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleInputChange("amount", e.target.value)
+              }
+              className="border-black text-gray-900 placeholder-gray-500 hover:bg-gray-100 mr-4 block w-[95%] rounded-lg border px-2 py-3.5 text-sm"
+            />
+
+            <div className="mb-2 mt-[32px] text-[22px]">Units purchased</div>
+            <Input
+              id="units purchased"
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleInputChange("unitsPurchased", e.target.value)
+              }
+              className="border-gray-900 bg-gray-200 text-gray-900 placeholder-gray-500 hover:bg-gray-100 mr-4 block w-[95%] rounded-lg border px-2 py-3.5 text-sm"
+            />
+
+            <div className="mt-[32px] grid grid-cols-2">
+              <div className="justify-start">
+                <div className="text-[22px]">Transaction</div>
+                <div className="ml-2 mt-3 space-y-2 text-[22px]">
+                  <Radio
+                    label="Deposit"
+                    onSelect={() =>
+                      handleInputChange("transactionType", "Deposit")
+                    }
+                  ></Radio>
+                  <Radio
+                    label="Withdrawl"
+                    onSelect={() =>
+                      handleInputChange("transactionType", "Withdrawl")
+                    }
+                  ></Radio>
+                </div>
+              </div>
+              <div className="justify-start">
+                <div className="text-[22px]">Type</div>
+                <div className="ml-2 mt-3 space-y-2 text-[22px]">
+                  <Radio
+                    label="Donation"
+                    onSelect={() => handleInputChange("type", "Donation")}
+                  ></Radio>
+                  <Radio
+                    label="Endowment"
+                    onSelect={() => handleInputChange("type", "Endowment")}
+                  ></Radio>
+                </div>
               </div>
             </div>
-            <div className="justify-start">
-              <div className="text-[22px]">Type</div>
-              <div className="ml-2 mt-3 space-y-2 text-[22px]">
-                <Radio label="Donation"></Radio>
-                <Radio label="Endowment"></Radio>
+
+            <div className="relative mt-[32px]">
+              <div className="absolute left-0 text-[22px]">Description</div>
+              <div
+                className="text-gray-300 absolute right-10 text-[22px] italic"
+              >
+                Optional
               </div>
             </div>
-          </div>
-          <div className="relative mt-[32px]">
-            <div className="absolute left-0 text-[22px]">Description</div>
-            <div className="text-gray-300 absolute right-10 text-[22px] italic">
-              Optional
+            <textarea
+              className="border-black ml-0.5 mt-[42px] h-[150px] w-[95%] rounded-2xl border"
+              placeholder="Add a description"
+              value={transaction.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              rows={4}
+              cols={40}
+            />
+
+            <div className="mt-[32px] text-[22px]">Additional documents</div>
+            <div className="relative mt-2">
+              <div className="text-gray-300 absolute left-0 text-[18px]">
+                Upload a file (5MB max)
+              </div>
+              <div
+                className="text-gray-300 absolute right-10 text-[22px] italic"
+              >
+                Optional
+              </div>
             </div>
-          </div>
-          <textarea
-            className="border-black ml-0.5 mt-[42px] h-[150px] w-[95%] rounded-2xl border"
-            placeholder="Add a description"
-            rows={4}
-            cols={40}
-          />
-          <div className="mt-[32px] text-[22px]">Additional documents</div>
-          <div className="relative mt-2">
-            <div className="text-gray-300 absolute left-0 text-[18px]">
-              Upload a file (5MB max)
+            <DragDrop
+              onDrop={(files: File[]) => handleInputChange("documents", files)}
+            ></DragDrop>
+
+            <div className="relative mb-2 mt-[100px]">
+              <Button
+                className="border-black text-black absolute left-0 mb-2 me-2 rounded-2xl border px-16 py-3 text-lg hover:bg-grey-dark focus:outline-none"
+                onClick={handleClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="border-black bg-gray-800 text-white absolute right-5 mb-2 me-2 rounded-2xl border px-20 py-3 text-lg hover:bg-grey-dark focus:outline-none"
+                onClick={handleAdd}
+              >
+                Add
+              </Button>
             </div>
-            <div className="text-gray-300 absolute right-10 text-[22px] italic">
-              Optional
-            </div>
-          </div>
-          <DragDrop></DragDrop>
-          <div className="relative mb-2 mt-[100px]">
-            <Button
-              className="border-black text-black absolute left-0 mb-2 me-2 rounded-2xl border px-16 py-3 text-lg hover:bg-grey-dark focus:outline-none"
-              onClick={handleClose}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="border-black bg-gray-800 text-white absolute right-5 mb-2 me-2 rounded-2xl border px-20 py-3 text-lg hover:bg-grey-dark focus:outline-none"
-              onClick={handleAdd}
-            >
-              Add
-            </Button>
-          </div>
-          <DialogFooter></DialogFooter>
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
+            <DialogFooter></DialogFooter>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Toast component for displaying error messages */}
+      <Toast open={showToast} onClose={() => setShowToast(false)}>
+        {toastMessage}
+      </Toast>
+    </>
   );
 };
 

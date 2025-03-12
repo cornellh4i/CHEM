@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface SelectProps {
   label?: string;
@@ -7,6 +7,7 @@ interface SelectProps {
   values?: string[];
   width?: string;
   disabled?: boolean;
+  onSelect?: (value: string) => void; // Add proper type for the callback
 }
 
 const Select = ({
@@ -15,6 +16,7 @@ const Select = ({
   values = [],
   width,
   disabled,
+  onSelect,
 }: SelectProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
@@ -30,11 +32,16 @@ const Select = ({
   const handleSelect = (value: string) => {
     setSelectedValue(value);
     setIsDropdownOpen(false);
+
+    // Call the onSelect callback with the selected value
+    if (onSelect) {
+      onSelect(value);
+    }
   };
 
   return (
     <div style={{ position: "relative", width: width || "100%" }}>
-      <label className="mb-2 mt-4 block text-sm font-normal text-gray-600">
+      <label className="text-gray-600 mb-2 mt-4 block text-sm font-normal">
         {label}
       </label>
 
@@ -43,7 +50,7 @@ const Select = ({
         onClick={toggleDropdown}
         className={`cursor-pointer rounded-lg p-2.5 ${
           disabled
-            ? "cursor-not-allowed bg-gray-300 text-black placeholder-transparent"
+            ? `bg-gray-300 text-black placeholder-transparent cursor-not-allowed`
             : "bg-gray-100"
           }`}
         style={{
