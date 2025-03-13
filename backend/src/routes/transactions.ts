@@ -3,6 +3,7 @@ import controller from "../controllers/transactions";
 import { ErrorMessage } from "../utils/types";
 import { TransactionType } from "@prisma/client";
 import { notify } from "../utils/helpers";
+import transactions from "../controllers/transactions";
 
 const transactionRouter = Router();
 
@@ -162,6 +163,62 @@ transactionRouter.delete("/:id", async (req, res) => {
  *  - 500 for server errors
  * Return {transactions: Transaction[], total: number}
  */
+transactionRouter.get("organizations/:id", async (req, res) => {
+  try {
+    // extract the org id from the url parameters
+    const { id } = req.params;
+
+    // parse query parameters for filtering
+    const filters = {
+      type: req.query.type as TransactionType | undefined,
+      startDate: req.query.startDate ? new Date(req.query.startDate as string ) 
+      : undefined,
+      endDate: req.query.endDate ? newDate(req.query.endDate as string) 
+      : undefined,
+      contributorId: req.query.contributorId as string | undefined
+    };
+
+    // parse query for sorting
+    const sort = req.query.sortBy
+    ? {
+      field: req.query.sortBy as "date" | "amount",
+      order: (req.query.order as "asc" | "desc") || "asc",
+    }
+    : undefined;
+
+    // parse query parameters for pagination
+    const pagination = {
+      skip: req.query.skip ? Number(req.query.skip) : 0,
+      take: req.query.take ? Number(req.query.take) : 100,
+    };
+
+    // call the controller function to get transactions
+    const { transactions, total } = await controller.getOrganizationTransactions(
+      id,
+      filters,
+      sort,
+      pagination
+    );
+    res.status(200).json({ transactions, total })
+  } catch (error) {
+    console.error(error);
+    let statusCode = 500;
+    let errorMsg =
+      "Failed to get transactions: " +
+      (error instanceof Error ? error.message : "Unknown Error");
+    if (error instanceof Error) {
+      if (error.message.includes("Organization not found")) {
+        statusCode = 404;
+      } else if (error.message.includes("Invalid Date Format")) {
+        statusCode = 400;
+      }
+    }
+    const errorResponse: ErrorMessage = {
+      error: errorMsg,
+    };
+    res.status(statusCode).json(errorResponse); 
+  }
+});
 
 /* TODO: Implement GET /contributors/:id/transactions route
  * Support query parameters for:
@@ -216,7 +273,9 @@ transactionRouter.get("contributors/:id", async (req, res) => {
     console.error(error);
 
     let statusCode = 500;
-    let errorMsg = "Failed to get transactions: " + (error instanceof Error ? error.message : "Unknown Error");
+    let errorMsg =
+      "Failed to get transactions: " +
+      (error instanceof Error ? error.message : "Unknown Error");
     if (error instanceof Error) {
       if (error.message.includes("Contributor not found")) {
         statusCode = 404;
@@ -224,7 +283,7 @@ transactionRouter.get("contributors/:id", async (req, res) => {
         statusCode = 404;
       } else if (error.message.includes("Invalid Date Format")) {
         statusCode = 400;
-      } 
+      }
     }
     const errorResponse: ErrorMessage = {
       error: errorMsg,
