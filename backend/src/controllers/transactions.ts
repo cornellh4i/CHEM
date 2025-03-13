@@ -184,6 +184,30 @@ const createTransaction = async (
       data: validData,
     });
 
+    // Determine whether to add or subtract the amount/units based on type
+    const amountUpdate = 
+    // Add the amount to organization if donation or investment; subtract if 
+    // otherwise (withdrawal, expense)
+      transactionData.type === "DONATION" || transactionData.type === "INVESTMENT"
+        ? { increment: transactionData.amount }
+        : { decrement: transactionData.amount };
+    
+    const unitsUpdate =
+      transactionData.units !== undefined
+        ? transactionData.type === "DONATION" || transactionData.type === "INVESTMENT"
+          ? { increment: transactionData.amount }
+          : { decrement: transactionData.amount }
+        : undefined; // Don't update if units aren't found
+    
+    // Update the organization's amount and units
+    await prisma.organization.update({
+      where: { id: transactionData.organizationId },
+      data: {
+        amount: amountUpdate,
+        units: unitsUpdate,
+      },
+    })
+    
     return transaction;
   } catch (error) {
     if (error instanceof Error) {
