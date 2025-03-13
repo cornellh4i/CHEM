@@ -146,22 +146,8 @@ transactionRouter.delete("/:id", async (req, res) => {
   }
 });
 
-/* TODO: Implement GET /organizations/:id/transactions route
- * Support query parameters for:
- *  - type filter (DONATION, WITHDRAWAL, etc)
- *  - date range filter (startDate, endDate)
- *  - contributorId filter
- * Support sorting query params:
- *  - sortBy (date, amount)
- *  - order (asc, desc)
- * Support pagination query params:
- *  - skip (default 0)
- *  - take (default 100)
- * Handle error cases:
- *  - 404 if organization not found
- *  - 400 for invalid query params
- *  - 500 for server errors
- * Return {transactions: Transaction[], total: number}
+/*GET /transactions/:id/organizations route. Retrieves all transactions of an 
+organization with organizationId [id]
  */
 transactionRouter.get("/organizations/:id", async (req, res) => {
   try {
@@ -214,24 +200,6 @@ transactionRouter.get("/organizations/:id", async (req, res) => {
     res.status(statusCode).json(errorResponse); 
   }
 }); 
-
-/* TODO: Implement GET /contributors/:id/transactions route
- * Support query parameters for:
- *  - type filter (DONATION, WITHDRAWAL, etc)
- *  - date range filter (startDate, endDate)
- *  - organizationId filter
- * Support sorting query params:
- *  - sortBy (date, amount)
- *  - order (asc, desc)
- * Support pagination query params:
- *  - skip (default 0)
- *  - take (default 100)
- * Handle error cases:
- *  - 404 if contributor not found
- *  - 400 for invalid query params
- *  - 500 for server errors
- * Return {transactions: Transaction[], total: number}
- */
 
 /* GET /transactions/contributors/:id route. Retrieves all transactions of
 a contributor with contributorId [id] */

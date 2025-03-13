@@ -284,19 +284,14 @@ const deleteTransaction = async (id: string): Promise<Transaction> => {
   }
 };
 
-/* TODO: Add getOrganizationTransactions function
- * Should return all transactions for an organization
- * Include filtering by:
- *  - type (DONATION, WITHDRAWAL, etc)
- *  - date range
- *  - contributorId
- * Include sorting by date and amount
- * Include pagination support
- * Handle case where organization doesn't exist
- * Must check organization exists before querying transactions
- * Return transactions array and total count
+/**
+ * Retrieves all transactions for a specific organization with optional filtering,
+ * sorting, and pagination.
+ *
+ * @returns An object containing the transactions array and total count.
+ * @throws If the organization does not exist, if query parameters are invalid,
+ *   or if an unexpected error occurs.
  */
-
 const getOrganizationTransactions = async (
   id: string,
   filter?: {
@@ -314,11 +309,11 @@ const getOrganizationTransactions = async (
 ): Promise<{ transactions: Transaction[]; total: number }> => {
   try {
     // Validate organization exists
-    const organizationExists = await prisma.organization.findUnique({
+    const organization = await prisma.organization.findUnique({
       where: { id },
     });
 
-    if (!organizationExists) {
+    if (!organization) {
       throw new Error("Organization not found");
     }
 
@@ -333,14 +328,14 @@ const getOrganizationTransactions = async (
           ...(filter.endDate && { lte: filter.endDate }),
         },
       }),
-    };
-    // Use Prisma's transaction to get transactions and total count/number of transactions
+    };  
+    // Get transactions and total count/number of transactions
     const [transactions, total] = await prisma.$transaction([
       prisma.transaction.findMany({
         where,
-        orderBy: sort ? { [sort.field]: sort.order } : undefined, // Sorting by field and order
-        skip: pagination?.skip || 0, // Skip transactions, 0 by default
-        take: pagination?.take || 100, // Take organizations, 100 by default
+        orderBy: sort ? { [sort.field]: sort.order } : undefined,
+        skip: pagination?.skip || 0, 
+        take: pagination?.take || 100, 
         include: {
           contributor: true, // Include contributor details
         }
@@ -364,19 +359,14 @@ const getOrganizationTransactions = async (
 };
 
 
-/* TODO: Add getContributorTransactions function
- * Should return all transactions for a contributor
- * Include filtering by:
- *  - type (DONATION, WITHDRAWAL, etc)
- *  - date range
- *  - organizationId
- * Include sorting by date and amount
- * Include pagination support
- * Handle case where contributor doesn't exist
- * Must check contributor exists before querying transactions
- * Return transactions array and total count
+/**
+ * Retrieves all transactions for a specific contributor with optional filtering,
+ * sorting, and pagination.
+ *
+ * @returns An object containing the transactions array and total count.
+ * @throws If the contributor does not exist, if query parameters are invalid,
+ *   or if an unexpected error occurs.
  */
-
 async function getContributorTransactions(contributorId: string, filters: {
   type?: string;
   organizationId?: string;
