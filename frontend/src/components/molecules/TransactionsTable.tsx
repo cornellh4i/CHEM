@@ -122,55 +122,66 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ tableType }) => {
     return tableType === "contributions" ? "Contributions" : "Transactions";
   };
 
-  const columns: Column<TableData>[] = [
-    {
-      header: "Date",
-      accessor: "date",
-      dataType: "date",
-      sortable: true,
-    },
-    {
-      header: "Contributor",
-      accessor: "contributor",
-      dataType: "string",
-      sortable: true,
-    },
-    {
-      header: "Fund",
-      accessor: "fund",
-      dataType: "string",
-      sortable: true,
-    },
-    {
-      header: "Type",
-      accessor: "type",
-      dataType: "string",
-      sortable: true,
-    },
-    {
-      header: "Units",
-      accessor: "units",
-      dataType: "number",
-      sortable: true,
-    },
-    {
-      header: "Amount",
-      accessor: "amount",
-      dataType: "number",
-      sortable: true,
-      headerClassName: "text-right",
-      className: "text-right font-medium",
-      Cell: (value) => (
-        <span style={{ color: value < 0 ? "red" : "green" }}>
-          {value < 0 ? "-" : "+"}
-          {new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-          }).format(Math.abs(value))}
-        </span>
-      ),
-    },
-  ];
+  const getColumns = (): Column<TableData>[] => {
+    const baseColumns: Column<TableData>[] = [
+      {
+        header: "Date",
+        accessor: "date",
+        dataType: "date",
+        sortable: true,
+      },
+      {
+        header: "Contributor",
+        accessor: "contributor",
+        dataType: "string",
+        sortable: true,
+      },
+      {
+        header: "Fund",
+        accessor: "fund",
+        dataType: "string",
+        sortable: true,
+      },
+      {
+        header: "Type",
+        accessor: "type",
+        dataType: "string",
+        sortable: true,
+      },
+      {
+        header: "Amount",
+        accessor: "amount",
+        dataType: "number",
+        sortable: true,
+        headerClassName: "text-right",
+        className: "text-right font-medium",
+        Cell: (value) => (
+          <span style={{ color: value < 0 ? "red" : "green" }}>
+            {value < 0 ? "-" : "+"}
+            {new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: "USD",
+            }).format(Math.abs(value))}
+          </span>
+        ),
+      },
+    ];
+
+    // Add units column only for transactions table, positioned before Amount
+    // Since Amount is the last column (index 4), we insert Units at position 4
+    if (tableType === "transactions") {
+      baseColumns.splice(4, 0, {
+        header: "Units",
+        accessor: "units",
+        dataType: "number",
+        sortable: true,
+      });
+    }
+
+    return baseColumns;
+  };
+
+  const columns = getColumns();
 
   if (loading) {
     return <div>Loading {getTableTitle().toLowerCase()}...</div>;
