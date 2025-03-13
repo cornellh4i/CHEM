@@ -163,12 +163,10 @@ transactionRouter.delete("/:id", async (req, res) => {
  *  - 500 for server errors
  * Return {transactions: Transaction[], total: number}
  */
-transactionRouter.get("organizations/:id", async (req, res) => {
+transactionRouter.get("/organizations/:id", async (req, res) => {
   try {
-    // extract the org id from the url parameters
     const { id } = req.params;
 
-    // parse query parameters for filtering
     const filters = {
       type: req.query.type as TransactionType | undefined,
       startDate: req.query.startDate ? new Date(req.query.startDate as string ) 
@@ -178,7 +176,6 @@ transactionRouter.get("organizations/:id", async (req, res) => {
       contributorId: req.query.contributorId as string | undefined
     };
 
-    // parse query for sorting
     const sort = req.query.sortBy
     ? {
       field: req.query.sortBy as "date" | "amount",
@@ -186,13 +183,11 @@ transactionRouter.get("organizations/:id", async (req, res) => {
     }
     : undefined;
 
-    // parse query parameters for pagination
     const pagination = {
       skip: req.query.skip ? Number(req.query.skip) : 0,
       take: req.query.take ? Number(req.query.take) : 100,
     };
 
-    // call the controller function to get transactions
     const { transactions, total } = await controller.getOrganizationTransactions(
       id,
       filters,
@@ -218,7 +213,7 @@ transactionRouter.get("organizations/:id", async (req, res) => {
     };
     res.status(statusCode).json(errorResponse); 
   }
-});
+}); 
 
 /* TODO: Implement GET /contributors/:id/transactions route
  * Support query parameters for:
@@ -240,7 +235,7 @@ transactionRouter.get("organizations/:id", async (req, res) => {
 
 /* GET /transactions/contributors/:id route. Retrieves all transactions of
 a contributor with contributorId [id] */
-transactionRouter.get("contributors/:id", async (req, res) => {
+transactionRouter.get("/contributors/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const filters = {

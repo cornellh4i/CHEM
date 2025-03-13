@@ -301,12 +301,12 @@ const getOrganizationTransactions = async (
     // Construct the where clause for filtering
     const where: Prisma.TransactionWhereInput = {
       organizationId: id,
-      ...(filter?.type && { type: filter.type }), // Filter by transaction type
-      ...(filter?.contributorId && { contributorId: filter.contributorId }), // Filter by contributorId
+      ...(filter?.type && { type: filter.type }), 
+      ...(filter?.contributorId && { contributorId: filter.contributorId }),
       ...((filter?.startDate || filter?.endDate) && {
         date: {
-          ...(filter.startDate && { gte: filter.startDate }), // Filter by start date
-          ...(filter.endDate && { lte: filter.endDate }), // Filter by end date
+          ...(filter.startDate && { gte: filter.startDate }),
+          ...(filter.endDate && { lte: filter.endDate }),
         },
       }),
     };
