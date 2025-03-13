@@ -2,6 +2,32 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import { SimpleTable, Column } from "@/components/molecules/SimpleTable";
 
+type TransactionType = "DONATION" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE";
+
+interface Transaction {
+  id: string;
+  organizationId: string;
+  contributorId?: string;
+  type: TransactionType;
+  date: string;
+  units?: number;
+  amount: number;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+  contributor: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+  organization: {
+    id: string;
+    name: string;
+    type: string;
+    restriction: string;
+  };
+}
+
 interface Contributor {
   id: string;
   firstName: string;
@@ -10,7 +36,7 @@ interface Contributor {
     id: string;
     name: string;
   };
-  transactions: { amount: number }[];
+  transactions: Transaction[];
   updatedAt: string;
 }
 
@@ -18,7 +44,7 @@ interface TableData {
   id: string;
   name: string;
   recentActivity: string;
-  amount: string;
+  amount: number; // Store as a number for sorting
 }
 
 const API_URL = "http://localhost:8000";
@@ -46,22 +72,34 @@ const ContributorsTable = () => {
       }
 
       const data = await response.json();
+      console.log("Fetched", data);
 
       if (data && data.contributors) {
-        const mappedData = data.contributors.map(
-          (contributor: Contributor) => ({
+        const mappedData = data.contributors.map((contributor: Contributor) => {
+          const hasTransactions = contributor.transactions.length > 0;
+          const latestTransaction = hasTransactions
+            ? contributor.transactions[contributor.transactions.length - 1]
+            : null;
+
+          const activityDate = latestTransaction
+            ? new Date(latestTransaction.date).toLocaleDateString()
+            : new Date(contributor.updatedAt).toLocaleDateString();
+
+          const formattedAmount = latestTransaction
+            ? latestTransaction.type === "EXPENSE" ||
+              latestTransaction.type === "WITHDRAWAL"
+              ? -Math.abs(latestTransaction.amount) // Ensure negative
+              : Math.abs(latestTransaction.amount) // Ensure positive
+            : null; // Use null to indicate no transactions
+
+          return {
             id: contributor.id,
             name: `${contributor.firstName} ${contributor.lastName}`,
-            recentActivity: new Date(
-              contributor.updatedAt
-            ).toLocaleDateString(),
-            // ,
-            // amount:
-            //   contributor.transactions.length > 0
-            //     ? `$${contributor.transactions[contributor.transactions.length - 1].amount.toFixed(2)}`
-            //     : "---",
-          })
-        );
+            amount: formattedAmount, // Will be null when no transactions
+            hasTransactions: hasTransactions,
+            recentActivity: activityDate,
+          };
+        });
 
         setContributors(mappedData);
       }
@@ -89,9 +127,25 @@ const ContributorsTable = () => {
     {
       header: "Amount",
       accessor: "amount",
-      dataType: "string",
+      dataType: "number",
       sortable: true,
+      headerClassName: "text-right",
       className: "text-right font-medium",
+      Cell: (value, rowData) => {
+        if (value === null) {
+          return <span className="text-gray-500">No Transactions Found</span>;
+        }
+
+        return (
+          <span style={{ color: value < 0 ? "red" : "green" }}>
+            {value < 0 ? "-" : "+"}
+            {new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: "USD",
+            }).format(Math.abs(value))}
+          </span>
+        );
+      },
     },
   ];
 

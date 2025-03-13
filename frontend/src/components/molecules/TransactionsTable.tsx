@@ -43,9 +43,13 @@ interface TableData {
   documentLink?: string;
 }
 
+interface TransactionsTableProps {
+  tableType: "transactions" | "contributions";
+}
+
 const API_URL = "http://localhost:8000";
 
-const TransactionsTable = () => {
+const TransactionsTable: React.FC<TransactionsTableProps> = ({ tableType }) => {
   const PAGE_SIZE = 5;
   const [transactions, setTransactions] = useState<TableData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -53,7 +57,7 @@ const TransactionsTable = () => {
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [tableType]);
 
   const fetchTransactions = async () => {
     setLoading(true);
@@ -62,8 +66,6 @@ const TransactionsTable = () => {
     try {
       const response = await fetch(`${API_URL}/transactions`);
 
-      const responseContributorObject = await fetch(`${API_URL}/contributors`);
-
       if (!response.ok) {
         const statusText = response.statusText || "Unknown error";
         throw new Error(`HTTP error! Status: ${response.status} ${statusText}`);
@@ -71,45 +73,36 @@ const TransactionsTable = () => {
 
       const data = await response.json();
 
-      console.log("Fetched transactions: ", data);
-
       if (data && data.transactions) {
-        // const mappedData = data.transactions.map(
-        //   (transaction: Transaction) => ({
-        //     id: transaction.id,
-        //     date: new Date(transaction.date).toLocaleDateString(),
-        //     contributor: transaction.contributor,
-        //     // ? `${transaction.contributor.firstName} ${transaction.contributor.lastName}`
-        //     // : "---",
-        //     contributorId: transaction.contributorId || undefined,
-        //     fund: transaction.organization,
-        //     fundId: transaction.organizationId,
-        //     type: formatTransactionType(transaction.type),
-        //     units: transaction.units || undefined,
-        //     amount: transaction.amount,
+        const filteredTransactions =
+          tableType === "contributions"
+            ? data.transactions.filter(
+                (t: Transaction) =>
+                  t.type === "DONATION" || t.type === "INVESTMENT"
+              )
+            : data.transactions;
 
-        //   })
-
-        // );
-        const mappedData = data.transactions.map((transaction: Transaction) => {
-          console.log("Transaction:", transaction); // Log the full transaction
-          console.log("Contributor Field:", transaction.contributor); // Log only contributor
-          console.log("Organization Field:", transaction.organization);
-
-          return {
-            id: transaction.id,
-            date: new Date(transaction.date).toLocaleDateString(),
-            contributor: transaction.contributor, // Should log correctly
-            contributorId: transaction.contributorId || undefined,
-            fund: transaction.organization,
-            fundId: transaction.organizationId,
-            type: formatTransactionType(transaction.type),
-            units: transaction.units || undefined,
-            amount: transaction.amount,
-          };
-        });
-
-        console.log("Mapped transactions:", mappedData); // Debugging step
+        const mappedData = filteredTransactions.map(
+          (transaction: Transaction) => {
+            return {
+              id: transaction.id,
+              date: new Date(transaction.date).toLocaleDateString(),
+              contributor: transaction.contributor
+                ? `${transaction.contributor.firstName} ${transaction.contributor.lastName}`
+                : `--`,
+              contributorId: transaction.contributorId || undefined,
+              fund: transaction.organization.name,
+              fundId: transaction.organizationId || undefined,
+              type: formatTransactionType(transaction.type),
+              units: transaction.units || undefined,
+              amount:
+                transaction.type === "EXPENSE" ||
+                transaction.type === "WITHDRAWAL"
+                  ? -Math.abs(transaction.amount) // Ensure it's negative
+                  : transaction.amount, // Leave as is for other types
+            };
+          }
+        );
 
         setTransactions(mappedData);
       }
@@ -123,6 +116,10 @@ const TransactionsTable = () => {
 
   const formatTransactionType = (type: TransactionType): string => {
     return type.charAt(0) + type.slice(1).toLowerCase();
+  };
+
+  const getTableTitle = () => {
+    return tableType === "contributions" ? "Contributions" : "Transactions";
   };
 
   const columns: Column<TableData>[] = [
@@ -165,6 +162,7 @@ const TransactionsTable = () => {
       className: "text-right font-medium",
       Cell: (value) => (
         <span style={{ color: value < 0 ? "red" : "green" }}>
+          {value < 0 ? "-" : "+"}
           {new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: "USD",
@@ -175,7 +173,7 @@ const TransactionsTable = () => {
   ];
 
   if (loading) {
-    return <div>Loading transactions...</div>;
+    return <div>Loading {getTableTitle().toLowerCase()}...</div>;
   }
 
   if (error) {
