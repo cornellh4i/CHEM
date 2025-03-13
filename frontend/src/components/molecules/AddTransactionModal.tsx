@@ -35,8 +35,7 @@ type TransactionData = {
   fund: string;
   amount: string;
   unitsPurchased: string;
-  transactionType: "DEPOSIT" | "WITHDRAWAL" | null; // Update to match backend enum (uppercase)
-  type: "DONATION" | "ENDOWMENT" | null;
+  type: "DEPOSIT" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE" | null; // Update to match backend enum (uppercase)
   description: string;
   documents: File[];
 };
@@ -53,7 +52,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
     fund: "",
     amount: "",
     unitsPurchased: "",
-    transactionType: null,
     type: null,
     description: "",
     documents: [],
@@ -113,12 +111,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
       showError("Please enter units purchased");
       return false;
     }
-    if (!transaction.transactionType) {
-      showError("Please select transaction type (Deposit or Withdrawl)");
-      return false;
-    }
     if (!transaction.type) {
-      showError("Please select type (Donation or Endowment)");
+      showError("Please select transaction type");
       return false;
     }
 
@@ -211,12 +205,12 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
             </DialogHeader>
             <div className="mb-2 text-[22px]">Date</div>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              value={transaction.date}
-              onChange={(newValue) => handleInputChange("date", newValue)}
-              disableOpenPicker
-              className="w-full border-gray-900 bg-gray-200 text-gray-900 placeholder-gray-500 hover:bg-gray-100 mr-4 block rounded-lg px-2 py-3.5 text-sm"
-            />
+              <DatePicker
+                value={transaction.date}
+                onChange={(newValue) => handleInputChange("date", newValue)}
+                disableOpenPicker
+                className="border-gray-900 bg-gray-200 text-gray-900 placeholder-gray-500 hover:bg-gray-100 mr-4 block w-full rounded-lg px-2 py-3.5 text-sm"
+              />
             </LocalizationProvider>
 
             <div className="mt-[32px] text-[22px]">Contributer</div>
@@ -258,32 +252,23 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
 
             <div className="mt-[32px] grid grid-cols-2">
               <div className="justify-start">
-                <div className="text-[22px]">Transaction</div>
-                <div className="ml-2 mt-3 space-y-2 text-[22px]">
-                  <Radio
-                    label="Deposit"
-                    onSelect={() =>
-                      handleInputChange("transactionType", "DEPOSIT")
-                    }
-                  ></Radio>
-                  <Radio
-                    label="Withdrawl"
-                    onSelect={() =>
-                      handleInputChange("transactionType", "WITHDRAWAL")
-                    }
-                  ></Radio>
-                </div>
-              </div>
-              <div className="justify-start">
-                <div className="text-[22px]">Type</div>
+                <div className="text-[22px]">Transaction Type</div>
                 <div className="ml-2 mt-3 space-y-2 text-[22px]">
                   <Radio
                     label="Donation"
                     onSelect={() => handleInputChange("type", "DONATION")}
                   ></Radio>
                   <Radio
-                    label="Endowment"
-                    onSelect={() => handleInputChange("type", "ENDOWMENT")}
+                    label="Withdrawl"
+                    onSelect={() => handleInputChange("type", "WITHDRAWAL")}
+                  ></Radio>
+                  <Radio
+                    label="Investment"
+                    onSelect={() => handleInputChange("type", "INVESTMENT")}
+                  ></Radio>
+                  <Radio
+                    label="Expense"
+                    onSelect={() => handleInputChange("type", "EXPENSE")}
                   ></Radio>
                 </div>
               </div>
