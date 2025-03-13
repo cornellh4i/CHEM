@@ -11,10 +11,11 @@
     "app": "concurrently \"yarn dev\" \"yarn workspace backend dev\""
   },
   "dependencies": {
-    "@emotion/react": "^11.13.3",
-    "@emotion/styled": "^11.13.0",
+    "@babel/runtime": "^7.26.10",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.1.5",
-    "@mui/material": "^6.1.6",
+    "@mui/material": "^6.4.7",
     "@mui/x-date-pickers": "^7.27.3",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-popover": "^1.1.6",
@@ -36,6 +37,7 @@
     "next": "15.1.6",
     "react": "^18",
     "react-confetti": "^6.1.0",
+    "react-datepicker": "^8.2.0",
     "react-day-picker": "^9.5.1",
     "react-dom": "^18",
     "react-drag-drop-files": "^2.4.0",

@@ -48,7 +48,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
 
   // Initial transaction state
   const initialTransactionState: TransactionData = {
-    date: dayjs("2022-04-17"),
+    date: dayjs(),
     contributor: "",
     fund: "",
     amount: "",
@@ -151,7 +151,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
         organizationId: "ecofoundation-id",
         contributorId: "cm7wqagz90003tble1lieje33",
         type: transaction.type,
-        date: "2025-03-12", // format the date as needed
+        date: transaction.date, // format the date as needed
         units: unitValue,
         amount: amountValue,
         description: transaction.description || "No description",
@@ -211,10 +211,12 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
             </DialogHeader>
             <div className="mb-2 text-[22px]">Date</div>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                value={transaction.date}
-                onChange={(newValue) => handleInputChange("date", newValue)}
-              />
+            <DatePicker
+              value={transaction.date}
+              onChange={(newValue) => handleInputChange("date", newValue)}
+              disableOpenPicker
+              className="w-full border-gray-900 bg-gray-200 text-gray-900 placeholder-gray-500 hover:bg-gray-100 mr-4 block rounded-lg px-2 py-3.5 text-sm"
+            />
             </LocalizationProvider>
 
             <div className="mt-[32px] text-[22px]">Contributer</div>
