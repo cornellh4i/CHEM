@@ -16,7 +16,7 @@ interface Transaction {
   description?: string;
   createdAt: string;
   updatedAt: string;
-  contributor?: {
+  contributor: {
     id: string;
     firstName: string;
     lastName: string;
@@ -62,6 +62,8 @@ const TransactionsTable = () => {
     try {
       const response = await fetch(`${API_URL}/transactions`);
 
+      const responseContributorObject = await fetch(`${API_URL}/contributors`);
+
       if (!response.ok) {
         const statusText = response.statusText || "Unknown error";
         throw new Error(`HTTP error! Status: ${response.status} ${statusText}`);
@@ -69,24 +71,45 @@ const TransactionsTable = () => {
 
       const data = await response.json();
 
+      console.log("Fetched transactions: ", data);
+
       if (data && data.transactions) {
-        const mappedData = data.transactions.map(
-          (transaction: Transaction) => ({
+        // const mappedData = data.transactions.map(
+        //   (transaction: Transaction) => ({
+        //     id: transaction.id,
+        //     date: new Date(transaction.date).toLocaleDateString(),
+        //     contributor: transaction.contributor,
+        //     // ? `${transaction.contributor.firstName} ${transaction.contributor.lastName}`
+        //     // : "---",
+        //     contributorId: transaction.contributorId || undefined,
+        //     fund: transaction.organization,
+        //     fundId: transaction.organizationId,
+        //     type: formatTransactionType(transaction.type),
+        //     units: transaction.units || undefined,
+        //     amount: transaction.amount,
+
+        //   })
+
+        // );
+        const mappedData = data.transactions.map((transaction: Transaction) => {
+          console.log("Transaction:", transaction); // Log the full transaction
+          console.log("Contributor Field:", transaction.contributor); // Log only contributor
+          console.log("Organization Field:", transaction.organization);
+
+          return {
             id: transaction.id,
             date: new Date(transaction.date).toLocaleDateString(),
-            contributor: transaction.contributor
-              ? `${transaction.contributor.firstName} ${transaction.contributor.lastName}`
-              : "---",
+            contributor: transaction.contributor, // Should log correctly
             contributorId: transaction.contributorId || undefined,
-            fund: transaction.organization.name,
+            fund: transaction.organization,
             fundId: transaction.organizationId,
             type: formatTransactionType(transaction.type),
             units: transaction.units || undefined,
             amount: transaction.amount,
-            restriction: transaction.organization.restriction,
-            documentLink: undefined,
-          })
-        );
+          };
+        });
+
+        console.log("Mapped transactions:", mappedData); // Debugging step
 
         setTransactions(mappedData);
       }
@@ -126,26 +149,6 @@ const TransactionsTable = () => {
       accessor: "type",
       dataType: "string",
       sortable: true,
-    },
-    {
-      header: "Documents",
-      accessor: "documentLink",
-      dataType: "string",
-      sortable: false,
-      Cell: (value) =>
-        value ? (
-          <a
-            href={value}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-500 flex items-center space-x-1 underline"
-          >
-            <span>Open documents</span>
-            <OpenInNewIcon className="inline h-3.5 w-3.5" />
-          </a>
-        ) : (
-          "---"
-        ),
     },
     {
       header: "Units",

@@ -55,10 +55,11 @@ const ContributorsTable = () => {
             recentActivity: new Date(
               contributor.updatedAt
             ).toLocaleDateString(),
-            amount:
-              contributor.transactions.length > 0
-                ? `$${contributor.transactions[contributor.transactions.length - 1].amount.toFixed(2)}`
-                : "---",
+            // ,
+            // amount:
+            //   contributor.transactions.length > 0
+            //     ? `$${contributor.transactions[contributor.transactions.length - 1].amount.toFixed(2)}`
+            //     : "---",
           })
         );
 
