@@ -12,7 +12,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
-import Toast from "@/components/atoms/Toast"; // Import Toast component
+import Toast from "@/components/atoms/Toast";
 
 import {
   Dialog,
@@ -79,10 +79,15 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
 
   // Handle input changes
   const handleInputChange = (field: keyof TransactionData, value: any) => {
-    setTransaction((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    console.log(`Updating ${field} to:`, value);
+    setTransaction((prev) => {
+      const newState = {
+        ...prev,
+        [field]: value,
+      };
+      console.log("New transaction state:", newState);
+      return newState;
+    });
   };
 
   // Validate required fields
@@ -127,24 +132,48 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
   };
 
   // Handle form submission
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (validateForm()) {
-      // All required fields are filled, process the transaction
-      console.log("Transaction data:", transaction);
+      const transactionPayload = {
+        organizationId: "cm7wqagz90002tbleql7de7u3",
+        contributorId: "cm7wqagz90002tbleql7de7u3",
+        type: transaction.type,
+        date: transaction.date?.format("YYYY-MM-DD"), // format the date as needed
+        units: transaction.unitsPurchased,
+        amount: transaction.amount,
+        description: transaction.description,
+        transactionType: transaction.transactionType,
+        fund: transaction.fund,
+        // Optionally, handle documents separately if needed
+      };
 
-      // Log individual fields for clarity
-      console.log("Date:", transaction.date?.format("YYYY-MM-DD"));
-      console.log("Contributor:", transaction.contributor);
-      console.log("Fund:", transaction.fund);
-      console.log("Amount:", transaction.amount);
-      console.log("Units Purchased:", transaction.unitsPurchased);
-      console.log("Transaction Type:", transaction.transactionType);
-      console.log("Type:", transaction.type);
-      console.log("Description:", transaction.description);
-      console.log(
-        "Documents:",
-        transaction.documents.map((doc) => doc.name).join(", ")
-      );
+      try {
+        const response = await fetch("http://localhost:8000/transactions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(transactionPayload),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          showError(errorData.error || "Failed to create transaction");
+          return;
+        }
+
+        const newTransaction = await response.json();
+        console.log("Transaction successfully created:", newTransaction);
+
+        // Reset the transaction state to initial values
+        setTransaction(initialTransactionState);
+
+        // Close the modal
+        handleClose();
+      } catch (error) {
+        console.error("Error creating transaction:", error);
+        showError("An error occurred while creating transaction");
+      }
 
       // You can add API call or further processing here
 
