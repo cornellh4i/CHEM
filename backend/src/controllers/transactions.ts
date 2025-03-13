@@ -80,6 +80,10 @@ async function getTransactions(
       skip: pagination?.skip,
       take: pagination?.take,
       orderBy,
+      include: {
+        organization: true,
+        contributor: true,
+      },
     }),
     prisma.transaction.count({ where }),
   ]);
