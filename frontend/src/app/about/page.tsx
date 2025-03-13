@@ -3,12 +3,12 @@
 import React from "react";
 import { DefaultTemplate } from "@/components";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
-import TransactionsTable from "@/components/molecules/TransactionsTable";
+import DummyTable from "@/components/molecules/DummyTable";
 
 const AboutPage = () => {
   return (
     <DashboardTemplate>
-      <TransactionsTable />
+      <DummyTable></DummyTable>
     </DashboardTemplate>
   );
 };
