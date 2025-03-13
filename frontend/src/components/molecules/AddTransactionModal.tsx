@@ -35,8 +35,8 @@ type TransactionData = {
   fund: string;
   amount: string;
   unitsPurchased: string;
-  transactionType: "Deposit" | "Withdrawl" | null;
-  type: "Donation" | "Endowment" | null;
+  transactionType: "DEPOSIT" | "WITHDRAWAL" | null; // Update to match backend enum (uppercase)
+  type: "DONATION" | "ENDOWMENT" | null;
   description: string;
   documents: File[];
 };
@@ -51,7 +51,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
     date: dayjs("2022-04-17"),
     contributor: "",
     fund: "",
-    amount: "$",
+    amount: "",
     unitsPurchased: "",
     transactionType: null,
     type: null,
@@ -133,18 +133,29 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
 
   // Handle form submission
   const handleAdd = async () => {
+    const amountValue = parseFloat(transaction.amount.replace(/[^0-9.]/g, ""));
+    const unitValue = parseFloat(
+      transaction.unitsPurchased.replace(/[^0-9.]/g, "")
+    );
+    if (isNaN(amountValue) || amountValue <= 0) {
+      showError("Amount must be a positive number");
+      return;
+    }
+
+    if (isNaN(unitValue) || unitValue <= 0) {
+      showError("Units must be a positive number");
+      return;
+    }
     if (validateForm()) {
       const transactionPayload = {
-        organizationId: "cm7wqagz90002tbleql7de7u3",
-        contributorId: "cm7wqagz90002tbleql7de7u3",
+        organizationId: "ecofoundation-id",
+        contributorId: "cm7wqagz90003tble1lieje33",
         type: transaction.type,
-        date: transaction.date?.format("YYYY-MM-DD"), // format the date as needed
-        units: transaction.unitsPurchased,
-        amount: transaction.amount,
-        description: transaction.description,
-        transactionType: transaction.transactionType,
+        date: "2025-03-12", // format the date as needed
+        units: unitValue,
+        amount: amountValue,
+        description: transaction.description || "No description",
         fund: transaction.fund,
-        // Optionally, handle documents separately if needed
       };
 
       try {
@@ -170,14 +181,14 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
 
         // Close the modal
         handleClose();
-      } catch (error) {
-        console.error("Error creating transaction:", error);
-        showError("An error occurred while creating transaction");
+      } catch (error: any) {
+        const detailedError =
+          error && error.message
+            ? `Transaction creation failed. Details: ${error.message}`
+            : "Transaction creation failed with an unknown error.";
+        showError(detailedError);
       }
 
-      // You can add API call or further processing here
-
-      // Reset the transaction state to initial values
       setTransaction(initialTransactionState);
 
       // Close the modal
@@ -227,7 +238,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
             <div className="mb-2 mt-[32px] text-[22px]">Amount</div>
             <Input
               id="amount"
-              defaultValue="$"
+              defaultValue=""
               onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
                 handleInputChange("amount", e.target.value)
               }
@@ -250,13 +261,13 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                   <Radio
                     label="Deposit"
                     onSelect={() =>
-                      handleInputChange("transactionType", "Deposit")
+                      handleInputChange("transactionType", "DEPOSIT")
                     }
                   ></Radio>
                   <Radio
                     label="Withdrawl"
                     onSelect={() =>
-                      handleInputChange("transactionType", "Withdrawl")
+                      handleInputChange("transactionType", "WITHDRAWAL")
                     }
                   ></Radio>
                 </div>
@@ -266,11 +277,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                 <div className="ml-2 mt-3 space-y-2 text-[22px]">
                   <Radio
                     label="Donation"
-                    onSelect={() => handleInputChange("type", "Donation")}
+                    onSelect={() => handleInputChange("type", "DONATION")}
                   ></Radio>
                   <Radio
                     label="Endowment"
-                    onSelect={() => handleInputChange("type", "Endowment")}
+                    onSelect={() => handleInputChange("type", "ENDOWMENT")}
                   ></Radio>
                 </div>
               </div>
