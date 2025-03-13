@@ -146,9 +146,8 @@ transactionRouter.delete("/:id", async (req, res) => {
   }
 });
 
-/*GET /transactions/:id/organizations route. Retrieves all transactions of an 
-organization with organizationId [id]
- */
+/* GET /transactions/:id/organizations route. Retrieves all transactions of an 
+organization with organizationId [id] */
 transactionRouter.get("/organizations/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -157,7 +156,7 @@ transactionRouter.get("/organizations/:id", async (req, res) => {
       type: req.query.type as TransactionType | undefined,
       startDate: req.query.startDate ? new Date(req.query.startDate as string ) 
       : undefined,
-      endDate: req.query.endDate ? newDate(req.query.endDate as string) 
+      endDate: req.query.endDate ? new Date(req.query.endDate as string) 
       : undefined,
       contributorId: req.query.contributorId as string | undefined
     };
