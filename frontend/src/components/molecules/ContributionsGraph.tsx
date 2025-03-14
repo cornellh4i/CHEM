@@ -19,13 +19,15 @@ import {
 } from "@/components/ui/chart";
 const chartData = [
   { month: "Oct 1", desktop: 10000 },
-  { month: "Oct 4", desktop: 5000 },
-  { month: "Oct 7", desktop: 4000 },
-  { month: "Oct 10", desktop: 10000 },
-  { month: "Oct 13", desktop: 10000 },
-  { month: "Oct 16", desktop: 10000 },
-  { month: "Oct 19", desktop: 3000 },
-  { month: "Oct 22", desktop: 7000 },
+  { month: "Oct 4", desktop: 30000 },
+  { month: "Oct 7", desktop: 20000 },
+  { month: "Oct 10", desktop: 25000 },
+  { month: "Oct 13", desktop: 5000 },
+  { month: "Oct 16", desktop: 13000 },
+  { month: "Oct 19", desktop: 18000 },
+  { month: "Oct 22", desktop: 25000 },
+  { month: "Oct 25", desktop: 18000 },
+  { month: "Oct 28", desktop: 30000 },
 ];
 
 const chartConfig = {
@@ -40,7 +42,7 @@ export function ContributionsGraph() {
     <Card>
       <CardHeader>
         <CardTitle>Overall Contributions</CardTitle>
-        <CardDescription>$60,000</CardDescription>
+        <CardDescription>$60,578.04</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
