@@ -32,9 +32,9 @@ const DashboardPage = () => {
         </button>
       </div>
 
-      <div className="bg-gray-100 mt-4 h-96 w-auto rounded-3xl p-6">
+      {/* <div className="bg-gray-100 mt-4 h-96 w-auto rounded-3xl p-6">
         Overall Contributions Graph
-      </div>
+      </div> */}
       <ContributionsGraph />
 
       <div className="mb-4 mt-12 flex items-center justify-between">

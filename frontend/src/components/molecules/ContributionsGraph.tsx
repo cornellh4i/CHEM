@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -18,12 +18,14 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
+  { month: "Oct 1", desktop: 10000 },
+  { month: "Oct 4", desktop: 5000 },
+  { month: "Oct 7", desktop: 4000 },
+  { month: "Oct 10", desktop: 10000 },
+  { month: "Oct 13", desktop: 10000 },
+  { month: "Oct 16", desktop: 10000 },
+  { month: "Oct 19", desktop: 3000 },
+  { month: "Oct 22", desktop: 7000 },
 ];
 
 const chartConfig = {
@@ -48,15 +50,16 @@ export function ContributionsGraph() {
             margin={{
               left: 12,
               right: 12,
+              top: 12,
             }}
           >
             <CartesianGrid vertical={false} />
+            <YAxis dataKey="desktop" tickLine={false} axisLine={false} />
             <XAxis
               dataKey="month"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip
               cursor={false}
