@@ -30,8 +30,8 @@ const chartData = [
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
+    label: "Contribution",
+    color: "black",
   },
 } satisfies ChartConfig;
 
@@ -53,7 +53,7 @@ export function ContributionsGraph() {
               top: 12,
             }}
           >
-            <CartesianGrid vertical={false} />
+            <CartesianGrid vertical={false} horizontal={false} />
             <YAxis dataKey="desktop" tickLine={false} axisLine={false} />
             <XAxis
               dataKey="month"
@@ -68,7 +68,7 @@ export function ContributionsGraph() {
             <Line
               dataKey="desktop"
               type="linear"
-              stroke="var(--color-desktop)"
+              stroke="black"
               strokeWidth={2}
               dot={false}
             />
