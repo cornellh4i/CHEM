@@ -13,6 +13,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import Toast from "@/components/atoms/Toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import {
   Dialog,
@@ -40,10 +41,81 @@ type TransactionData = {
   documents: File[];
 };
 
+type Contributor = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  organizationId: string;
+};
+
+type Organization = {
+  id: string;
+  name: string;
+};
+const getContributors = async (): Promise<Contributor[]> => {
+  try {
+    const response = await fetch("http://localhost:8000/contributors", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      // Attempt to extract the error message from the response
+      const errorData = await response.json();
+    }
+
+    // Parse the JSON response to retrieve the list of contributor objects
+    const responseData = await response.json();
+    if (responseData && Array.isArray(responseData.contributors)) {
+      return responseData.contributors;
+    } else if (Array.isArray(responseData)) {
+      // If the response is already an array, return it directly
+      return responseData;
+    } else {
+      return []; // Return empty array as fallback
+    }
+  } catch (error: any) {
+    console.error("Error fetching contributors:", error);
+    throw error;
+  }
+};
+const getOrganizations = async (): Promise<Organization[]> => {
+  try {
+    const response = await fetch("http://localhost:8000/organizations", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      // Attempt to extract the error message from the response
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to fetch organizations");
+    }
+
+    // Parse the JSON response to retrieve the list of contributor objects
+    const responseData = await response.json();
+    if (responseData && Array.isArray(responseData.organizations)) {
+      return responseData.organizations;
+    } else if (Array.isArray(responseData)) {
+      // If the response is already an array, return it directly
+      return responseData;
+    } else {
+      return []; // Return empty array as fallback
+    }
+  } catch (error: any) {
+    throw error;
+  }
+};
 const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [contributors, setContributors] = useState<Contributor[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
 
   // Initial transaction state
   const initialTransactionState: TransactionData = {
@@ -65,32 +137,43 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
 
-  // References to track input values
-  const amountInputRef = useRef<HTMLInputElement>(null);
-  const unitsPurchasedRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLTextAreaElement>(null);
-
   // Effect to update state from refs when needed
   useEffect(() => {
-    // This would be used for any custom logic needed after component mounts
+    const fetchContributors = async () => {
+      try {
+        const data = await getContributors();
+        setContributors(data);
+      } catch (err: any) {
+        showError("Failed to load contributors.");
+      }
+    };
+
+    const fetchOrganizations = async () => {
+      try {
+        const data = await getOrganizations();
+        setOrganizations(data);
+      } catch (err: any) {
+        showError("Failed to load organizations.");
+      }
+    };
+
+    fetchContributors();
+    fetchOrganizations();
   }, []);
 
   // Handle input changes
   const handleInputChange = (field: keyof TransactionData, value: any) => {
-    console.log(`Updating ${field} to:`, value);
     setTransaction((prev) => {
       const newState = {
         ...prev,
         [field]: value,
       };
-      console.log("New transaction state:", newState);
       return newState;
     });
   };
 
   // Validate required fields
   const validateForm = () => {
-    // Check if all required fields are filled
     if (!transaction.date) {
       showError("Please select a date");
       return false;
@@ -141,9 +224,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
       return;
     }
     if (validateForm()) {
+      console.log(transaction.fund);
       const transactionPayload = {
-        organizationId: "ecofoundation-id",
-        contributorId: "cm7wqagz90003tble1lieje33",
+        organizationId: transaction.fund,
+        contributorId: transaction.contributor,
         type: transaction.type,
         date: transaction.date, // format the date as needed
         units: unitValue,
@@ -215,20 +299,25 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
 
             <div className="mt-[32px] text-[22px]">Contributer</div>
             <Select
-              placeholder="Select a Contributer"
-              values={["Sarah Clay", "Theo Rumberg", "Brandon Wu"]}
+              placeholder="Select a Contributor"
+              values={contributors.map((contributor) => ({
+                value: contributor.id,
+                org: contributor.organizationId,
+                label: `${contributor.firstName} ${contributor.lastName}`,
+              }))}
               width="95%"
-              onSelect={(value: string) =>
-                handleInputChange("contributor", value)
-              }
+              onSelect={(value) => handleInputChange("contributor", value)}
             ></Select>
 
             <div className="mt-[32px] text-[22px]">Fund</div>
             <Select
               placeholder="Select a Fund"
-              values={["Robert Fund", "Sophie Fund", "Edward Fund"]}
+              values={organizations.map((organization) => ({
+                value: organization.id,
+                label: organization.name,
+              }))}
               width="95%"
-              onSelect={(value: string) => handleInputChange("fund", value)}
+              onSelect={(value) => handleInputChange("fund", value)}
             ></Select>
 
             <div className="mb-2 mt-[32px] text-[22px]">Amount</div>
@@ -252,25 +341,36 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
 
             <div className="mt-[32px] grid grid-cols-2">
               <div className="justify-start">
-                <div className="text-[22px]">Transaction Type</div>
-                <div className="ml-2 mt-3 space-y-2 text-[22px]">
-                  <Radio
-                    label="Donation"
-                    onSelect={() => handleInputChange("type", "DONATION")}
-                  ></Radio>
-                  <Radio
-                    label="Withdrawl"
-                    onSelect={() => handleInputChange("type", "WITHDRAWAL")}
-                  ></Radio>
-                  <Radio
-                    label="Investment"
-                    onSelect={() => handleInputChange("type", "INVESTMENT")}
-                  ></Radio>
-                  <Radio
-                    label="Expense"
-                    onSelect={() => handleInputChange("type", "EXPENSE")}
-                  ></Radio>
-                </div>
+                <div className="mb-2 text-[22px]">Transaction Type</div>
+                <RadioGroup
+                  className="lg-2 space-y-1"
+                  onValueChange={(value) => handleInputChange("type", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="DONATION" id="donation" />
+                    <label htmlFor="donation" className="text-[18px]">
+                      Donation
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="WITHDRAWAL" id="withdrawal" />
+                    <label htmlFor="withdrawal" className="text-[18px]">
+                      Withdrawl
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="INVESTMENT" id="investment" />
+                    <label htmlFor="investment" className="text-[18px]">
+                      Investment
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="EXPENSE" id="expense" />
+                    <label htmlFor="expense" className="text-[18px]">
+                      Expense
+                    </label>
+                  </div>
+                </RadioGroup>
               </div>
             </div>
 

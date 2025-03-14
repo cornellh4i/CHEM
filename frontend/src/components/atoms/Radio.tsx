@@ -4,8 +4,7 @@ interface RadioProps {
   label?: ReactNode;
   error?: string;
   checked?: boolean;
-  value: string; // Make value required instead of optional
-  name?: string;
+  value?: string;
   onSelect?: (value: string) => void;
   [key: string]: any;
 }
@@ -15,7 +14,7 @@ const RadioButton = (
   ref: Ref<HTMLInputElement>
 ) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (onSelect) {
+    if (onSelect && value) {
       onSelect(value);
     }
   };

@@ -1,13 +1,16 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
+// Define the option type to support both string and object formats
+type SelectOption = string | { value: string; label: string };
+
 interface SelectProps {
   label?: string;
   placeholder?: string;
-  values?: string[];
+  values?: SelectOption[];
   width?: string;
   disabled?: boolean;
-  onSelect?: (value: string) => void; // Add proper type for the callback
+  onSelect?: (value: string) => void; // Callback will always receive the value as string
 }
 
 const Select = ({
@@ -20,6 +23,23 @@ const Select = ({
 }: SelectProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
+  const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
+
+  // Helper function to get the label for display
+  const getOptionLabel = (option: SelectOption): string => {
+    if (typeof option === "string") {
+      return option;
+    }
+    return option.label;
+  };
+
+  // Helper function to get the value
+  const getOptionValue = (option: SelectOption): string => {
+    if (typeof option === "string") {
+      return option;
+    }
+    return option.value;
+  };
 
   // Toggle the dropdown visibility
   const toggleDropdown = () => {
@@ -29,8 +49,12 @@ const Select = ({
   };
 
   // Handle selecting a value from the dropdown
-  const handleSelect = (value: string) => {
+  const handleSelect = (option: SelectOption) => {
+    const value = getOptionValue(option);
+    const label = getOptionLabel(option);
+
     setSelectedValue(value);
+    setSelectedLabel(label);
     setIsDropdownOpen(false);
 
     // Call the onSelect callback with the selected value
@@ -58,7 +82,7 @@ const Select = ({
           width: "100%",
         }}
       >
-        {selectedValue || placeholder}
+        {selectedLabel || placeholder}
       </div>
 
       {/* Custom dropdown container */}
@@ -77,14 +101,15 @@ const Select = ({
             zIndex: 999,
           }}
         >
-          {values.map((value, index) => (
+          {values.map((option, index) => (
             <div
               key={index}
-              onClick={() => handleSelect(value)}
+              onClick={() => handleSelect(option)}
               style={{
                 padding: "8px 16px",
                 cursor: "pointer",
-                backgroundColor: selectedValue === value ? "#f5f5f5" : "#fff",
+                backgroundColor:
+                  selectedValue === getOptionValue(option) ? "#f5f5f5" : "#fff",
                 color: "#6B7280",
                 fontWeight: 400,
               }}
@@ -93,10 +118,10 @@ const Select = ({
               }
               onMouseOut={(e) =>
                 (e.currentTarget.style.backgroundColor =
-                  selectedValue === value ? "#f0f0f0" : "#fff")
+                  selectedValue === getOptionValue(option) ? "#f0f0f0" : "#fff")
               }
             >
-              {value}
+              {getOptionLabel(option)}
             </div>
           ))}
         </div>
