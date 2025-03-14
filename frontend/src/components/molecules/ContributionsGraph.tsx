@@ -45,7 +45,7 @@ export function ContributionsGraph() {
         <CardDescription>$60,578.04</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer config={chartConfig} className="aspect-auto h-[400px]">
           <LineChart
             accessibilityLayer
             data={chartData}
