@@ -90,9 +90,9 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
     } catch (err) {
       console.error("HELLO Error adding contributor:", err);
       console.log(err);
-      // setError(
-      //   err instanceof Error ? err.message : "HELLO Error adding contributor"
-      // );
+      setError(
+        err instanceof Error ? err.message : "HELLO Error adding contributor"
+      );
     } finally {
       setLoading(false);
     }

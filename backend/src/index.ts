@@ -17,7 +17,7 @@ app.use(express.json());
 // Start Express server
 const PORT = process.env.PORT || 8000;
 const server = app.listen(PORT, () => {
-  console.log(`✅ Server is running at http://localhost:${PORT}`);
+  console.log(`✅ Server is running at http://localhost:8000`);
 });
 
 server.on("error", (error) => {
