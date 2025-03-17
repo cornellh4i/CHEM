@@ -1,7 +1,6 @@
 import prisma from "../utils/client";
 import { Contributor, Prisma } from "@prisma/client";
 
-// Get contributors with filtering, sorting, and pagination
 const getContributors = async (
   filters?: { firstName?: string; lastName?: string; organizationId?: string },
   sort?: {
@@ -27,16 +26,18 @@ const getContributors = async (
         orderBy: sort ? { [sort.field]: sort.order } : undefined,
         skip: pagination?.skip || 0,
         take: pagination?.take || 100,
+        include: {
+          organization: true,
+          transactions: true,
+        },
       }),
       prisma.contributor.count({ where }),
     ]);
 
     return { contributors, total };
   } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to get contributors: ${error.message}`);
-    }
-    throw new Error("Failed to get contributors due to an unknown error");
+    console.error(error);
+    throw new Error("Failed to fetch contributors");
   }
 };
 
