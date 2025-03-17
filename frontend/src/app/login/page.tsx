@@ -1,8 +1,8 @@
 import LoginFormCard from "@/components/molecules/LoginFormCard";
-import LoginForm from "@/components/molecules/LoginForm";
 
 const LoginPage = () => {
   return (
+    // use flexbox - center content vertically and horizontally, full height of screen
     <div className="flex items-center justify-center h-screen">
       <LoginFormCard />
     </div>
