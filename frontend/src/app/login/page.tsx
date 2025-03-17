@@ -1,3 +1,4 @@
+"use client";
 import LoginFormCard from "@/components/molecules/LoginFormCard";
 
 const LoginPage = () => {
