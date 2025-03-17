@@ -7,8 +7,6 @@ import React, { useState } from "react";
 import SearchBar from "@/components/molecules/Searchbar";
 import AddIcon from "@mui/icons-material/Add";
 import DownloadIcon from "@mui/icons-material/Download";
-import AddIcon from "@mui/icons-material/Add";
-import DownloadIcon from "@mui/icons-material/Download";
 import Button from "@/components/atoms/Button"; // Adjust path if needed
 
 const ActivitiesPage = () => {
