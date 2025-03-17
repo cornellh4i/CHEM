@@ -30,11 +30,11 @@ const chartData = [
 const chartConfig = {
   desktop: {
     label: "Desktop",
-    color: "#0000FF",
+    color: "#88AEDC",
   },
   mobile: {
     label: "Mobile",
-    color: "#ADD8E6",
+    color: "#3E6DA6",
   },
 } satisfies ChartConfig;
 
