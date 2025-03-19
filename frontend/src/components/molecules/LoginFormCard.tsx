@@ -22,7 +22,7 @@ const LoginFormCard = () => {
               type="submit"
               className="bg-{#3E6DA6} mb-2 me-2 w-full rounded-lg border px-5 py-3 text-sm font-normal text-white hover:bg-grey-dark focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               style={{ backgroundColor: "#3E6DA6" }}
-              onClick={(e) => {
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.preventDefault(); // Prevents form submission
                 router.push("/dashboard"); // Navigates to dashboard
               }}
