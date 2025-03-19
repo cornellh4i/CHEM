@@ -80,6 +80,10 @@ async function getTransactions(
       skip: pagination?.skip,
       take: pagination?.take,
       orderBy,
+      include: {
+        organization: true,
+        contributor: true,
+      },
     }),
     prisma.transaction.count({ where }),
   ]);
@@ -198,6 +202,7 @@ const createTransaction = async (
           ? { increment: transactionData.amount }
           : { decrement: transactionData.amount }
         : undefined; // Don't update if units aren't found
+
     
     // Update the organization's amount and units
     await prisma.organization.update({

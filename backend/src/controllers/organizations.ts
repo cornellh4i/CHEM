@@ -1,5 +1,5 @@
 import prisma from "../utils/client";
-import { Organization, Contributor, Prisma } from "@prisma/client";
+import { Organization, Contributor, Transaction, Prisma } from "@prisma/client";
 
 // Get organizations with filtering, sorting, and pagination
 const getOrganizations = async (
@@ -61,6 +61,39 @@ const getOrganizationById = async (
       throw new Error(`Failed to get organization: ${error.message}`);
     }
     throw new Error("Failed to get organization due to an unknown error");
+  }
+};
+
+// Get organization transactions by ID
+const getOrganizationTransactions = async (
+  organizationId: string
+): Promise<number[]> => {
+  try {
+    // Define the specific type for the selected field
+    type TransactionAmount = { amount: number };
+
+    // Fetch only the 'amount' of each transaction, sorted by 'date' in ascending order
+    const transactions: TransactionAmount[] = await prisma.transaction.findMany(
+      {
+        where: {
+          organizationId,
+        },
+        select: {
+          amount: true,
+        },
+        orderBy: {
+          date: "asc",
+        },
+      }
+    );
+
+    // Extract and return the list of amounts
+    return transactions.map((transaction) => transaction.amount);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to get transactions: ${error.message}`);
+    }
+    throw new Error("Failed to get transactions due to an unknown error");
   }
 };
 
@@ -156,7 +189,7 @@ const deleteOrganization = async (id: string): Promise<Organization> => {
 
 // Get an organization's contributor
 const getOrganizationContributors = async (
-  id: string, 
+  id: string,
   //sort based on either first name, last name, in ascending or descending order
   sort?: {
     field: "firstName" | "lastName";
@@ -165,27 +198,26 @@ const getOrganizationContributors = async (
   // pagination parameters
   pagination?: { skip?: number; take?: number }
 ): Promise<{ contributors: Contributor[]; total: number }> => {
-  try { 
+  try {
     //Check if organization exists
     const organizationExists = await prisma.organization.findUniqueOrThrow({
-      where: {id},
-      select: {id: true}
-    })
+      where: { id },
+      select: { id: true },
+    });
 
     // Use Prisma's transaction to get contributors and total count
     const [contributors, total] = await prisma.$transaction([
       prisma.contributor.findMany({
-        where: {organizationId : id},
+        where: { organizationId: id },
         orderBy: sort ? { [sort.field]: sort.order } : undefined, // sorting by field and order
         skip: pagination?.skip || 0, // skip organizations, 0 by default
         take: pagination?.take || 100, // take organizations, 100 by default
       }),
-      prisma.contributor.count({ where: {organizationId : id} }),
+      prisma.contributor.count({ where: { organizationId: id } }),
     ]);
 
     // Return organizations and total count
     return { contributors, total };
-
   } catch (error) {
     // Throw organization not found error
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -209,7 +241,7 @@ const addContributorToOrganization = async (
   try {
     // check if organization exists
     const organization = await prisma.organization.findUnique({
-      where: { id: organizationId }
+      where: { id: organizationId },
     });
 
     if (!organization) {
@@ -236,18 +268,17 @@ const addContributorToOrganization = async (
     });
 
     return updatedContributor;
-
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
         throw new Error("Organization or contributor not found");
       }
     }
-  if (error instanceof Error) {
-    throw new Error(`Failed to link contributor: ${error.message}`);
+    if (error instanceof Error) {
+      throw new Error(`Failed to link contributor: ${error.message}`);
+    }
+    throw new Error("Failed to link contributor due to an unknown error");
   }
-  throw new Error("Failed to link contributor due to an unknown error");
-}
 };
 
 // TODO: Implement updateContributorOrg function to handle updating a contributor's organization
@@ -258,6 +289,7 @@ export default {
   createOrganization,
   updateOrganization,
   deleteOrganization,
+  getOrganizationTransactions,
   getOrganizationContributors,
   addContributorToOrganization,
 };

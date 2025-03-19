@@ -1,7 +1,8 @@
 "use client";
 import React from "react";
-import DummyTable from "@/components/molecules/DummyTable";
+import TransactionsTable from "@/components/molecules/TransactionsTable";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
+import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 
 const DashboardPage = () => {
   return (
@@ -9,10 +10,10 @@ const DashboardPage = () => {
       <div className="mb-8 text-4xl font-bold">Museum of the Sea</div>
       <div className="flex items-center justify-between">
         <div className="text-3xl font-medium">Contribution Total</div>
-        <button className="mb-2 me-2 inline-flex items-center rounded-xl bg-gray-200 px-4 py-1.5 text-center text-lg font-light text-black hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:border-gray-300">
+        <button className="bg-gray-200 text-black hover:bg-gray-300 focus:ring-gray-300 dark:border-gray-300 mb-2 me-2 inline-flex items-center rounded-xl px-4 py-1.5 text-center text-lg font-light focus:outline-none focus:ring-2">
           Export
           <svg
-            className="ml-2 h-5 w-5 text-black dark:text-white"
+            className="text-black dark:text-white ml-2 h-5 w-5"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -31,16 +32,17 @@ const DashboardPage = () => {
         </button>
       </div>
 
-      <div className="mt-4 h-96 w-auto rounded-3xl bg-gray-100 p-6">
+      {/* <div className="bg-gray-100 mt-4 h-96 w-auto rounded-3xl p-6">
         Overall Contributions Graph
-      </div>
+      </div> */}
+      <ContributionsGraph />
 
       <div className="mb-4 mt-12 flex items-center justify-between">
         <div className="text-3xl font-medium">Recent Contributions</div>
-        <button className="mb-2 me-2 inline-flex items-center rounded-xl bg-gray-200 px-4 py-1.5 text-center text-lg font-light text-black hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:border-gray-300">
+        <button className="bg-gray-200 text-black hover:bg-gray-300 focus:ring-gray-300 dark:border-gray-300 mb-2 me-2 inline-flex items-center rounded-xl px-4 py-1.5 text-center text-lg font-light focus:outline-none focus:ring-2">
           Export
           <svg
-            className="ml-2 h-5 w-5 text-black dark:text-white"
+            className="text-black dark:text-white ml-2 h-5 w-5"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -59,14 +61,14 @@ const DashboardPage = () => {
         </button>
       </div>
 
-      <DummyTable></DummyTable>
+      <TransactionsTable tableType="contributions" />
 
       <div className="mt-12 flex items-center justify-between">
         <div className="text-3xl font-medium">Activity Level</div>
-        <button className="mb-2 me-2 inline-flex items-center rounded-xl bg-gray-200 px-4 py-1.5 text-center text-lg font-light text-black hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:border-gray-300">
+        <button className="bg-gray-200 text-black hover:bg-gray-300 focus:ring-gray-300 dark:border-gray-300 mb-2 me-2 inline-flex items-center rounded-xl px-4 py-1.5 text-center text-lg font-light focus:outline-none focus:ring-2">
           Export
           <svg
-            className="ml-2 h-5 w-5 text-black dark:text-white"
+            className="text-black dark:text-white ml-2 h-5 w-5"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -85,7 +87,7 @@ const DashboardPage = () => {
         </button>
       </div>
 
-      <div className="mt-4 h-96 w-auto rounded-3xl bg-gray-100 p-6">
+      <div className="bg-gray-100 mt-4 h-96 w-auto rounded-3xl p-6">
         Contributions per month graph
       </div>
     </DashboardTemplate>
