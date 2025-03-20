@@ -188,6 +188,31 @@ const createTransaction = async (
       data: validData,
     });
 
+    // Determine whether to add or subtract the amount/units based on type
+    const amountUpdate = 
+    // Add the amount to organization if donation or investment; subtract if 
+    // otherwise (withdrawal, expense)
+      transactionData.type === "DONATION" || transactionData.type === "INVESTMENT"
+        ? { increment: transactionData.amount }
+        : { decrement: transactionData.amount };
+    
+    const unitsUpdate =
+      transactionData.units !== undefined
+        ? transactionData.type === "DONATION" || transactionData.type === "INVESTMENT"
+          ? { increment: transactionData.amount }
+          : { decrement: transactionData.amount }
+        : undefined; // Don't update if units aren't found
+
+    
+    // Update the organization's amount and units
+    await prisma.organization.update({
+      where: { id: transactionData.organizationId },
+      data: {
+        amount: amountUpdate,
+        units: unitsUpdate,
+      },
+    })
+    
     return transaction;
   } catch (error) {
     if (error instanceof Error) {
@@ -231,18 +256,16 @@ const deleteTransaction = async (id: string): Promise<Transaction> => {
     if (!transaction) {
       throw new Error("Unable to locate transaction");
     }
+    // update the associated organization's totals (units & amounts, based on transaction type)
+    const amountUpdated = transaction.type === "DONATION" || transaction.type === "INVESTMENT" ? {decrement: transaction.amount} : {increment: transaction.amount};
+    const unitsUpdated = transaction.units ? transaction.type === "DONATION" || transaction.type === "INVESTMENT" ? {decrement: transaction.units} : {increment: transaction.units}: undefined;
+
     if (transaction.organizationId) {
       await prisma.organization.update({
         where: { id: transaction.organizationId },
         data: {
-          amount: {
-            decrement: transaction.amount,
-          },
-          units: transaction.units
-            ? {
-                decrement: transaction.units,
-              }
-            : undefined,
+          amount: amountUpdated,
+          units: unitsUpdated,
         },
       });
     }
@@ -266,31 +289,156 @@ const deleteTransaction = async (id: string): Promise<Transaction> => {
   }
 };
 
-/* TODO: Add getOrganizationTransactions function
- * Should return all transactions for an organization
- * Include filtering by:
- *  - type (DONATION, WITHDRAWAL, etc)
- *  - date range
- *  - contributorId
- * Include sorting by date and amount
- * Include pagination support
- * Handle case where organization doesn't exist
- * Must check organization exists before querying transactions
- * Return transactions array and total count
+/**
+ * Retrieves all transactions for a specific organization with optional filtering,
+ * sorting, and pagination.
+ *
+ * @returns An object containing the transactions array and total count.
+ * @throws If the organization does not exist, if query parameters are invalid,
+ *   or if an unexpected error occurs.
  */
+const getOrganizationTransactions = async (
+  id: string,
+  filter?: {
+    type?: TransactionType;
+    startDate?: Date;
+    endDate?: Date;
+    contributorId?: string;
+  },
+  sort?: {
+    field: "date" | "amount" | "units";
+    order: "asc" | "desc";
+  },
+  pagination?: { skip?: number; take?: number }
+  
+): Promise<{ transactions: Transaction[]; total: number }> => {
+  try {
+    // Validate organization exists
+    const organization = await prisma.organization.findUnique({
+      where: { id },
+    });
 
-/* TODO: Add getContributorTransactions function
- * Should return all transactions for a contributor
- * Include filtering by:
- *  - type (DONATION, WITHDRAWAL, etc)
- *  - date range
- *  - organizationId
- * Include sorting by date and amount
- * Include pagination support
- * Handle case where contributor doesn't exist
- * Must check contributor exists before querying transactions
- * Return transactions array and total count
+    if (!organization) {
+      throw new Error("Organization not found");
+    }
+
+    // Construct the where clause for filtering
+    const where: Prisma.TransactionWhereInput = {
+      organizationId: id,
+      ...(filter?.type && { type: filter.type }), 
+      ...(filter?.contributorId && { contributorId: filter.contributorId }),
+      ...((filter?.startDate || filter?.endDate) && {
+        date: {
+          ...(filter.startDate && { gte: filter.startDate }),
+          ...(filter.endDate && { lte: filter.endDate }),
+        },
+      }),
+    };  
+    // Get transactions and total count/number of transactions
+    const [transactions, total] = await prisma.$transaction([
+      prisma.transaction.findMany({
+        where,
+        orderBy: sort ? { [sort.field]: sort.order } : undefined,
+        skip: pagination?.skip || 0, 
+        take: pagination?.take || 100, 
+        include: {
+          contributor: true, // Include contributor details
+        }
+      }),
+      prisma.transaction.count({ where }), // Total count of transactions
+    ]);
+
+    // Return transactions and total count
+    return { transactions, total };
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Organization not found.");
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Unable to get transactions: ${error.message}`);
+    }
+    throw new Error("Unable to get transaction due to an unknown error.");
+  }
+};
+
+
+/**
+ * Retrieves all transactions for a specific contributor with optional filtering,
+ * sorting, and pagination.
+ *
+ * @returns An object containing the transactions array and total count.
+ * @throws If the contributor does not exist, if query parameters are invalid,
+ *   or if an unexpected error occurs.
  */
+async function getContributorTransactions(contributorId: string, filters: {
+  type?: string;
+  organizationId?: string;
+  startDate?: string;
+  endDate?: string;
+},
+sort?: SortOptions,
+pagination?: PaginationOptions
+) {
+  //Validate contributor exists
+  const contributor = await prisma.contributor.findUnique({
+    where: { id: contributorId}, 
+    select: {id: true} ,
+  });
+  if (!contributor) {
+    //contributor not found = 404
+    throw new Error("Contributor not found.");
+  }
+  //setting up the filter
+  const where: Prisma.TransactionWhereInput = { contributorId};
+
+  if (filters.type) {
+    where.type = filters.type as TransactionType;
+  }
+
+  if (filters.organizationId) {
+    where.organizationId = filters.organizationId;
+    const organization = await prisma.contributor.findUnique({
+      where: { id: filters.organizationId}, 
+      select: {id: true} ,
+    });
+    if (!organization) {
+      //organization not found = 404
+      throw new Error("Organization not found.");
+    }
+  }
+
+  if (filters.startDate || filters.endDate) {
+    where.date = {};
+    try {
+      if (filters.startDate) {
+        where.date.gte = new Date(filters.startDate);
+      }
+      if (filters.endDate) {
+        where.date.lte = new Date(filters.endDate);
+      }
+    }
+    catch (e){
+      //Invalid Query Input
+      throw new Error("Invalid Date Format.")
+    }
+  }
+
+  const orderBy = sort ? { [sort.field]: sort.order } : undefined;
+  //actual query
+  const [transactions, total] = await Promise.all([
+    prisma.transaction.findMany({
+      where,
+      skip: pagination?.skip,
+      take: pagination?.take,
+      orderBy,
+    }),
+    prisma.transaction.count({ where }),
+  ]);
+
+  return { transactions, total };
+}
 
 export default {
   createTransaction,
@@ -298,4 +446,6 @@ export default {
   getTransactions,
   getTransactionById,
   updateTransaction,
+  getOrganizationTransactions,
+  getContributorTransactions,
 };

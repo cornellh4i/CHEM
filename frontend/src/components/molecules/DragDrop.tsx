@@ -1,13 +1,26 @@
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useState, useEffect } from "react";
 import { FileUploader } from "react-drag-drop-files";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
 
 const fileTypes = ["JPEG", "PNG", "PDF"];
 
-const DragDrop = () => {
-  const [file, setFile] = useState(null);
-  const handleChange = (file: SetStateAction<null>) => {
-    setFile(file);
+interface DragDropProps {
+  onDrop?: (files: File[]) => void; // Add prop to communicate back to parent
+}
+
+const DragDrop = ({ onDrop }: DragDropProps) => {
+  const [files, setFiles] = useState<File[]>([]);
+
+  const handleChange = (uploadedFiles: any) => {
+    // Convert to array if single file is uploaded
+    const fileArray = Array.isArray(uploadedFiles)
+      ? uploadedFiles
+      : [uploadedFiles];
+    setFiles(fileArray);
+
+    // Call the onDrop callback to notify parent component
+    if (onDrop) {
+      onDrop(fileArray);
+    }
   };
 
   return (

@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "@/components/atoms/Button";
-import TransactionModal from "@/components/molecules/AddTransactionModal";
+import AddTransactionModal from "@/components/molecules/AddTransactionModal";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,11 @@ import {
 const ModalTestPage = () => {
   return (
     <div className="p-4">
-      <TransactionModal></TransactionModal>
+      <AddTransactionModal>
+        <Button className="border-black bg-gray-800 text-white rounded-2xl border px-8 py-3 text-lg">
+          Open Transaction Modal
+        </Button>
+      </AddTransactionModal>
     </div>
   );
 };

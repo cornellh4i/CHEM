@@ -1,43 +1,64 @@
 "use client";
 
 import * as React from "react";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+export function DataPicker() {
+  const [month, setMonth] = React.useState<string>("");
+  const [day, setDay] = React.useState<string>("");
+  const [year, setYear] = React.useState<string>("");
 
-export function DatePicker() {
-  const [date, setDate] = React.useState<Date>();
+  // Handle month change
+  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d{0,2}$/.test(value) && parseInt(value) <= 12) {
+      setMonth(value);
+    }
+  };
+
+  // Handle day change
+  const handleDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d{0,2}$/.test(value) && parseInt(value) <= 31) {
+      setDay(value);
+    }
+  };
+
+  // Handle year change
+  const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d{0,4}$/.test(value)) {
+      setYear(value);
+    }
+  };
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={"outline"}
-          className={cn(
-            "w-[280px] justify-start text-left font-normal",
-            !date && "text-muted-foreground"
-          )}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP") : <span>Pick a date</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={setDate}
-          // initialFocus
-        />
-      </PopoverContent>
-    </Popover>
+    <div className="flex items-center space-x-2">
+      <input
+        type="text"
+        maxLength={2}
+        value={month}
+        onChange={handleMonthChange}
+        placeholder="MM"
+        className="w-12 text-center border border-gray-300 p-2"
+      />
+      /
+      <input
+        type="text"
+        maxLength={2}
+        value={day}
+        onChange={handleDayChange}
+        placeholder="DD"
+        className="w-12 text-center border border-gray-300 p-2"
+      />
+      /
+      <input
+        type="text"
+        maxLength={4}
+        value={year}
+        onChange={handleYearChange}
+        placeholder="YYYY"
+        className="w-16 text-center border border-gray-300 p-2"
+      />
+    </div>
   );
 }

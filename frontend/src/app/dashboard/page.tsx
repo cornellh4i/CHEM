@@ -3,6 +3,8 @@ import React from "react";
 import TransactionsTable from "@/components/molecules/TransactionsTable";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import BarGraph from "@/components/molecules/BarGraph";
+import ContributionsGraph from "@/components/molecules/ContributionsGraph";
+
 const DashboardPage = () => {
   return (
     <DashboardTemplate>
@@ -31,9 +33,10 @@ const DashboardPage = () => {
         </button>
       </div>
 
-      <div className="bg-gray-100 mt-4 h-96 w-auto rounded-3xl p-6">
+      {/* <div className="bg-gray-100 mt-4 h-96 w-auto rounded-3xl p-6">
         Overall Contributions Graph
-      </div>
+      </div> */}
+      <ContributionsGraph />
 
       <div className="mb-4 mt-12 flex items-center justify-between">
         <div className="text-3xl font-medium">Recent Contributions</div>

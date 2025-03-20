@@ -2,6 +2,7 @@
 
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import TransactionsTable from "@/components/molecules/TransactionsTable";
+import AddTransactionModal from "@/components/molecules/AddTransactionModal";
 import React, { useState } from "react";
 import SearchBar from "@/components/molecules/Searchbar";
 import AddIcon from "@mui/icons-material/Add";
@@ -10,6 +11,7 @@ import Button from "@/components/atoms/Button"; // Adjust path if needed
 
 const ActivitiesPage = () => {
   const [searchResults, setSearchResults] = useState([]);
+
   const handleSearch = (query: string) => {
     console.log("Searching for:", query);
   };
@@ -22,10 +24,34 @@ const ActivitiesPage = () => {
           <div className="flex-grow">
             <SearchBar onSearch={handleSearch} width="50%" />
           </div>
-          <Button variant="primary" icon={<AddIcon />}>
-            Add Transaction
-          </Button>
-          <Button variant="primary" icon={<DownloadIcon />}>
+
+          <AddTransactionModal>
+            <Button
+              variant="primary"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                height: "40px",
+                padding: "0 16px",
+                marginBottom: 8,
+              }}
+            >
+              Add Transaction
+              <AddIcon style={{ marginLeft: "6px" }} />
+            </Button>
+          </AddTransactionModal>
+
+          <Button
+            variant="primary"
+            icon={<DownloadIcon />}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: "40px",
+              padding: "0 16px",
+              marginBottom: 8,
+            }}
+          >
             Import
           </Button>
         </div>
