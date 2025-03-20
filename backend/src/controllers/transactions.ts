@@ -197,13 +197,12 @@ const createTransaction = async (
         : { decrement: transactionData.amount };
     
     const unitsUpdate =
-      transactionData.units
+      transactionData.units !== undefined
         ? transactionData.type === "DONATION" || transactionData.type === "INVESTMENT"
-          ? { increment: transactionData.units }
-          : { decrement: transactionData.units }
+          ? { increment: transactionData.amount }
+          : { decrement: transactionData.amount }
         : undefined; // Don't update if units aren't found
 
-    
     
     // Update the organization's amount and units
     await prisma.organization.update({
