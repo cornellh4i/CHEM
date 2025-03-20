@@ -2,6 +2,7 @@
 import React from "react";
 import TransactionsTable from "@/components/molecules/TransactionsTable";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
+import BarGraph from "@/components/molecules/BarGraph";
 import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 
 const DashboardPage = () => {
@@ -88,7 +89,7 @@ const DashboardPage = () => {
       </div>
 
       <div className="bg-gray-100 mt-4 h-96 w-auto rounded-3xl p-6">
-        Contributions per month graph
+        <BarGraph />
       </div>
     </DashboardTemplate>
   );
