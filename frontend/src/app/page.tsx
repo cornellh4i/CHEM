@@ -1,11 +1,19 @@
 "use client";
+import { Button } from "@/components";
 import type { NextPage } from "next";
-import LoginFormCard from "@/components/molecules/LoginFormCard";
 
 const Home: NextPage = () => {
   return (
-    <div className="flex h-screen items-center justify-center">
-      <LoginFormCard />
+    <div className="flex h-screen flex-col items-center justify-center gap-6">
+      <h1 className="text-center text-6xl font-bold">CHEM</h1>
+      <div className="flex flex-row gap-4">
+        <Button onClick={() => (window.location.href = "/dashboard")}>
+          Enter Dashboard
+        </Button>
+        <Button onClick={() => (window.location.href = "/login")}>
+          Enter Login Flow
+        </Button>
+      </div>
     </div>
   );
 };
