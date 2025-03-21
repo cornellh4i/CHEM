@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { SimpleTable, Column } from "@/components/molecules/SimpleTable";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 type TransactionType = "DONATION" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE";
 
