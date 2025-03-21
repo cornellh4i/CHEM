@@ -53,10 +53,12 @@ const API_URL = "http://localhost:8000";
 const ContributorsTable = () => {
   const PAGE_SIZE = 5;
   const [contributors, setContributors] = useState<TableData[]>([]);
-  const [organizations, setOrganizations] = useState<Record<string, string>>({});
+  const [organizations, setOrganizations] = useState<Record<string, string>>(
+    {}
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     fetchOrganizations().then(() => fetchContributors());
   }, []);
@@ -64,14 +66,16 @@ const ContributorsTable = () => {
   const fetchOrganizations = async () => {
     try {
       const response = await fetch(`${API_URL}/organizations`);
-      
+
       if (!response.ok) {
-        console.warn("Could not fetch organizations, fund names may not display correctly");
+        console.warn(
+          "Could not fetch organizations, fund names may not display correctly"
+        );
         return;
       }
 
       const data = await response.json();
-      
+
       if (data && data.organizations) {
         // Create a lookup map of organization ID to name
         const orgMap: Record<string, string> = {};
@@ -80,7 +84,7 @@ const ContributorsTable = () => {
             orgMap[org.id] = org.name;
           }
         });
-        
+
         setOrganizations(orgMap);
       }
     } catch (err) {
@@ -113,19 +117,23 @@ const ContributorsTable = () => {
           const activityDate = latestTransaction
             ? new Date(latestTransaction.date).toLocaleDateString()
             : new Date(contributor.updatedAt).toLocaleDateString();
-      
+
           let fund = "---";
           if (latestTransaction) {
-            // Option 1: Use transaction.organization if it exists
-            if (latestTransaction.organization && latestTransaction.organization.name) {
+            if (
+              latestTransaction.organization &&
+              latestTransaction.organization.name
+            ) {
               fund = latestTransaction.organization.name;
-            } 
-            // Option 2: Use the organizationId to look it up in our organizations map
-            else if (latestTransaction.organizationId && organizations[latestTransaction.organizationId]) {
+            } else if (
+              latestTransaction.organizationId &&
+              organizations[latestTransaction.organizationId]
+            ) {
               fund = organizations[latestTransaction.organizationId];
-            }
-            // Option 3: Use the contributor's organization if available and the other options failed
-            else if (contributor.organization && contributor.organization.name) {
+            } else if (
+              contributor.organization &&
+              contributor.organization.name
+            ) {
               fund = contributor.organization.name;
             }
           }
@@ -133,21 +141,26 @@ const ContributorsTable = () => {
           const formattedAmount = latestTransaction
             ? latestTransaction.type === "EXPENSE" ||
               latestTransaction.type === "WITHDRAWAL"
-              ? -Math.abs(latestTransaction.amount) // Ensure negative
-              : Math.abs(latestTransaction.amount) // Ensure positive
-            : null; // Use null to indicate no transactions
+              ? -Math.abs(latestTransaction.amount)
+              : Math.abs(latestTransaction.amount)
+            : null;
 
           return {
             id: contributor.id,
             date: activityDate,
             contributor: `${contributor.firstName} ${contributor.lastName}`,
             fund: fund,
-            amount: formattedAmount, // Will be null when no transactions
-            hasTransactions: hasTransactions
+            amount: formattedAmount,
+            hasTransactions: hasTransactions,
           };
         });
 
-        setContributors(mappedData);
+        // Sort contributors by date in descending order before setting the state
+        const sortedData = mappedData.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+
+        setContributors(sortedData); // Update state with sorted data
       }
     } catch (err) {
       console.error("Error fetching contributors:", err);
@@ -158,7 +171,6 @@ const ContributorsTable = () => {
   };
 
   const columns: Column<TableData>[] = [
-
     {
       header: "Date",
       accessor: "date",

@@ -36,7 +36,7 @@ const fetchTransactions = async () => {
           new Date(t.date) >= lastMonthDate
       )
       .sort((a, b) => new Date(a.date) - new Date(b.date))
-      .map((transaction) => {
+      .map((transaction: { amount: number; date: string | number | Date }) => {
         cumulativeAmount += transaction.amount;
         return {
           month: new Date(transaction.date).toLocaleDateString("en-US", {
@@ -54,7 +54,7 @@ const fetchTransactions = async () => {
 };
 
 // Format a date to "MMM d" format (e.g., "Mar 3")
-const formatDate = (date) => {
+const formatDate = (date: Date) => {
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -70,37 +70,37 @@ export function ContributionsGraph() {
   React.useEffect(() => {
     fetchTransactions().then((data) => {
       if (data.length === 0) return;
-      
+
       setChartData(data);
       setTotalAmount(data.length > 0 ? data[data.length - 1].desktop : 0);
-      
+
       // Generate 5 evenly spaced dates between the earliest and latest data point
       const firstDate = data[0].date.getTime();
       const lastDate = data[data.length - 1].date.getTime();
       const timeRange = lastDate - firstDate;
-      
+
       // Generate 5 evenly spaced timestamps
       const tickTimestamps = [];
       for (let i = 0; i < 5; i++) {
-        const timestamp = firstDate + (timeRange * i / 4);
+        const timestamp = firstDate + (timeRange * i) / 4;
         tickTimestamps.push(timestamp);
       }
-      
+
       // Convert timestamps to formatted date strings
       const ticksObj = {};
-      tickTimestamps.forEach(timestamp => {
+      tickTimestamps.forEach((timestamp) => {
         const date = new Date(timestamp);
         ticksObj[date.getTime()] = formatDate(date);
       });
-      
+
       setFormattedTicks(ticksObj);
       setXAxisTicks(tickTimestamps);
     });
   }, []);
 
   // Custom tick formatter function for the X axis
-  const formatXAxisTick = (timestamp) => {
-    return formattedTicks[timestamp] || '';
+  const formatXAxisTick = (timestamp: string | number) => {
+    return formattedTicks[timestamp] || "";
   };
 
   const chartConfig = {
@@ -128,14 +128,17 @@ export function ContributionsGraph() {
             <CartesianGrid vertical={false} horizontal={false} />
             <YAxis dataKey="desktop" tickLine={false} axisLine={false} />
             <XAxis
-              dataKey="date" 
+              dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               ticks={xAxisTicks}
               tickFormatter={formatXAxisTick}
               type="number"
-              domain={[chartData[0]?.date?.getTime(), chartData[chartData.length-1]?.date?.getTime()]}
+              domain={[
+                chartData[0]?.date?.getTime(),
+                chartData[chartData.length - 1]?.date?.getTime(),
+              ]}
             />
             <ChartTooltip
               cursor={false}
