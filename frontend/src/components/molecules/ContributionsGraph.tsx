@@ -105,7 +105,7 @@ export function ContributionsGraph() {
 
   const chartConfig = {
     desktop: {
-      label: "Contribution",
+      label: "Amount $",
       color: "black",
     },
   } satisfies ChartConfig;
