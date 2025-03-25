@@ -19,9 +19,6 @@ type Organization = {
 type ContributorData = {
   firstName: string;
   lastName: string;
-  phone: string;
-  email: string;
-  address: string;
   organizationId: string;
 };
 
@@ -30,18 +27,35 @@ type AddContributorModalProps = {
 };
 
 // Function to fetch organizations
-async function getOrganizations() {
+const getOrganizations = async (): Promise<Organization[]> => {
   try {
-    const response = await fetch("http://localhost:8000/organizations");
+    const response = await fetch("http://localhost:8000/organizations", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
     if (!response.ok) {
-      throw new Error("Failed to fetch organizations");
+      // Attempt to extract the error message from the response
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to fetch organizations");
     }
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching organizations:", error);
+
+    // Parse the JSON response to retrieve the list of contributor objects
+    const responseData = await response.json();
+    if (responseData && Array.isArray(responseData.organizations)) {
+      return responseData.organizations;
+    } else if (Array.isArray(responseData)) {
+      // If the response is already an array, return it directly
+      return responseData;
+    } else {
+      return []; // Return empty array as fallback
+    }
+  } catch (error: any) {
     throw error;
   }
-}
+};
 
 const AddContributorModal: React.FC<AddContributorModalProps> = ({
   children,
@@ -55,9 +69,6 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
   const initialContributorState: ContributorData = {
     firstName: "",
     lastName: "",
-    phone: "",
-    email: "",
-    address: "",
     organizationId: "",
   };
 
@@ -91,42 +102,18 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
     }));
   };
 
-  // Parse name input into firstName and lastName
-  const handleNameChange = (fullName: string) => {
-    const parts = fullName.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      const firstName = parts[0];
-      const lastName = parts.slice(1).join(" ");
-      handleInputChange("firstName", firstName);
-      handleInputChange("lastName", lastName);
-    } else if (parts.length === 1) {
-      handleInputChange("firstName", parts[0]);
-      handleInputChange("lastName", "");
-    }
-  };
-
   // Validate required fields
   const validateForm = () => {
-    if (!contributor.firstName) {
+    if (!contributor.firstName.trim()) {
       showError("Please enter a first name");
       return false;
     }
-    if (!contributor.lastName) {
+    if (!contributor.lastName.trim()) {
       showError("Please enter a last name");
       return false;
     }
     if (!contributor.organizationId) {
       showError("Please select an organization");
-      return false;
-    }
-    if (!contributor.email) {
-      showError("Please enter an email address");
-      return false;
-    }
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(contributor.email)) {
-      showError("Please enter a valid email address");
       return false;
     }
     return true;
@@ -180,7 +167,7 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
         <DialogTrigger asChild onClick={handleOpen}>
           {children}
         </DialogTrigger>
-        <DialogContent className="border-gray-300 bg-white rounded-lg border p-8 shadow-lg sm:min-h-[475px] sm:max-w-lg">
+        <DialogContent className="border-gray-300 bg-white z-[1000] rounded-lg border p-8 shadow-lg sm:min-h-[475px] sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="mb-4 text-lg font-semibold">
               Add a Contributor
@@ -189,16 +176,32 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="name"
+                htmlFor="firstName"
                 className="text-black mb-1 block text-sm font-medium"
               >
-                Name
+                First Name
               </label>
               <input
-                id="name"
-                placeholder="Naomi Rufian"
+                id="firstName"
+                placeholder=""
+                value={contributor.firstName}
                 className="border-gray-400 text-black focus:ring-gray-500 w-full rounded-md border p-2 text-sm focus:outline-none focus:ring-2"
-                onChange={(e) => handleNameChange(e.target.value)}
+                onChange={(e) => handleInputChange("firstName", e.target.value)}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="lastName"
+                className="text-black mb-1 block text-sm font-medium"
+              >
+                Last Name
+              </label>
+              <input
+                id="lastName"
+                placeholder=""
+                value={contributor.lastName}
+                className="border-gray-400 text-black focus:ring-gray-500 w-full rounded-md border p-2 text-sm focus:outline-none focus:ring-2"
+                onChange={(e) => handleInputChange("lastName", e.target.value)}
               />
             </div>
             <div>
@@ -214,53 +217,8 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
                   value: org.id,
                   label: org.name,
                 }))}
-                width="100%"
+                width="95%"
                 onSelect={(value) => handleInputChange("organizationId", value)}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="phone"
-                className="text-black mb-1 block text-sm font-medium"
-              >
-                Phone number
-              </label>
-              <input
-                id="phone"
-                placeholder="+1 (718) 123-4567"
-                className="border-gray-400 text-black focus:ring-gray-500 w-full rounded-md border p-2 text-sm focus:outline-none focus:ring-2"
-                value={contributor.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="email"
-                className="text-black mb-1 block text-sm font-medium"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                placeholder="123abc@gmail.com"
-                className="border-gray-400 text-black focus:ring-gray-500 w-full rounded-md border p-2 text-sm focus:outline-none focus:ring-2"
-                value={contributor.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="address"
-                className="text-black mb-1 block text-sm font-medium"
-              >
-                Mailing address
-              </label>
-              <input
-                id="address"
-                placeholder="123 ABC Drive, Queens NY 11357"
-                className="border-gray-400 text-black focus:ring-gray-500 w-full rounded-md border p-2 text-sm focus:outline-none focus:ring-2"
-                value={contributor.address}
-                onChange={(e) => handleInputChange("address", e.target.value)}
               />
             </div>
             <div className="flex justify-between space-x-4 pt-8">
