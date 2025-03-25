@@ -1,4 +1,5 @@
 "use client";
+import React, { useEffect, useState } from "react";
 
 import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
@@ -18,14 +19,11 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-];
+interface ChartData {
+  month: string;
+  desktop: number;
+  mobile: number;
+}
 
 const chartConfig = {
   desktop: {
@@ -39,6 +37,40 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function BarGraph() {
+  const [chartData, setChartData] = useState<ChartData[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:8000/transactions?type=DONATION"
+        );
+        const json = await res.json();
+        const transactions = json.transactions;
+
+        const grouped: Record<string, number> = {};
+
+        transactions.forEach((tx: any) => {
+          const date = new Date(tx.date);
+          const month = date.toLocaleString("default", { month: "long" });
+          grouped[month] = (grouped[month] || 0) + tx.amount;
+        });
+
+        const formatted = Object.entries(grouped).map(([month, amount]) => ({
+          month,
+          desktop: Math.round(amount * 0.6),
+          mobile: Math.round(amount * 0.4),
+        }));
+
+        setChartData(formatted);
+      } catch (err) {
+        console.error("Failed to fetch contributions:", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <Card>
       <CardHeader>
@@ -80,4 +112,5 @@ export function BarGraph() {
     </Card>
   );
 }
+
 export default BarGraph;
