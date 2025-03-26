@@ -4,6 +4,7 @@ import Sidebar from "@/components/molecules/Sidebar";
 import { IconButton, useMediaQuery } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useRouter } from "next/navigation";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 interface FundsTemplateProps {
   summary: ReactNode;
@@ -49,7 +50,8 @@ const FundsTemplate = ({
           className="text-sm text-blue-600 mb-4"
           onClick={() => router.back()}
         >
-          ← Back to All Funds
+          <ArrowBackIcon className="mr-1 relative top-[-1px]" fontSize="small" />
+          Back to All Funds
         </button>
 
         {/* Fund title and description */}
