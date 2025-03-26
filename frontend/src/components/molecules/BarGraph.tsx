@@ -1,9 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-
 import {
   Card,
   CardContent,
@@ -24,6 +22,21 @@ interface ChartData {
   desktop: number;
   mobile: number;
 }
+
+const calendarOrder = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 const chartConfig = {
   desktop: {
@@ -68,11 +81,13 @@ export function BarGraph() {
           grouped[month] = (grouped[month] || 0) + tx.amount;
         });
 
-        const formatted = Object.entries(grouped).map(([month, amount]) => ({
-          month,
-          desktop: Math.round(amount * 0.6),
-          mobile: Math.round(amount * 0.4),
-        }));
+        const formatted = calendarOrder
+          .filter((month) => grouped[month])
+          .map((month) => ({
+            month,
+            desktop: Math.round(grouped[month] * 0.6),
+            mobile: Math.round(grouped[month] * 0.4),
+          }));
 
         setChartData(formatted);
       } catch (err) {
@@ -111,9 +126,10 @@ export function BarGraph() {
           </div>
         </div>
       </CardHeader>
+
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
@@ -135,13 +151,9 @@ export function BarGraph() {
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total contributions for the selected time range
-        </div>
+
+      <CardFooter className="text-sm text-muted-foreground">
+        Showing total contributions for the selected time range
       </CardFooter>
     </Card>
   );
