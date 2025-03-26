@@ -38,6 +38,7 @@ const chartConfig = {
 
 export function BarGraph() {
   const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [range, setRange] = useState<"6m" | "1y">("6m");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,9 +49,20 @@ export function BarGraph() {
         const json = await res.json();
         const transactions = json.transactions;
 
+        const now = new Date();
+        const cutoff = new Date();
+        cutoff.setMonth(
+          range === "6m" ? now.getMonth() - 5 : now.getMonth() - 11
+        );
+
         const grouped: Record<string, number> = {};
 
-        transactions.forEach((tx: any) => {
+        const filtered = transactions.filter((tx: any) => {
+          const txDate = new Date(tx.date);
+          return txDate >= cutoff && txDate <= now;
+        });
+
+        filtered.forEach((tx: any) => {
           const date = new Date(tx.date);
           const month = date.toLocaleString("default", { month: "long" });
           grouped[month] = (grouped[month] || 0) + tx.amount;
@@ -69,13 +81,35 @@ export function BarGraph() {
     };
 
     fetchData();
-  }, []);
+  }, [range]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bar Chart - Multiple</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Contributions Per Month</CardTitle>
+            <CardDescription>
+              {range === "6m" ? "Last 6 Months" : "Last Year"}
+            </CardDescription>
+          </div>
+          <div className="flex space-x-2">
+            <button
+              className={`rounded-lg px-3 py-1 text-sm font-medium ${
+                range === "6m" ? "bg-blue-100 text-blue-800" : "bg-gray-200" }`}
+              onClick={() => setRange("6m")}
+            >
+              Last 6 Months
+            </button>
+            <button
+              className={`rounded-lg px-3 py-1 text-sm font-medium ${
+                range === "1y" ? "bg-blue-100 text-blue-800" : "bg-gray-200" }`}
+              onClick={() => setRange("1y")}
+            >
+              Last Year
+            </button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -106,7 +140,7 @@ export function BarGraph() {
           Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Showing total contributions for the selected time range
         </div>
       </CardFooter>
     </Card>
