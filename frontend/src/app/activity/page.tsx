@@ -7,13 +7,15 @@ import React, { useState } from "react";
 import SearchBar from "@/components/molecules/Searchbar";
 import AddIcon from "@mui/icons-material/Add";
 import DownloadIcon from "@mui/icons-material/Download";
-import Button from "@/components/atoms/Button"; // Adjust path if needed
+import Button from "@/components/atoms/Button";
 
 const ActivitiesPage = () => {
-  const [searchResults, setSearchResults] = useState([]);
+  // State to store search query
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (query: string) => {
     console.log("Searching for:", query);
+    setSearchQuery(query); // Update search query state
   };
 
   return (
@@ -55,7 +57,10 @@ const ActivitiesPage = () => {
             Import
           </Button>
         </div>
-        <TransactionsTable tableType="transactions" />
+        <TransactionsTable
+          tableType="transactions"
+          searchQuery={searchQuery} // Pass search query to TransactionsTable
+        />
       </div>
     </DashboardTemplate>
   );
