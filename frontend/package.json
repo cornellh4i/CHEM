@@ -40,7 +40,7 @@
     "react-datepicker": "^8.2.0",
     "react-day-picker": "^9.5.1",
     "react-dom": "^18",
-    "react-drag-drop-files": "^2.4.0",
+    "react-drag-drop-files": "^3.0.0",
     "react-firebase-hooks": "^5.1.1",
     "react-hook-form": "^7.53.0",
     "react-pro-sidebar": "^1.1.0",
