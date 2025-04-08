@@ -242,5 +242,8 @@ organizationRouter.post("/:id/contributors", async (req, res) => {
 
 // TODO: Implement PUT updateContributorOrg route to handle updating a contributor's organization
 
+// TODO: get all funds for a specific organization
+organizationRouter.get("/:id/funds", async (req, res) => {
+})
 
 export default organizationRouter;

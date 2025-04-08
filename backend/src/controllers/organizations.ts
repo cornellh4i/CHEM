@@ -283,6 +283,8 @@ const addContributorToOrganization = async (
 
 // TODO: Implement updateContributorOrg function to handle updating a contributor's organization
 
+// TODO: GetOrganizationFunds
+
 export default {
   getOrganizations,
   getOrganizationById,
