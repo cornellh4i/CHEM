@@ -151,6 +151,8 @@ const getContributorTransactions = async (
   }
 };
 
+// TODO: get all funds for a contributor by its id
+
 export default {
   getContributors,
   getContributorById,

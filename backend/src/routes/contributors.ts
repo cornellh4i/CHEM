@@ -139,4 +139,6 @@ contributorRouter.delete("/:id", async (req, res) => {
   }
 });
 
+// TODO: get all funds for a contributor by its id
+
 export default contributorRouter;

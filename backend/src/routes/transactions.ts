@@ -254,4 +254,8 @@ transactionRouter.get("/contributors/:id", async (req, res) => {
   }
 });
 
+// TODO: get all transactions for a specific fund
+transactionRouter.get("/funds/:id", async (req, res) => {
+})
+
 export default transactionRouter;

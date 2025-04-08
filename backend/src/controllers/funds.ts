@@ -10,8 +10,4 @@ import prisma from "../utils/client";
 
 // TODO: delete new fund
 
-// TODO: get all transactions by fund id
-
-/// TODO: get all contributors by fund id
-
 export default {};

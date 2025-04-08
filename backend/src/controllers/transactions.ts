@@ -440,6 +440,8 @@ pagination?: PaginationOptions
   return { transactions, total };
 }
 
+// TODO: get all transactions for a specific fund getFundTransactions
+
 export default {
   createTransaction,
   deleteTransaction,

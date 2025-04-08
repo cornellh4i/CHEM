@@ -30,14 +30,4 @@ fundRouter.delete("/:id", async (req, res) => {
   // implement route here
 });
 
-// TODO: get all transactions by fund id
-fundRouter.delete("/transactions/:id", async (req, res) => {
-  // implement route here
-});
-
-/// TODO: get all contributors by fund id
-fundRouter.delete("/contributors/:id", async (req, res) => {
-  // implement route here
-});
-
 export default fundRouter;
