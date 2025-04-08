@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { SimpleTable, Column } from "@/components/molecules/SimpleTable";
 
 type TransactionType = "DONATION" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE";
@@ -44,11 +44,15 @@ interface TableData {
 
 interface TransactionsTableProps {
   tableType: "transactions" | "contributions";
+  searchQuery?: string; // New prop to filter by organization name
 }
 
 const API_URL = "http://localhost:8000";
 
-const TransactionsTable: React.FC<TransactionsTableProps> = ({ tableType }) => {
+const TransactionsTable: React.FC<TransactionsTableProps> = ({
+  tableType,
+  searchQuery = "", // Default to empty string if not provided
+}) => {
   const PAGE_SIZE = 5;
   const [transactions, setTransactions] = useState<TableData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -120,6 +124,18 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ tableType }) => {
   const getTableTitle = () => {
     return tableType === "contributions" ? "Contributions" : "Transactions";
   };
+
+  // Filter transactions based on search query
+  const filteredTransactions = useMemo(() => {
+    if (!searchQuery || searchQuery.trim() === "") {
+      return transactions; // Return all transactions if no search query
+    }
+
+    // Case-insensitive search for organization names (fund) containing the query string
+    return transactions.filter((transaction) =>
+      transaction.fund.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [transactions, searchQuery]);
 
   const getColumns = (): Column<TableData>[] => {
     const baseColumns: Column<TableData>[] = [
@@ -194,8 +210,17 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ tableType }) => {
 
   return (
     <div>
+      {/* Display search results message if filtering */}
+      {searchQuery && searchQuery.trim() !== "" && (
+        <div className="mb-4 text-sm">
+          {filteredTransactions.length === 0
+            ? `No results found for "${searchQuery}"`
+            : `Showing ${filteredTransactions.length} result${filteredTransactions.length !== 1 ? "s" : ""} for "${searchQuery}"`}
+        </div>
+      )}
+
       <SimpleTable<TableData>
-        data={transactions}
+        data={filteredTransactions} // Use the filtered data
         columns={columns}
         pageSize={PAGE_SIZE}
       />

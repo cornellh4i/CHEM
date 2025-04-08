@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { SimpleTable, Column } from "@/components/molecules/SimpleTable";
 
 type TransactionType = "DONATION" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE";
@@ -46,11 +46,18 @@ interface TableData {
   contributor: string;
   fund: string;
   amount: number; // Store as a number for sorting
+  hasTransactions: boolean;
+}
+
+interface ContributorsTableProps {
+  searchQuery?: string; // New prop to filter by contributor name
 }
 
 const API_URL = "http://localhost:8000";
 
-const ContributorsTable = () => {
+const ContributorsTable: React.FC<ContributorsTableProps> = ({
+  searchQuery = "", // Default to empty string if not provided
+}) => {
   const PAGE_SIZE = 5;
   const [contributors, setContributors] = useState<TableData[]>([]);
   const [organizations, setOrganizations] = useState<Record<string, string>>(
@@ -120,17 +127,22 @@ const ContributorsTable = () => {
 
           let fund = "---";
           if (latestTransaction) {
+            // Option 1: Use transaction.organization if it exists
             if (
               latestTransaction.organization &&
               latestTransaction.organization.name
             ) {
               fund = latestTransaction.organization.name;
-            } else if (
+            }
+            // Option 2: Use the organizationId to look it up in our organizations map
+            else if (
               latestTransaction.organizationId &&
               organizations[latestTransaction.organizationId]
             ) {
               fund = organizations[latestTransaction.organizationId];
-            } else if (
+            }
+            // Option 3: Use the contributor's organization if available and the other options failed
+            else if (
               contributor.organization &&
               contributor.organization.name
             ) {
@@ -150,7 +162,7 @@ const ContributorsTable = () => {
             date: activityDate,
             contributor: `${contributor.firstName} ${contributor.lastName}`,
             fund: fund,
-            amount: formattedAmount,
+            amount: formattedAmount, // Will be null when no transactions
             hasTransactions: hasTransactions,
           };
         });
@@ -169,6 +181,18 @@ const ContributorsTable = () => {
       setLoading(false);
     }
   };
+
+  // Filter contributors based on search query
+  const filteredContributors = useMemo(() => {
+    if (!searchQuery || searchQuery.trim() === "") {
+      return contributors; // Return all contributors if no search query
+    }
+
+    // Case-insensitive search for contributor names containing the query string
+    return contributors.filter((contributor) =>
+      contributor.contributor.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [contributors, searchQuery]);
 
   const columns: Column<TableData>[] = [
     {
@@ -226,8 +250,17 @@ const ContributorsTable = () => {
 
   return (
     <div>
+      {/* Display search results message if filtering */}
+      {searchQuery && searchQuery.trim() !== "" && (
+        <div className="mb-4 text-sm">
+          {filteredContributors.length === 0
+            ? `No contributors found for "${searchQuery}"`
+            : `Showing ${filteredContributors.length} contributor${filteredContributors.length !== 1 ? "s" : ""} for "${searchQuery}"`}
+        </div>
+      )}
+
       <SimpleTable<TableData>
-        data={contributors}
+        data={filteredContributors} // Use the filtered data
         columns={columns}
         pageSize={PAGE_SIZE}
       />
