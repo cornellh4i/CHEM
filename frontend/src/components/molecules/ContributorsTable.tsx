@@ -153,9 +153,9 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
           const formattedAmount = latestTransaction
             ? latestTransaction.type === "EXPENSE" ||
               latestTransaction.type === "WITHDRAWAL"
-              ? -Math.abs(latestTransaction.amount) // Ensure negative
-              : Math.abs(latestTransaction.amount) // Ensure positive
-            : null; // Use null to indicate no transactions
+              ? -Math.abs(latestTransaction.amount)
+              : Math.abs(latestTransaction.amount)
+            : null;
 
           return {
             id: contributor.id,
@@ -167,7 +167,12 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
           };
         });
 
-        setContributors(mappedData);
+        // Sort contributors by date in descending order before setting the state
+        const sortedData: TableData[] = mappedData.sort(
+          (a: TableData, b: TableData) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+
+        setContributors(sortedData); // Update state with sorted data
       }
     } catch (err) {
       console.error("Error fetching contributors:", err);
