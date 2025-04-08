@@ -156,8 +156,8 @@ const ContributorsTable = () => {
         });
 
         // Sort contributors by date in descending order before setting the state
-        const sortedData = mappedData.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        const sortedData: TableData[] = mappedData.sort(
+          (a: TableData, b: TableData) => new Date(b.date).getTime() - new Date(a.date).getTime()
         );
 
         setContributors(sortedData); // Update state with sorted data

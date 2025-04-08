@@ -15,6 +15,32 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
+type TransactionType = "DONATION" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE";
+
+interface Transaction {
+  id: string;
+  organizationId: string;
+  contributorId?: string;
+  type: TransactionType;
+  date: string;
+  units?: number;
+  amount: number;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+  contributor: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+  organization: {
+    id: string;
+    name: string;
+    type: string;
+    restriction: string;
+  };
+}
+
 const API_URL = "http://localhost:8000";
 
 const fetchTransactions = async () => {
@@ -29,13 +55,13 @@ const fetchTransactions = async () => {
 
     let cumulativeAmount = 0;
 
-    return data.transactions
+    return (data.transactions as Transaction[])
       .filter(
         (t) =>
           (t.type === "DONATION" || t.type === "INVESTMENT") &&
           new Date(t.date) >= lastMonthDate
       )
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .map((transaction: { amount: number; date: string | number | Date }) => {
         cumulativeAmount += transaction.amount;
         return {
@@ -62,10 +88,10 @@ const formatDate = (date: Date) => {
 };
 
 export function ContributionsGraph() {
-  const [chartData, setChartData] = React.useState([]);
+  const [chartData, setChartData] = React.useState<{ month: string; date: Date; desktop: number }[]>([]);
   const [totalAmount, setTotalAmount] = React.useState(0);
-  const [xAxisTicks, setXAxisTicks] = React.useState([]);
-  const [formattedTicks, setFormattedTicks] = React.useState({});
+  const [xAxisTicks, setXAxisTicks] = React.useState<number[]>([]);
+  const [formattedTicks, setFormattedTicks] = React.useState<Record<number, string>>({});
 
   React.useEffect(() => {
     fetchTransactions().then((data) => {
@@ -77,17 +103,21 @@ export function ContributionsGraph() {
       // Generate 5 evenly spaced dates between the earliest and latest data point
       const firstDate = data[0].date.getTime();
       const lastDate = data[data.length - 1].date.getTime();
-      const timeRange = lastDate - firstDate;
+      let tickTimestamps: number[] = [];
 
-      // Generate 5 evenly spaced timestamps
-      const tickTimestamps = [];
-      for (let i = 0; i < 5; i++) {
-        const timestamp = firstDate + (timeRange * i) / 4;
-        tickTimestamps.push(timestamp);
+      if (firstDate === lastDate) { //only 1 point
+        const offset = 1000 * 60 * 60 * 24; // 1 day in milliseconds
+        tickTimestamps = [firstDate - offset, firstDate, firstDate + offset];
+      } else { // > 2 points
+        const timeRange = lastDate - firstDate;
+        for (let i = 0; i < 5; i++) {
+          const timestamp = Math.round(firstDate + (timeRange * i) / 4);
+          tickTimestamps.push(timestamp);
+        }
       }
-
+      
       // Convert timestamps to formatted date strings
-      const ticksObj = {};
+      const ticksObj: Record<number, string> = {};
       tickTimestamps.forEach((timestamp) => {
         const date = new Date(timestamp);
         ticksObj[date.getTime()] = formatDate(date);
@@ -100,7 +130,7 @@ export function ContributionsGraph() {
 
   // Custom tick formatter function for the X axis
   const formatXAxisTick = (timestamp: string | number) => {
-    return formattedTicks[timestamp] || "";
+    return formattedTicks[Number(timestamp)] || "";
   };
 
   const chartConfig = {
