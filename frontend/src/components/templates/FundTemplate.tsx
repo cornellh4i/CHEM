@@ -14,7 +14,7 @@ interface FundsTemplateProps {
   onTabChange: (tab: "summary" | "transactions" | "contributors") => void;
 }
 
-const FundsTemplate = ({
+const FundTemplate = ({
   summary,
   transactions,
   contributors,
@@ -30,7 +30,7 @@ const FundsTemplate = ({
   };
 
   return (
-    <div className="flex min-h-screen dark:bg-gray-900 dark:text-gray-300">
+    <div className="dark:bg-gray-900 dark:text-gray-300 flex min-h-screen">
       <Sidebar
         collapsed={collapsed}
         handleToggleSidebar={handleToggleSidebar}
@@ -47,15 +47,18 @@ const FundsTemplate = ({
       >
         {/* Back button */}
         <button
-          className="text-sm text-blue-600 mb-4"
+          className="text-blue-600 mb-4 text-sm"
           onClick={() => router.back()}
         >
-          <ArrowBackIcon className="mr-1 relative top-[-1px]" fontSize="small" />
+          <ArrowBackIcon
+            className="relative top-[-1px] mr-1"
+            fontSize="small"
+          />
           Back to All Funds
         </button>
 
         {/* Fund title and description */}
-        <h1 className="text-3xl font-semibold mb-1">The Milstein Fund</h1>
+        <h1 className="mb-1 text-3xl font-semibold">The Milstein Fund</h1>
         <p className="text-gray-600 mb-6 max-w-3xl">
           The Milstein Fund is a lorem ipsum dolor sit amet, consectetur
           adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
@@ -64,13 +67,13 @@ const FundsTemplate = ({
         </p>
 
         {/* Tabs */}
-        <div className="flex border-b mb-6 space-x-6">
+        <div className="mb-6 flex space-x-6 border-b">
           {["summary", "transactions", "contributors"].map((tab) => (
             <button
               key={tab}
               className={`pb-2 capitalize ${
-                activeTab === tab
-                  ? "border-b-2 border-blue-600 font-semibold"
+              activeTab === tab
+                  ? "border-blue-600 border-b-2 font-semibold"
                   : "text-gray-500"
               }`}
               onClick={() =>
@@ -107,4 +110,4 @@ const FundsTemplate = ({
   );
 };
 
-export default FundsTemplate;
+export default FundTemplate;
