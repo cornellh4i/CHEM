@@ -54,7 +54,7 @@ const FundsMainPage = () => {
 
         <div className="mb-12 flex items-center justify-center gap-x-4">
           <div className="flex-grow">
-            <SearchBar onSearch={handleSearch} width="50%" />
+            <SearchBar onSearch={handleSearch} width="100%" />
           </div>
 
           <Button
