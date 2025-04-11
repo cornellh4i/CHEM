@@ -41,11 +41,30 @@ const FundsMainPage = () => {
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-3xl">All Funds</h1>
           <div className="flex gap-x-4">
-            <Button variant="borderless">
+            <Button
+              variant="borderless"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                height: "40px",
+                padding: "0 16px",
+                marginBottom: 0,
+              }}
+            >
               <SettingsIcon fontSize="small" style={{ marginRight: 6 }} />
               Settings
             </Button>
-            <Button variant="tertiary">
+            <Button
+              variant="tertiary"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                height: "40px",
+                padding: "0 16px",
+                marginBottom: 0,
+                color: "#418EC8",
+              }}
+            >
               Create new fund
               <KeyboardArrowDownIcon />
             </Button>
