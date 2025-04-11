@@ -17,7 +17,7 @@ import SearchBar from "@/components/molecules/Searchbar";
 import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 
 const FundsMainPage = () => {
-  const buttonColor = "#838383"; 
+  const buttonColor = "#838383";
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (query: string) => {
@@ -75,7 +75,11 @@ const FundsMainPage = () => {
 
         <div className="mb-12 flex items-center justify-center gap-x-4">
           <div className="flex-grow">
-            <SearchBar onSearch={handleSearch} width="100%" placeholder="Search for a fund..."/>
+            <SearchBar
+              onSearch={handleSearch}
+              width="100%"
+              placeholder="Search for a fund..."
+            />
           </div>
 
           <Button
@@ -90,7 +94,7 @@ const FundsMainPage = () => {
             }}
           >
             <FilterAltIcon style={{ marginRight: "6px" }} />
-            Filter Tags
+            Filter tags
           </Button>
 
           <Button
