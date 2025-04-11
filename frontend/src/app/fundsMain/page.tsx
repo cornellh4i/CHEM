@@ -4,14 +4,14 @@ import { useState } from "react";
 import * as React from "react";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import ContributorsTable from "@/components/molecules/ContributorsTable";
-import AddIcon from "@mui/icons-material/Add";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import LaunchIcon from "@mui/icons-material/Launch";
 import SettingsIcon from "@mui/icons-material/Settings";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import ViewListIcon from '@mui/icons-material/ViewList';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import ViewModuleIcon from "@mui/icons-material/ViewModule";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Button from "@/components/atoms/Button";
 import SearchBar from "@/components/molecules/Searchbar";
 import ContributionsGraph from "@/components/molecules/ContributionsGraph";
@@ -67,13 +67,12 @@ const FundsMainPage = () => {
               marginBottom: 8,
             }}
           >
-            Add Contributor
-            <AddIcon style={{ marginLeft: "6px" }} />
+            <FilterAltIcon style={{ marginRight: "6px" }} />
+            Filter Tags
           </Button>
 
           <Button
             variant="secondary"
-            icon={<LaunchIcon />}
             style={{
               display: "flex",
               alignItems: "center",
@@ -82,14 +81,11 @@ const FundsMainPage = () => {
               marginBottom: 8,
             }}
           >
-            Export
+            Sort
+            <KeyboardArrowDownIcon />
           </Button>
 
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={handleChange}
-          >
+          <ToggleButtonGroup value={viewMode} exclusive onChange={handleChange}>
             <ToggleButton value="grid" aria-label="grid view">
               <ViewModuleIcon />
             </ToggleButton>
@@ -98,9 +94,11 @@ const FundsMainPage = () => {
             </ToggleButton>
           </ToggleButtonGroup>
         </div>
-        {viewMode === "list" ? (<ContributorsTable searchQuery={searchQuery} />)
-        : (<ContributionsGraph />)
-        }
+        {viewMode === "list" ? (
+          <ContributorsTable searchQuery={searchQuery} />
+        ) : (
+          <ContributionsGraph />
+        )}
       </div>
     </DashboardTemplate>
   );
