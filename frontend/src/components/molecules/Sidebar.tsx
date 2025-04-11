@@ -127,7 +127,7 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
                 }}
               />
             }
-            onClick={() => handleMenuClick("/funds")}
+            onClick={() => handleMenuClick("/fundsMain")}
             style={{
               color: activePage === "funds" ? selectedColor : nonSelectedColor,
               display: "flex",
