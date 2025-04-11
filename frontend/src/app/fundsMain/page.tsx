@@ -13,8 +13,8 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Button from "@/components/atoms/Button";
-import AddContributorModal from "@/components/molecules/AddContributorModal";
 import SearchBar from "@/components/molecules/Searchbar";
+import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 
 const FundsMainPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,13 +24,15 @@ const FundsMainPage = () => {
     setSearchQuery(query);
   };
 
-  const [alignment, setAlignment] = React.useState<string | null>('left');
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
-  const handleAlignment = (
+  const handleChange = (
     event: React.MouseEvent<HTMLElement>,
-    newAlignment: string | null,
+    newView: "list" | "grid" | null
   ) => {
-    setAlignment(newAlignment);
+    if (newView !== null) {
+      setViewMode(newView);
+    }
   };
 
   return (
@@ -39,11 +41,11 @@ const FundsMainPage = () => {
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-3xl">Funds</h1>
           <div className="flex gap-x-4">
-            <Button variant="secondary">
+            <Button variant="borderless">
               <SettingsIcon fontSize="small" style={{ marginRight: 6 }} />
               Settings
             </Button>
-            <Button variant="secondary">
+            <Button variant="tertiary">
               Create new fund
               <KeyboardArrowDownIcon />
             </Button>
@@ -84,21 +86,21 @@ const FundsMainPage = () => {
           </Button>
 
           <ToggleButtonGroup
-            value={alignment}
+            value={viewMode}
             exclusive
-            onChange={handleAlignment}
-            aria-label="text alignment"
+            onChange={handleChange}
           >
-            <ToggleButton value="left" aria-label="left aligned">
+            <ToggleButton value="grid" aria-label="grid view">
               <ViewModuleIcon />
             </ToggleButton>
-            <ToggleButton value="center" aria-label="centered">
+            <ToggleButton value="list" aria-label="list view">
               <ViewListIcon />
             </ToggleButton>
           </ToggleButtonGroup>
         </div>
-
-        <ContributorsTable searchQuery={searchQuery} />
+        {viewMode === "list" ? (<ContributorsTable searchQuery={searchQuery} />)
+        : (<ContributionsGraph />)
+        }
       </div>
     </DashboardTemplate>
   );
