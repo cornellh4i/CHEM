@@ -17,6 +17,7 @@ import SearchBar from "@/components/molecules/Searchbar";
 import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 
 const FundsMainPage = () => {
+  const buttonColor = "#838383"; 
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (query: string) => {
@@ -49,13 +50,14 @@ const FundsMainPage = () => {
                 height: "40px",
                 padding: "0 16px",
                 marginBottom: 0,
+                color: buttonColor,
               }}
             >
               <SettingsIcon fontSize="small" style={{ marginRight: 6 }} />
               Settings
             </Button>
             <Button
-              variant="tertiary"
+              variant="secondary"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -84,6 +86,7 @@ const FundsMainPage = () => {
               height: "40px",
               padding: "0 16px",
               marginBottom: 0,
+              color: buttonColor,
             }}
           >
             <FilterAltIcon style={{ marginRight: "6px" }} />
@@ -98,6 +101,7 @@ const FundsMainPage = () => {
               height: "40px",
               padding: "0 16px",
               marginBottom: 0,
+              color: buttonColor,
             }}
           >
             <SwapVertIcon />

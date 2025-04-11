@@ -37,7 +37,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         ...style,
       }}
       InputProps={{
-        style: { height: "40px" },
+        style: { height: "40px", borderColor: "#e5e7eb" },
         endAdornment: (
           <InputAdornment position="end">
             <IconButton onClick={handleSearch} edge="end" size="small">
