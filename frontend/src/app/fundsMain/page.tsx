@@ -64,7 +64,7 @@ const FundsMainPage = () => {
               alignItems: "center",
               height: "40px",
               padding: "0 16px",
-              marginBottom: 8,
+              marginBottom: 0,
             }}
           >
             <FilterAltIcon style={{ marginRight: "6px" }} />
@@ -78,14 +78,14 @@ const FundsMainPage = () => {
               alignItems: "center",
               height: "40px",
               padding: "0 16px",
-              marginBottom: 8,
+              marginBottom: 0,
             }}
           >
             Sort
             <KeyboardArrowDownIcon />
           </Button>
 
-          <ToggleButtonGroup value={viewMode} exclusive onChange={handleChange}>
+          <ToggleButtonGroup size="small" value={viewMode} exclusive onChange={handleChange}>
             <ToggleButton value="grid" aria-label="grid view">
               <ViewModuleIcon />
             </ToggleButton>
