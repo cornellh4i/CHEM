@@ -5,7 +5,7 @@ import * as React from "react";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import ContributorsTable from "@/components/molecules/ContributorsTable";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import LaunchIcon from "@mui/icons-material/Launch";
+import SwapVertIcon from "@mui/icons-material/SwapVert";
 import SettingsIcon from "@mui/icons-material/Settings";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
@@ -39,7 +39,7 @@ const FundsMainPage = () => {
     <DashboardTemplate>
       <div className="flex flex-col justify-items-center">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-3xl">Funds</h1>
+          <h1 className="text-3xl">All Funds</h1>
           <div className="flex gap-x-4">
             <Button variant="borderless">
               <SettingsIcon fontSize="small" style={{ marginRight: 6 }} />
@@ -81,11 +81,17 @@ const FundsMainPage = () => {
               marginBottom: 0,
             }}
           >
+            <SwapVertIcon />
             Sort
             <KeyboardArrowDownIcon />
           </Button>
 
-          <ToggleButtonGroup size="small" value={viewMode} exclusive onChange={handleChange}>
+          <ToggleButtonGroup
+            size="small"
+            value={viewMode}
+            exclusive
+            onChange={handleChange}
+          >
             <ToggleButton value="grid" aria-label="grid view">
               <ViewModuleIcon />
             </ToggleButton>
