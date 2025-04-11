@@ -5,6 +5,8 @@ import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import ContributorsTable from "@/components/molecules/ContributorsTable";
 import AddIcon from "@mui/icons-material/Add";
 import LaunchIcon from "@mui/icons-material/Launch";
+import SettingsIcon from "@mui/icons-material/Settings";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import Button from "@/components/atoms/Button";
 import AddContributorModal from "@/components/molecules/AddContributorModal";
 import SearchBar from "@/components/molecules/Searchbar";
@@ -20,7 +22,20 @@ const FundsMainPage = () => {
   return (
     <DashboardTemplate>
       <div className="flex flex-col justify-items-center">
-        <h1 className="mb-12 text-3xl">Funds</h1>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-3xl">Funds</h1>
+          <div className="flex gap-x-4">
+            <Button variant="secondary">
+              <SettingsIcon fontSize="small" style={{ marginRight: 6 }} />
+              Settings
+            </Button>
+            <Button>
+              Create new fund
+              <KeyboardArrowDownIcon />
+            </Button>
+          </div>
+        </div>
+
         <div className="mb-12 flex items-center justify-center gap-x-4">
           <div className="flex-grow">
             <SearchBar onSearch={handleSearch} width="50%" />
