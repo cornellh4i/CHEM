@@ -37,16 +37,31 @@ const SearchBar: React.FC<SearchBarProps> = ({
         ...style,
       }}
       InputProps={{
-        style: { height: "40px", borderColor: "#e5e7eb" },
-        endAdornment: (
-          <InputAdornment position="end">
+        startAdornment: (
+          <InputAdornment position="start">
             <IconButton onClick={handleSearch} edge="end" size="small">
               <SearchIcon />
             </IconButton>
           </InputAdornment>
         ),
       }}
-      size="small"
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          height: "40px",
+          "& input": {
+            color: "#000000", // Text color
+          },
+          "& fieldset": {
+            borderColor: "#e5e7eb", // Default border
+          },
+          "&:hover fieldset": {
+            borderColor: "#cbd5e1", // On hover
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "#3b82f6", // On focus (e.g., blue-500)
+          },
+        },
+      }}
     />
   );
 };
