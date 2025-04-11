@@ -107,9 +107,11 @@ const FundsMainPage = () => {
 
           <ToggleButtonGroup
             size="small"
+            color="primary"
             value={viewMode}
             exclusive
             onChange={handleChange}
+            aria-label="View Mode"
           >
             <ToggleButton value="grid" aria-label="grid view">
               <ViewModuleIcon />
