@@ -29,35 +29,34 @@ model Organization {
   id           String        @id @default(cuid())
   name         String
   description  String?
-  type         String        @default("Endowment")
-  restriction  String        @default("Restricted")
   units        Float         @default(0)
   amount       Float         @default(0)
   contributors Contributor[]
   transactions Transaction[]
+  funds        Fund[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
 
 model Contributor {
-  id             String        @id @default(cuid())
-  firstName      String
-  lastName       String
-  organization   Organization  @relation(fields: [organizationId], references: [id])
-  organizationId String
-  transactions   Transaction[]
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  @@index([organizationId])
+  id           String         @id @default(cuid())
+  firstName    String
+  lastName     String
+  organization Organization[]
+  funds        Fund[]
+  transactions Transaction[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model Transaction {
   id             String          @id @default(cuid())
   organization   Organization    @relation(fields: [organizationId], references: [id])
   organizationId String
-  contributor    Contributor?    @relation(fields: [contributorId], references: [id])
-  contributorId  String?
+  fund           Fund            @relation(fields: [fundId], references: [id])
+  fundId         String
+  contributor    Contributor     @relation(fields: [contributorId], references: [id])
+  contributorId  String
   type           TransactionType
   date           DateTime
   units          Float?
@@ -67,7 +66,21 @@ model Transaction {
   updatedAt      DateTime        @updatedAt
 
   @@index([organizationId])
+  @@index([fundId])
   @@index([contributorId])
+}
+
+model Fund {
+  id             String        @id @default(cuid())
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  organizationId String
+  type           FundType
+  restriction    Boolean?
+  contributors   Contributor[]
+  transactions   Transaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum TransactionType {
@@ -75,4 +88,9 @@ enum TransactionType {
   WITHDRAWAL
   INVESTMENT
   EXPENSE
+}
+
+enum FundType {
+  ENDOWMENT
+  DONATION
 }

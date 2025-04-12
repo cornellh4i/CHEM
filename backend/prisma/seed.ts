@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { PrismaClient, Role, FundType, TransactionType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -68,7 +68,64 @@ async function main() {
     },
   });
 
-  console.log({ techCorp, ecoFoundation, alice, bob, charlie, diana });
+  // Create Funds
+  const techFund = await prisma.fund.create({
+    data: {
+      organizationId: techCorp.id,
+      type: FundType.ENDOWMENT,
+      restriction: false,
+      contributors: {
+        connect: [{ id: charlie.id }],
+      },
+    },
+  });
+
+  const ecoFund = await prisma.fund.create({
+    data: {
+      organizationId: ecoFoundation.id,
+      type: FundType.DONATION,
+      restriction: true,
+      contributors: {
+        connect: [{ id: diana.id }],
+      },
+    },
+  });
+
+  // Create Transactions
+  await prisma.transaction.create({
+    data: {
+      organizationId: techCorp.id,
+      fundId: techFund.id,
+      contributorId: charlie.id,
+      type: TransactionType.DONATION,
+      date: new Date(),
+      amount: 500,
+      description: "Initial donation",
+    },
+  });
+
+  await prisma.transaction.create({
+    data: {
+      organizationId: ecoFoundation.id,
+      fundId: ecoFund.id,
+      contributorId: diana.id,
+      type: TransactionType.EXPENSE,
+      date: new Date(),
+      amount: 300,
+      description: "Operational expense",
+    },
+  });
+
+  console.log({
+    techCorp,
+    ecoFoundation,
+    alice,
+    bob,
+    charlie,
+    diana,
+    techFund,
+    ecoFund,
+  });
 }
 
 main()
