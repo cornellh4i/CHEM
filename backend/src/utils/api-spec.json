@@ -197,27 +197,6 @@
         }
       }
     },
-    "/contributors/{id}/transactions": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
     "/contributors/": {
       "get": {
         "description": "",
@@ -234,6 +213,11 @@
           },
           {
             "name": "organizationId",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "fundId",
             "in": "query",
             "type": "string"
           },
@@ -280,9 +264,6 @@
                   "example": "any"
                 },
                 "lastName": {
-                  "example": "any"
-                },
-                "organizationId": {
                   "example": "any"
                 }
               }
@@ -357,6 +338,27 @@
           },
           "400": {
             "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/contributors/{id}/transactions": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
