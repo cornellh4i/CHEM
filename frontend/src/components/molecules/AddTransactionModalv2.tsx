@@ -9,6 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import DragDrop from "@/components/molecules/DragDrop";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
 import Toast from "@/components/atoms/Toast";
@@ -174,10 +175,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
             <div>
               <div className="mb-6 grid grid-cols-2 gap-6">
                 <div>
-                  <label className="mb-2 block font-medium text-sm">
+                  <label className="mb-2 block text-sm font-medium">
                     First Name
                   </label>
-                  <Input placeholder="Jane"/>
+                  <Input placeholder="Jane" />
                 </div>
                 <div>
                   <label className="mb-2 block text-sm font-medium">
@@ -218,7 +219,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                 />
               </div>
               <div className="flex justify-end">
-                <button type="button" className="font-light text-[#747474] text-sm rounded-md px-4">
+                <button
+                  type="button"
+                  className="rounded-md px-4 text-sm font-light text-[#747474]"
+                >
                   Add an additional document
                 </button>
               </div>
@@ -248,7 +252,14 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
               </div>
               <div className="mb-6">
                 <label className="mb-2 block text-base font-medium">Date</label>
-                <Input placeholder="---" />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    value={transaction.date}
+                    onChange={(newValue) => handleInputChange("date", newValue)}
+                    disableOpenPicker
+                    className="border-gray-900 bg-gray-200 text-gray-900 placeholder-gray-500 hover:bg-gray-100 mr-4 block w-full rounded-lg px-2 py-3.5 text-sm"
+                  />
+                </LocalizationProvider>
               </div>
             </div>
           </>
@@ -268,20 +279,20 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
         >
           {children}
         </DialogTrigger>
-        <DialogContent
-          className="w-[800px] h-[678px] rounded-[8px] p-0 border-none"
-        >
-
+        <DialogContent className="h-[678px] w-[800px] rounded-[8px] border-none p-0">
           <div className="flex h-full">
             {/* Sidebar Stepper */}
-            <div dir="rtl" className="text-gray-500 flex w-1/4 flex-col justify-start space-y-4 py-6 px-4 border-s border-s-[#DFDFDE]">
+            <div
+              dir="rtl"
+              className="text-gray-500 flex w-1/4 flex-col justify-start space-y-4 border-s border-s-[#DFDFDE] px-4 py-6"
+            >
               {[1, 2, 3].map((s) => (
                 <div
                   key={s}
                   className={`flex space-x-4 space-x-reverse ${
                   step === s ? "text-black font-bold" : "" }`}
                 >
-                  <span className="text-sm leading-tight w-full break-words text-left pt-1">
+                  <span className="w-full break-words pt-1 text-left text-sm leading-tight">
                     {s === 1
                       ? "Choose transaction type"
                       : s === 2
@@ -294,7 +305,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                   >
                     {s}
                   </div>
-                  
                 </div>
               ))}
             </div>
@@ -304,7 +314,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
               <div className="h-full overflow-y-auto pr-2">{renderStep()}</div>
 
               <div className="mt-6 flex justify-between">
-                {step > 1 && <Button onClick={handleBack} style={{ padding: "8px 32px" }}>Back</Button>}
+                {step > 1 && (
+                  <Button onClick={handleBack} style={{ padding: "8px 32px" }}>
+                    Back
+                  </Button>
+                )}
                 {step === 1 && <div></div>}
                 <Button onClick={handleNext} style={{ padding: "8px 32px" }}>
                   {step < 3 ? "Next" : "Submit"}

@@ -1,6 +1,6 @@
 import { SetStateAction, useState, useEffect } from "react";
 import { FileUploader } from "react-drag-drop-files";
-import UploadFileIcon from '@mui/icons-material/UploadFile';
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 
 const fileTypes = ["JPEG", "PNG", "PDF"];
 
@@ -35,14 +35,13 @@ const DragDrop = ({ onDrop }: DragDropProps) => {
         hoverTitle="Drop"
         types={fileTypes}
       >
-        <div className="flex items-center justify-center border-gray-500 bg-gray-100 h-[150px] rounded-2xl border-2 border-dotted">
+        <div className="border-gray-500 bg-gray-100 flex h-[120px] items-center justify-center rounded-2xl border-2 border-dotted">
           <div className="flex flex-col items-center justify-center">
-            
-            <div className="text-[#747474] text-center text-base ">
+            <div className="text-center text-base text-[#747474]">
               <UploadFileIcon />
               Add a document
             </div>
-            <div className="mt-2 text-extralight text-[#B7B7B7] justify-center text-center text-sm">
+            <div className="text-extralight mt-2 justify-center text-center text-sm text-[#B7B7B7]">
               <span className="underline">or click to select files</span>
             </div>
           </div>
