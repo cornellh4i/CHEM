@@ -207,20 +207,27 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
           {children}
         </DialogTrigger>
         <DialogContent
-          className="h-[800px] w-[900px] rounded-[32px] px-12 py-10"
+          className="w-[800px] h-[678px] rounded-[8px] p-0 border-none"
         >
           <div className="flex h-full">
             {/* Sidebar Stepper */}
-            <div className="text-gray-500 flex w-1/4 flex-col justify-start space-y-6 pr-6">
+            <div dir="rtl" className="text-gray-500 flex w-1/4 flex-col justify-start space-y-4 py-6 px-4 border-s border-s-[#DFDFDE]">
               {[1, 2, 3].map((s) => (
                 <div
                   key={s}
-                  className={`flex items-center space-x-2 ${
+                  className={`flex space-x-4 space-x-reverse ${
                     step === s ? "text-black font-bold" : ""
                   }`}
                 >
+                  <span className="text-sm leading-tight w-full break-words text-left pt-1">
+                    {s === 1
+                      ? "Choose transaction type"
+                      : s === 2
+                        ? "Enter new data"
+                        : "Update fund value"}
+                  </span>
                   <div
-                    className={`flex h-6 w-6 items-center justify-center rounded-full border ${
+                    className={`flex h-6 w-6 shrink-0 flex-col items-center justify-center rounded bg-[#DFDFDE] ${
                     step === s
                         ? "bg-black text-white"
                         : ""
@@ -228,13 +235,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                   >
                     {s}
                   </div>
-                  <span className="text-sm leading-tight">
-                    {s === 1
-                      ? "Choose transaction type"
-                      : s === 2
-                        ? "Enter new data"
-                        : "Update fund value"}
-                  </span>
+                  
                 </div>
               ))}
             </div>
