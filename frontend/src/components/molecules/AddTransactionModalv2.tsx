@@ -206,10 +206,12 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
         >
           {children}
         </DialogTrigger>
-        <DialogContent className="w-[800px] rounded-3xl px-10 py-8">
-          <div className="flex">
-            {/* Sidebar steps */}
-            <div className="text-gray-500 w-1/4 space-y-4 pr-4">
+        <DialogContent
+          className="h-[800px] w-[900px] rounded-[32px] px-12 py-10"
+        >
+          <div className="flex h-full">
+            {/* Sidebar Stepper */}
+            <div className="text-gray-500 flex w-1/4 flex-col justify-start space-y-6 pr-6">
               {[1, 2, 3].map((s) => (
                 <div
                   key={s}
@@ -217,10 +219,16 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                     step === s ? "text-black font-bold" : ""
                   }`}
                 >
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full border">
+                  <div
+                    className={`flex h-6 w-6 items-center justify-center rounded-full border ${
+                    step === s
+                        ? "bg-black text-white"
+                        : ""
+                    }`}
+                  >
                     {s}
                   </div>
-                  <span>
+                  <span className="text-sm leading-tight">
                     {s === 1
                       ? "Choose transaction type"
                       : s === 2
@@ -231,10 +239,13 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
               ))}
             </div>
 
-            {/* Main content */}
-            <div className="w-3/4 pl-4">
-              {renderStep()}
-              <div className="mt-8 flex justify-between">
+            {/* Main Step Content */}
+            <div className="flex w-3/4 flex-col justify-between pl-6">
+              <div className="max-h-[650px] overflow-y-auto pr-2">
+                {renderStep()}
+              </div>
+
+              <div className="mt-6 flex justify-between">
                 <Button onClick={handleBack} disabled={step === 1}>
                   Back
                 </Button>
