@@ -24,7 +24,7 @@ const DragDrop = ({ onDrop }: DragDropProps) => {
   };
 
   return (
-    <div className="mt-[50px] w-[95%]">
+    <div className="mt-[20px] w-[95%]">
       <FileUploader
         label="Drop"
         uploadedLabel="Upload Successful"

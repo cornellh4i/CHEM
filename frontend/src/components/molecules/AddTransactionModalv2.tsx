@@ -10,7 +10,6 @@ import DragDrop from "@/components/molecules/DragDrop";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import Toast from "@/components/atoms/Toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -141,16 +140,29 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
     switch (step) {
       case 1:
         return (
-          <>
-            <DialogTitle className="mb-4 text-2xl">
+          <div className="flex h-full flex-col">
+            <DialogTitle className="mb-6 text-2xl">
               Choose transaction type
             </DialogTitle>
-            <div className="space-y-4">
-              <Button className="w-full">Add multiple transactions</Button>
-              <Button className="w-full">Add by CSV</Button>
-              <Button className="w-full">Add a single transaction</Button>
+
+            <div className="flex flex-grow flex-col gap-4">
+              {[
+                "Add multiple transactions",
+                "Add by CSV",
+                "Add a single transaction",
+              ].map((label, index) => (
+                <button
+                  key={index}
+                  className="border-gray-300 hover:border-black flex flex-1 items-center justify-center rounded-xl border-2 px-4 py-6 text-center text-lg transition-colors"
+                  onClick={() => {
+                    if (index === 2) setTransaction({ ...transaction });
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
-          </>
+          </div>
         );
       case 2:
         return (
@@ -158,36 +170,85 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
             <DialogTitle className="mb-4 text-2xl">
               Manually enter contribution
             </DialogTitle>
-            <div className="grid grid-cols-2 gap-4">
-              <Input placeholder="First Name" />
-              <Input placeholder="Last Name" />
-              <Input placeholder="Amount of contribution" />
-              <Input placeholder="Units purchased" />
-            </div>
-            <textarea
-              placeholder="Description of transaction"
-              className="mt-4 w-full rounded border p-2"
-              rows={3}
-            />
-            <div className="mt-4">
-              <DragDrop
-                onDrop={(files) => handleInputChange("documents", files)}
-              />
+            <div>
+              <div className="mb-6 grid grid-cols-2 gap-6">
+                <div>
+                  <label className="mb-2 block text-base font-medium">
+                    First Name
+                  </label>
+                  <Input placeholder="Jane" />
+                </div>
+                <div>
+                  <label className="mb-2 block text-base font-medium">
+                    Last Name
+                  </label>
+                  <Input placeholder="Smith" />
+                </div>
+              </div>
+              <div className="mb-6 grid grid-cols-2 gap-6">
+                <div>
+                  <label className="mb-2 block text-base font-medium">
+                    Amount of contribution
+                  </label>
+                  <Input placeholder="Smith" />
+                </div>
+                <div>
+                  <label className="mb-2 block text-base font-medium">
+                    Units purchased
+                  </label>
+                  <Input placeholder="----" className="bg-gray-100" disabled />
+                </div>
+              </div>
+              <div className="mb-6">
+                <label className="mb-2 block text-base font-medium">
+                  Description of transaction
+                </label>
+                <textarea
+                  placeholder="Enter in a soft contributor..."
+                  className="border-gray-300 h-15% w-full rounded border p-3"
+                />
+              </div>
+              <div className="mb-6">
+                <label className="block text-base font-medium">
+                  Add additional documents
+                </label>
+                <DragDrop
+                  onDrop={(files) => handleInputChange("documents", files)}
+                />
+              </div>
+              <div className="flex justify-end">
+                <button type="button" className="text-gray-600 rounded-md px-4">
+                  Add an additional document
+                </button>
+              </div>
             </div>
           </>
         );
       case 3:
         return (
           <>
-            <DialogTitle className="mb-4 text-2xl">
+            <DialogTitle className="mb-6 text-2xl">
               Update market value
             </DialogTitle>
-            <div className="grid grid-cols-2 gap-4">
-              <Input placeholder="Update your market value" />
-              <Input placeholder="Total units" disabled />
-            </div>
-            <div className="mt-4">
-              <Input placeholder="Date" />
+            <div>
+              <div className="mb-6 grid grid-cols-2 gap-6">
+                <div>
+                  <label className="mb-2 block text-base font-medium">
+                    Update your market value
+                  </label>
+                  <Input />
+                </div>
+                <div>
+                  <label className="mb-2 block text-base font-medium">
+                    Total Units
+                  </label>
+                  <Input placeholder="----" className="bg-gray-100" disabled />
+                </div>
+              </div>
+              <div className="mb-6">
+                <label className="mb-2 block text-base font-medium">Date</label>
+                <Input placeholder="---" />
+              </div>
             </div>
           </>
         );
@@ -216,8 +277,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                 <div
                   key={s}
                   className={`flex space-x-4 space-x-reverse ${
-                    step === s ? "text-black font-bold" : ""
-                  }`}
+                  step === s ? "text-black font-bold" : "" }`}
                 >
                   <span className="text-sm leading-tight w-full break-words text-left pt-1">
                     {s === 1
@@ -228,10 +288,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                   </span>
                   <div
                     className={`flex h-6 w-6 shrink-0 flex-col items-center justify-center rounded bg-[#DFDFDE] ${
-                    step === s
-                        ? "bg-black text-white"
-                        : ""
-                    }`}
+                    step === s ? "bg-black text-white" : "" }`}
                   >
                     {s}
                   </div>
@@ -242,14 +299,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
 
             {/* Main Step Content */}
             <div className="flex w-3/4 flex-col justify-between pl-6">
-              <div className="max-h-[650px] overflow-y-auto pr-2">
-                {renderStep()}
-              </div>
+              <div className="h-full overflow-y-auto pr-2">{renderStep()}</div>
 
               <div className="mt-6 flex justify-between">
-                <Button onClick={handleBack} disabled={step === 1}>
-                  Back
-                </Button>
+                {step > 1 && <Button onClick={handleBack}>Back</Button>}
+                {step === 1 && <div></div>}
                 <Button onClick={handleNext}>
                   {step < 3 ? "Next" : "Submit"}
                 </Button>
