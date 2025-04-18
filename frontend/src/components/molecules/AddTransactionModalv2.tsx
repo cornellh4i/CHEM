@@ -16,6 +16,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -141,7 +142,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
       case 1:
         return (
           <div className="flex h-full flex-col">
-            <DialogTitle className="mb-6 text-2xl">
+            <DialogTitle className="mb-6 text-xl">
               Choose transaction type
             </DialogTitle>
 
@@ -167,19 +168,19 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
       case 2:
         return (
           <>
-            <DialogTitle className="mb-4 text-2xl">
+            <DialogTitle className="mb-4 text-xl">
               Manually enter contribution
             </DialogTitle>
             <div>
               <div className="mb-6 grid grid-cols-2 gap-6">
                 <div>
-                  <label className="mb-2 block text-base font-medium">
+                  <label className="mb-2 block font-medium text-sm">
                     First Name
                   </label>
-                  <Input placeholder="Jane" />
+                  <Input placeholder="Jane"/>
                 </div>
                 <div>
-                  <label className="mb-2 block text-base font-medium">
+                  <label className="mb-2 block text-sm font-medium">
                     Last Name
                   </label>
                   <Input placeholder="Smith" />
@@ -187,13 +188,13 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
               </div>
               <div className="mb-6 grid grid-cols-2 gap-6">
                 <div>
-                  <label className="mb-2 block text-base font-medium">
+                  <label className="mb-2 block text-sm font-medium">
                     Amount of contribution
                   </label>
                   <Input placeholder="Smith" />
                 </div>
                 <div>
-                  <label className="mb-2 block text-base font-medium">
+                  <label className="mb-2 block text-sm font-medium">
                     Units purchased
                   </label>
                   <Input placeholder="----" className="bg-gray-100" disabled />
@@ -208,7 +209,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                   className="border-gray-300 h-15% w-full rounded border p-3"
                 />
               </div>
-              <div className="mb-6">
+              <div className="mb-3">
                 <label className="block text-base font-medium">
                   Add additional documents
                 </label>
@@ -217,7 +218,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                 />
               </div>
               <div className="flex justify-end">
-                <button type="button" className="text-gray-600 rounded-md px-4">
+                <button type="button" className="font-light text-[#747474] text-sm rounded-md px-4">
                   Add an additional document
                 </button>
               </div>
@@ -227,7 +228,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
       case 3:
         return (
           <>
-            <DialogTitle className="mb-6 text-2xl">
+            <DialogTitle className="mb-6 text-xl">
               Update market value
             </DialogTitle>
             <div>
@@ -270,6 +271,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
         <DialogContent
           className="w-[800px] h-[678px] rounded-[8px] p-0 border-none"
         >
+
           <div className="flex h-full">
             {/* Sidebar Stepper */}
             <div dir="rtl" className="text-gray-500 flex w-1/4 flex-col justify-start space-y-4 py-6 px-4 border-s border-s-[#DFDFDE]">
@@ -298,13 +300,13 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
             </div>
 
             {/* Main Step Content */}
-            <div className="flex w-3/4 flex-col justify-between pl-6">
+            <div className="flex w-3/4 flex-col justify-between px-6 py-8">
               <div className="h-full overflow-y-auto pr-2">{renderStep()}</div>
 
               <div className="mt-6 flex justify-between">
-                {step > 1 && <Button onClick={handleBack}>Back</Button>}
+                {step > 1 && <Button onClick={handleBack} style={{ padding: "8px 32px" }}>Back</Button>}
                 {step === 1 && <div></div>}
-                <Button onClick={handleNext}>
+                <Button onClick={handleNext} style={{ padding: "8px 32px" }}>
                   {step < 3 ? "Next" : "Submit"}
                 </Button>
               </div>
