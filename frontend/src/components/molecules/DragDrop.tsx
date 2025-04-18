@@ -43,7 +43,7 @@ const DragDrop = ({ onDrop }: DragDropProps) => {
               Add a document
             </div>
             <div className="mt-2 text-extralight text-[#B7B7B7] justify-center text-center text-sm">
-              or <span className="underline">or click to select files</span>
+              <span className="underline">or click to select files</span>
             </div>
           </div>
         </div>
