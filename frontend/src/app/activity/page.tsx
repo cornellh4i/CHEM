@@ -2,7 +2,7 @@
 
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import TransactionsTable from "@/components/molecules/TransactionsTable";
-import AddTransactionModal from "@/components/molecules/AddTransactionModal";
+import AddTransactionModal from "@/components/molecules/AddTransactionModalv2";
 import React, { useState } from "react";
 import SearchBar from "@/components/molecules/Searchbar";
 import AddIcon from "@mui/icons-material/Add";
