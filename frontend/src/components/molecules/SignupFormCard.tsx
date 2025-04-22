@@ -1,8 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import { Button, Input } from "@/components";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+// import router from "next/router";
 
 const SignupFormCard = () => {
+  const router = useRouter();
   const [step, setStep] = useState(1);
 
   const [formData, setFormData] = useState({
@@ -82,7 +86,7 @@ const SignupFormCard = () => {
       </div>
 
       <form onSubmit={handleNext}>
-        {/* STEP 1 - Email/Password*/}
+        {/* STEP 1 - Email/Password */}
         {step === 1 && (
           <>
             <div className="mb-6">
@@ -342,7 +346,6 @@ const SignupFormCard = () => {
 
             {formData.usedSimilar === "Yes" && (
               <Input
-                // label="Write the product name"
                 name="usedSimilarProduct"
                 placeholder="Write the product name"
                 value={formData.usedSimilarProduct}
@@ -376,6 +379,17 @@ const SignupFormCard = () => {
           </>
         )}
       </form>
+
+      {/* Back to Login button */}
+      <div className="mt-6 text-center">
+        <button
+          type="button"
+          onClick={() => router.push("/login")}
+          className="text-blue-600 hover:text-blue-800 text-sm underline"
+        >
+          Back to Login
+        </button>
+      </div>
     </div>
   );
 };
