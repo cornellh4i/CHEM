@@ -35,6 +35,7 @@ const FundsPage = () => {
           No funds to display yet.
         </div>
         <FundsTable />
+      </div>
     </DashboardTemplate>
   );
 };
