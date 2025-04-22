@@ -1,89 +1,111 @@
 "use client";
 import React from "react";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
-import { Switch } from "@mui/material";
+import SearchBar from "@/components/molecules/Searchbar";
+import Switch from '@mui/material/Switch';
+import Person from "@mui/icons-material/Person";
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+
+interface ProfileFieldProps {
+  label: string;
+  value: string;
+}
+
+const ProfileField: React.FC<ProfileFieldProps> = ({ label, value }) => (
+  <div className="flex flex-col gap-2">
+    <p className="text-xs" style={{ color: "#838383" }}>{label}</p>
+    <p className="font-normal">{value}</p>
+  </div>
+);
+
+interface SectionHeaderProps {
+  title: string;
+}
+
+const SectionHeader: React.FC<SectionHeaderProps> = ({ title }) => (
+  <h2 className="text-xl font-semibold mb-4">{title}</h2>
+);
+
+
 
 const ProfilePage = () => {
+  const handleSearch = (query: string) => {
+    console.log("Search query:", query);
+  };
+  // Removed: no longer needed
   return (
     <DashboardTemplate>
       {/* Page header */}
-      <h1 className="text-3xl font-semibold mb-8 text-gray-800">Profile</h1>
+      <div className="mb-8 flex justify-between items-center">
+        <SearchBar onSearch={handleSearch} />
+        <div className="flex items-center gap-2 text-gray-700 text-base font-medium">
+          <Person />
+          Janice Smith
+        </div>
+      </div>
+      <div className="h-px bg-gray-200 w-full mb-6" />
 
       {/* Container for profile content */}
-      <div className="bg-white rounded-lg shadow-md p-6 space-y-8 max-w-5xl mx-auto">
+      <div className="max-w-5xl mx-auto space-y-8">
 
         {/* Section: Your Profile */}
         <section>
-          <h2 className="text-xl font-semibold mb-4">Your Profile</h2>
-          <div className="flex items-start gap-6">
-            {/* Profile image placeholder */}
-            <div className="w-32 h-32 bg-gray-200 rounded-md flex items-center justify-center text-sm text-gray-500 border">
-              Add Photo
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-bold">Your Profile</h2>
+            <button className="px-6 py-2 border border-black rounded-full text-xs font-semibold text-gray-800 bg-transparent">
+              Edit Profile
+            </button>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6 flex gap-6 items-start">
+            {/* Profile image placeholder with checkerboard background */}
+            <div className="flex flex-col items-center">
+              <div className="w-32 h-32 rounded-md border border-gray-300 bg-gray-100 bg-[repeating-conic-gradient(#ccc_0%_25%,transparent_0%_50%)] bg-[length:20px_20px]" />
+              <button className="mt-2 text-sm font-[500] rounded-[16px] border border-black flex items-center justify-center gap-2 w-[112px] h-[26px] bg-[#EAEAEA] text-[#323232]">
+                Add Photo
+              </button>
             </div>
 
             {/* Personal Info section */}
-            <div className="grid grid-cols-2 gap-4 w-full bg-gray-50 p-4 rounded-md border">
-              <div>
-                <p className="text-xs text-gray-500">First Name</p>
-                <p className="font-medium">Janice</p>
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[18px] font-semibold text-gray-600">Personal Information</p>
+                <ModeEditIcon fontSize="small" />
               </div>
-              <div>
-                <p className="text-xs text-gray-500">Last Name</p>
-                <p className="font-medium">Smith</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Date of Birth</p>
-                <p className="font-medium">04-06-2005</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Phone Number</p>
-                <p className="font-medium">+1 888-888-7777</p>
+              <div className="bg-gray-50 p-6 rounded-md border">
+                <div className="grid grid-cols-2 gap-4">
+                  <ProfileField label="First Name" value="Janice" />
+                  <ProfileField label="Last Name" value="Smith" />
+                  <ProfileField label="Date of Birth" value="04-06-2005" />
+                  <ProfileField label="Phone Number" value="+1 888-888-7777" />
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Edit profile button (top right) */}
-          <div className="text-right mt-2">
-            <button className="text-sm text-blue-600 hover:underline">Edit Profile</button>
           </div>
         </section>
 
         {/* Section: Account Details */}
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Details</h2>
-          <div className="bg-gray-50 p-4 rounded-md border grid gap-4 max-w-md">
-            <div>
-              <p className="text-xs text-gray-500">Role</p>
-              <p className="font-medium">Analyst</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Email Address</p>
-              <p className="font-medium">janicesmith@gmail.com</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">Password</p>
-              <p className="font-medium">••••••••</p>
-            </div>
+        <SectionHeader title="Details" />
+        <div className="bg-white rounded-lg shadow-md p-6 border space-y-6">
+          <div className="space-y-4">
+            <ProfileField label="Role" value="Analyst" />
+            <ProfileField label="Email Address" value="janicesmith@gmail.com" />
+            <ProfileField label="Password" value="••••••••" />
           </div>
-        </section>
+        </div>
 
         {/* Section: Two Factor Authentication */}
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Two Factor Authentication</h2>
-          <div className="bg-gray-50 p-4 rounded-md border space-y-4">
-            <div className="flex justify-between items-center">
-              <p className="text-sm text-gray-700">
-                Add more security to your account by enabling Two Factor Authentication.
-                When logging in, you will need to enter a code generated by your preferred authenticator app.
-              </p>
-              {/* Toggle Switch (just frontend for now) */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-700">Enabled</span>
-                <Switch defaultChecked color="primary" />
-              </div>
-            </div>
+        <div className="bg-white rounded-lg shadow-md p-6 border relative">
+          <SectionHeader title="Two Factor Authentication" />
+          <div className="text-sm text-gray-700 pr-24">
+            Add more security to your account by enabling Two Factor Authentication. When logging in, you will need to enter a code generated by your preferred authenticator app.
           </div>
-        </section>
+          {/* Toggle Switch aligned top-right */}
+          <div className="absolute top-6 right-6 flex items-center gap-2">
+            <span className="text-sm text-gray-700">Enabled</span>
+            <Switch color="primary" />
+          </div>
+        </div>
+
       </div>
     </DashboardTemplate>
   );
