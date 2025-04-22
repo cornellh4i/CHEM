@@ -11,7 +11,7 @@ const Home: NextPage = () => {
           Enter Dashboard
         </Button>
         <Button onClick={() => (window.location.href = "/login")}>
-          Enter Login Flow
+          Login or Signup
         </Button>
       </div>
     </div>
