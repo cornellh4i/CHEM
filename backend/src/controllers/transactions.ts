@@ -21,6 +21,7 @@ interface PaginationOptions {
  *   - `type` (string): Filters transactions by type (e.g., DONATION, WITHDRAWAL).
  *   - `organizationId` (string): Filters transactions by a specific organization
  *       ID.
+ *   - `fundId` (string): Filters transactions by a specific fund ID.
  *   - `startDate` (string): Filters transactions that occurred on or after this
  *       date.
  *   - `endDate` (string): Filters transactions that occurred on or before this
@@ -46,6 +47,7 @@ async function getTransactions(
   filters: {
     type?: string;
     organizationId?: string;
+    fundId?: string;
     startDate?: string;
     endDate?: string;
   },
@@ -60,6 +62,10 @@ async function getTransactions(
 
   if (filters.organizationId) {
     where.organizationId = filters.organizationId;
+  }
+
+  if (filters.fundId) {
+    where.fundId = filters.fundId;
   }
 
   if (filters.startDate || filters.endDate) {
@@ -122,15 +128,15 @@ const ensureValidTransaction = (data: any) => {
   return null;
 };
 
-// TODO: need to handle adding org, fund, and transaction to associated contributor object
 /**
  * Creates a new transaction in the database after performing necessary
- * validations.
+ * validations, and updates the associated organization's financial state.
  *
- * @returns The created transaction object.
- * @throws If validation fails, the organization or contributor does not exist,
- *   the contributor does not belong to the specified organization, or the
- *   transaction type is invalid.
+ * @param transactionData - The transaction input data, excluding auto-generated
+ *   fields like `id`, `createdAt`, and `updatedAt`.
+ * @returns A Promise that resolves to the created transaction object.
+ * @throws {Error} If validation fails, any required entity is not found, or
+ *   transaction creation or updates fail.
  */
 const createTransaction = async (
   transactionData: Omit<Transaction, "id" | "createdAt" | "updatedAt">
@@ -147,6 +153,14 @@ const createTransaction = async (
     });
     if (!organization) {
       throw new Error("Organization not found.");
+    }
+
+    // Validate fund exists
+    const fund = await prisma.fund.findUnique({
+      where: { id: transactionData.fundId },
+    });
+    if (!fund) {
+      throw new Error("Fund not found.");
     }
 
     // Validate contributor exists
@@ -174,9 +188,8 @@ const createTransaction = async (
 
     const validData: Prisma.TransactionCreateInput = {
       organization: { connect: { id: transactionData.organizationId } },
-      contributor: transactionData.contributorId
-        ? { connect: { id: transactionData.contributorId } }
-        : undefined,
+      contributor: { connect: { id: transactionData.contributorId } },
+      fund: { connect: { id: transactionData.fundId } },
       type: transactionData.type as TransactionType,
       date: new Date(transactionData.date),
       amount: transactionData.amount,
@@ -242,12 +255,13 @@ async function updateTransaction(
 }
 
 /**
- * Deletes a transaction from the database and updates the associated
- * organization's financial data accordingly.
+ * Deletes a transaction by its unique ID and updates the associated
+ * organization's and fund's financial data accordingly.
  *
- * @returns The deleted transaction object.
- * @throws If the transaction is not found, if the deletion fails, or if an
- *   unknown error occurs.
+ * @param id - The unique identifier of the transaction to delete.
+ * @returns A Promise that resolves to the deleted transaction object.
+ * @throws {Error} If the transaction is not found, or if any update or deletion
+ *   fails due to a known or unknown error.
  */
 const deleteTransaction = async (id: string): Promise<Transaction> => {
   try {
@@ -272,6 +286,15 @@ const deleteTransaction = async (id: string): Promise<Transaction> => {
     if (transaction.organizationId) {
       await prisma.organization.update({
         where: { id: transaction.organizationId },
+        data: {
+          amount: amountUpdated,
+          units: unitsUpdated,
+        },
+      });
+    }
+    if (transaction.fundId) {
+      await prisma.fund.update({
+        where: { id: transaction.fundId },
         data: {
           amount: amountUpdated,
           units: unitsUpdated,
@@ -447,6 +470,8 @@ async function getContributorTransactions(
 
   return { transactions, total };
 }
+
+// TODO: Get a specific funds transactions
 
 export default {
   createTransaction,

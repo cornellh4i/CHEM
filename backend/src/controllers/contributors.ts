@@ -33,13 +33,7 @@ const getContributors = async (
         ? { contains: filters.lastName, mode: "insensitive" }
         : undefined,
       // Filter contributors associated with a specific organization
-      organization: filters?.organizationId
-        ? {
-            some: {
-              id: filters.organizationId,
-            },
-          }
-        : undefined,
+      organizationId: filters?.organizationId || undefined,
       // Filter contributors who are linked to a specific fund
       funds: filters?.fundId
         ? {
