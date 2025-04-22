@@ -74,6 +74,8 @@ async function main() {
       organizationId: techCorp.id,
       type: FundType.ENDOWMENT,
       restriction: false,
+      amount: 0,
+      units: 0,
       contributors: {
         connect: [{ id: charlie.id }],
       },
@@ -85,6 +87,8 @@ async function main() {
       organizationId: ecoFoundation.id,
       type: FundType.DONATION,
       restriction: true,
+      amount: 0,
+      units: 0,
       contributors: {
         connect: [{ id: diana.id }],
       },

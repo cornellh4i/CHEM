@@ -79,9 +79,10 @@ model Fund {
   restriction    Boolean?
   contributors   Contributor[]
   transactions   Transaction[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  units          Float?
+  amount         Float
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
 
 enum TransactionType {
