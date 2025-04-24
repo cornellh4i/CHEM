@@ -1,5 +1,11 @@
 import prisma from "../utils/client";
-import { Organization, Contributor, Transaction, FundType, Prisma } from "@prisma/client";
+import {
+  Organization,
+  Contributor,
+  Transaction,
+  FundType,
+  Prisma,
+} from "@prisma/client";
 
 // Get organizations with filtering, sorting, and pagination
 const getOrganizations = async (
@@ -21,10 +27,13 @@ const getOrganizations = async (
         : undefined, // filter based on name (case insensitive)
       funds: {
         some: {
-          restriction: filters?.restriction === undefined ? undefined : filters.restriction === "true", // filter based on restriction
+          restriction:
+            filters?.restriction === undefined
+              ? undefined
+              : filters.restriction === "true", // filter based on restriction
           type: filters?.type as FundType | undefined,
         },
-      }, 
+      },
     };
 
     // Use Prisma's transaction to get organizations and total count
@@ -251,9 +260,9 @@ const addContributorToOrganization = async (
     }
 
     // check if the contributor exists
-    const contributor = await prisma.contributor.findUnique({
+    const contributor = (await prisma.contributor.findUnique({
       where: { id: contributorId },
-    }) as { organizationId: string } & Contributor;
+    })) as { organizationId: string } & Contributor;
 
     if (!contributor) {
       throw new Error("Contributor not found");

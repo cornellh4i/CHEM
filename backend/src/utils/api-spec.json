@@ -19,6 +19,10 @@
     {
       "name": "Organization",
       "description": "Endpoints"
+    },
+    {
+      "name": "Transaction",
+      "description": "Endpoints"
     }
   ],
   "schemes": [
@@ -672,6 +676,9 @@
                   "example": "any"
                 },
                 "contributorId": {
+                  "example": "any"
+                },
+                "fundId": {
                   "example": "any"
                 },
                 "type": {
