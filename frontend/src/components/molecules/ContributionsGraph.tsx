@@ -88,34 +88,50 @@ const formatDate = (date: Date) => {
 };
 
 export function ContributionsGraph() {
-  const [chartData, setChartData] = React.useState<{ month: string; date: Date; desktop: number }[]>([]);
+  const [chartData, setChartData] = React.useState<
+    { month: string; date: Date; desktop: number }[]
+  >([]);
   const [totalAmount, setTotalAmount] = React.useState(0);
   const [xAxisTicks, setXAxisTicks] = React.useState<number[]>([]);
-  const [formattedTicks, setFormattedTicks] = React.useState<Record<number, string>>({});
+  const [formattedTicks, setFormattedTicks] = React.useState<
+    Record<number, string>
+  >({});
 
   React.useEffect(() => {
     fetchTransactions().then((data) => {
-      if (data.length === 0) return;
-
-      setChartData(data);
-      setTotalAmount(data.length > 0 ? data[data.length - 1].desktop : 0);
+      if (data.length === 0) {
+        const today = new Date();
+        const dummy = Array.from({ length: 7 }, (_, i) => {
+          const date = new Date(today);
+          date.setDate(date.getDate() - (6 - i));
+          return {
+            month: formatDate(date),
+            date,
+            desktop: Math.floor(Math.random() * 10000),
+          };
+        });
+        setChartData(dummy);
+        setTotalAmount(dummy[dummy.length - 1].desktop);
+      }
 
       // Generate 5 evenly spaced dates between the earliest and latest data point
       const firstDate = data[0].date.getTime();
       const lastDate = data[data.length - 1].date.getTime();
       let tickTimestamps: number[] = [];
 
-      if (firstDate === lastDate) { //only 1 point
+      if (firstDate === lastDate) {
+        //only 1 point
         const offset = 1000 * 60 * 60 * 24; // 1 day in milliseconds
         tickTimestamps = [firstDate - offset, firstDate, firstDate + offset];
-      } else { // > 2 points
+      } else {
+        // > 2 points
         const timeRange = lastDate - firstDate;
         for (let i = 0; i < 5; i++) {
           const timestamp = Math.round(firstDate + (timeRange * i) / 4);
           tickTimestamps.push(timestamp);
         }
       }
-      
+
       // Convert timestamps to formatted date strings
       const ticksObj: Record<number, string> = {};
       tickTimestamps.forEach((timestamp) => {
@@ -144,7 +160,7 @@ export function ContributionsGraph() {
     <Card>
       <CardHeader>
         <CardTitle>Overall Contributions</CardTitle>
-        <CardDescription>
+        <CardDescription className="text-black text-2xl font-semibold">
           ${totalAmount ? totalAmount.toLocaleString() : "0"}
         </CardDescription>
       </CardHeader>
@@ -156,7 +172,13 @@ export function ContributionsGraph() {
             margin={{ left: 12, right: 12, top: 12 }}
           >
             <CartesianGrid vertical={false} horizontal={false} />
-            <YAxis dataKey="desktop" tickLine={false} axisLine={false} />
+            <YAxis
+              dataKey="desktop"
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+            />
+
             <XAxis
               dataKey="date"
               tickLine={false}
@@ -165,10 +187,14 @@ export function ContributionsGraph() {
               ticks={xAxisTicks}
               tickFormatter={formatXAxisTick}
               type="number"
-              domain={[
-                chartData[0]?.date?.getTime(),
-                chartData[chartData.length - 1]?.date?.getTime(),
-              ]}
+              domain={
+                chartData.length > 1
+                  ? [
+                      chartData[0]?.date?.getTime(),
+                      chartData[chartData.length - 1]?.date?.getTime(),
+                    ]
+                  : ["auto", "auto"]
+              }
             />
             <ChartTooltip
               cursor={false}
