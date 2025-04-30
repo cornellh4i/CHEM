@@ -51,44 +51,9 @@ const getFundById = async (id: string): Promise<Fund | null> => {
     }
   };
 
-// Create new fund
-const createFund = async (
-    fundData: Omit<Fund, "id" | "createdAt" | "updatedAt">
-  ): Promise<Fund> => {
-    try {
-      const newFund = await prisma.fund.create({
-        data: fundData,
-      });
-      return newFund;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Failed to create fund: ${error.message}`);
-      }
-      throw new Error("Failed to create fund due to an unknown error");
-    }
-  };
+// TODO: create new fund
 
-// Update new fund
-const updateFund = async (
-    id: string,
-    fundData: Partial<Omit<Fund, "id" | "createdAt" | "updatedAt">>
-  ): Promise<Fund> => {
-    try {
-      const updatedFund = await prisma.fund.update({
-        where: { id },
-        data: fundData,
-      });
-      return updatedFund;
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-        throw new Error("Fund not found");
-      }
-      if (error instanceof Error) {
-        throw new Error(`Failed to update fund: ${error.message}`);
-      }
-      throw new Error("Failed to update fund due to an unknown error");
-    }
-  };
+// TODO: update new fund
 
 // TODO: delete new fund
 
@@ -99,6 +64,4 @@ const updateFund = async (
 export default {
     getFunds,
     getFundById,
-    createFund,
-    updateFund,
 };

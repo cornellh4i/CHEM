@@ -36,36 +36,14 @@ fundRouter.get("/:id", async (req, res) => {
   }
 });
 
-// POST - create a new fund
+// TODO: create new fund
 fundRouter.post("/", async (req, res) => {
-  try {
-    const fundData = req.body;
-    if (!fundData.name) {
-      return res.status(400).json({ error: "Fund name is required" });
-    }
-    const newFund = await controller.createFund(fundData);
-    res.status(201).json(newFund);
-  } catch (error) {
-    console.error(error);
-    const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "Failed to create fund",
-    };
-    res.status(400).json(errorResponse);
-  }
+  // implement route here
 });
 
-// PUT - update new fund
+// TODO: update new fund
 fundRouter.put("/:id", async (req, res) => {
-  try {
-    const updatedFund = await controller.updateFund(req.params.id, req.body);
-    res.status(200).json(updatedFund);
-  } catch (error) {
-    console.error(error);
-    const errorResponse: ErrorMessage = {
-      error: error instanceof Error ? error.message : "Failed to update fund",
-    };
-    res.status(404).json(errorResponse);
-  }
+  // implement route here
 });
 
 // TODO: delete new fund
