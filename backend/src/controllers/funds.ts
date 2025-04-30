@@ -1,3 +1,4 @@
+import { create } from "domain";
 import prisma from "../utils/client";
 import { 
     Fund, 
@@ -95,4 +96,9 @@ const updateFund = async (
 
 /// TODO: get all contributors by fund id
 
-export default {};
+export default {
+    getFunds,
+    getFundById,
+    createFund,
+    updateFund,
+};

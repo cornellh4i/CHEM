@@ -5,24 +5,67 @@ import express from "express";
 
 const fundRouter = Router();
 
-// TODO: get all funds
+// GET all funds
 fundRouter.get("/", async (req, res) => {
-  // implement route here
+  try {
+    const funds = await controller.getFunds();
+    res.status(200).json({ funds });
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error: error instanceof Error ? error.message : "Failed to get funds",
+    };
+    res.status(500).json(errorResponse);
+  }
 });
 
-// TODO: get fund by id
+// GET a single fund by id
 fundRouter.get("/:id", async (req, res) => {
-  // implement route here
+  try {
+    const fund = await controller.getFundById(req.params.id);
+    if (!fund) {
+      return res.status(404).json({ error: "Fund not found" });
+    }
+    res.status(200).json(fund);
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error: error instanceof Error ? error.message : "Failed to get fund",
+    };
+    res.status(500).json(errorResponse);
+  }
 });
 
-// TODO: create new fund
+// POST - create a new fund
 fundRouter.post("/", async (req, res) => {
-  // implement route here
+  try {
+    const fundData = req.body;
+    if (!fundData.name) {
+      return res.status(400).json({ error: "Fund name is required" });
+    }
+    const newFund = await controller.createFund(fundData);
+    res.status(201).json(newFund);
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error: error instanceof Error ? error.message : "Failed to create fund",
+    };
+    res.status(400).json(errorResponse);
+  }
 });
 
-// TODO: update new fund
+// PUT - update new fund
 fundRouter.put("/:id", async (req, res) => {
-  // implement route here
+  try {
+    const updatedFund = await controller.updateFund(req.params.id, req.body);
+    res.status(200).json(updatedFund);
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error: error instanceof Error ? error.message : "Failed to update fund",
+    };
+    res.status(404).json(errorResponse);
+  }
 });
 
 // TODO: delete new fund
