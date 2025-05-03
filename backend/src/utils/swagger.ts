@@ -29,6 +29,10 @@ const doc = {
       name: "Transaction",
       description: "Endpoints",
     },
+    {
+      name: "Fund",
+      description: "Endpoints",
+    },
   ],
   securityDefinitions: {
     apiKeyAuth: {

@@ -23,12 +23,13 @@
     {
       "name": "Transaction",
       "description": "Endpoints"
+    },
+    {
+      "name": "Fund",
+      "description": "Endpoints"
     }
   ],
-  "schemes": [
-    "http",
-    "https"
-  ],
+  "schemes": ["http", "https"],
   "securityDefinitions": {
     "apiKeyAuth": {
       "type": "apiKey",
@@ -37,12 +38,8 @@
       "description": "Your API Key"
     }
   },
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
   "paths": {
     "/": {
       "get": {
@@ -884,6 +881,315 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/funds/": {
+      "get": {
+        "tags": ["Fund"],
+        "description": "Retrieves a list of funds based on provided filters, sorting, and pagination options.",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "type": "string",
+            "description": "Filter funds by type (ENDOWMENT or DONATION)"
+          },
+          {
+            "name": "organizationId",
+            "in": "query",
+            "type": "string",
+            "description": "Filter funds by organization ID"
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "type": "string",
+            "description": "Field to sort by (createdAt or amount)"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "type": "string",
+            "description": "Sort order (asc or desc)"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "type": "string",
+            "description": "Number of records to skip for pagination"
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "type": "string",
+            "description": "Number of records to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Fund"],
+        "description": "Creates a new fund",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "organizationId": {
+                  "example": "any"
+                },
+                "type": {
+                  "example": "ENDOWMENT"
+                },
+                "restriction": {
+                  "example": true
+                },
+                "amount": {
+                  "example": 10000
+                },
+                "units": {
+                  "example": 100
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/funds/{id}": {
+      "get": {
+        "tags": ["Fund"],
+        "description": "Retrieves a specific fund by its unique ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Fund ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Fund"],
+        "description": "Updates an existing fund with the data provided in the request body",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Fund ID"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "example": "DONATION"
+                },
+                "restriction": {
+                  "example": false
+                },
+                "amount": {
+                  "example": 15000
+                },
+                "units": {
+                  "example": 150
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Fund"],
+        "description": "Deletes a fund by its unique ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Fund ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/funds/{id}/transactions": {
+      "get": {
+        "tags": ["Fund"],
+        "description": "Retrieves all transactions for a specific fund with optional filtering, sorting, and pagination",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Fund ID"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by transaction type"
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by start date (YYYY-MM-DD)"
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by end date (YYYY-MM-DD)"
+          },
+          {
+            "name": "contributorId",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by contributor ID"
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "type": "string",
+            "description": "Field to sort by (date, amount, or units)"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "type": "string",
+            "description": "Sort order (asc or desc)"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "type": "string",
+            "description": "Number of records to skip for pagination"
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "type": "string",
+            "description": "Number of records to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/funds/{id}/contributors": {
+      "get": {
+        "tags": ["Fund"],
+        "description": "Retrieves all contributors for a specific fund with optional sorting and pagination",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Fund ID"
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "type": "string",
+            "description": "Field to sort by (firstName, lastName, or createdAt)"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "type": "string",
+            "description": "Sort order (asc or desc)"
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "type": "string",
+            "description": "Number of records to skip for pagination"
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "type": "string",
+            "description": "Number of records to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
