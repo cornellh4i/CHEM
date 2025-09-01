@@ -123,13 +123,16 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
               <FundsIcon
                 style={{
                   color:
-                    activePage === "funds" ? selectedColor : nonSelectedColor,
+                    activePage === "fundsMain"
+                      ? selectedColor
+                      : nonSelectedColor,
                 }}
               />
             }
-            onClick={() => handleMenuClick("/funds")}
+            onClick={() => handleMenuClick("/fundsMain")}
             style={{
-              color: activePage === "funds" ? selectedColor : nonSelectedColor,
+              color:
+                activePage === "fundsMain" ? selectedColor : nonSelectedColor,
               display: "flex",
               justifyContent: isMobile ? "center" : "flex-start",
             }}
@@ -171,16 +174,16 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
               <SettingsIcon
                 style={{
                   color:
-                    activePage === "profilepage"
+                    activePage === "settings"
                       ? selectedColor
                       : nonSelectedColor,
                 }}
               />
             }
-            onClick={() => handleMenuClick("/profilepage")}
+            onClick={() => handleMenuClick("/settings")}
             style={{
               color:
-                activePage === "profilepage" ? selectedColor : nonSelectedColor,
+                activePage === "settings" ? selectedColor : nonSelectedColor,
               display: "flex",
               justifyContent: isMobile ? "center" : "flex-start",
             }}
@@ -193,16 +196,14 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
               <PortraitIcon
                 style={{
                   color:
-                    activePage === "profilepage"
-                      ? selectedColor
-                      : nonSelectedColor,
+                    activePage === "profile" ? selectedColor : nonSelectedColor,
                 }}
               />
             }
-            onClick={() => handleMenuClick("/profilepage")}
+            onClick={() => handleMenuClick("/profile")}
             style={{
               color:
-                activePage === "profilepage" ? selectedColor : nonSelectedColor,
+                activePage === "profile" ? selectedColor : nonSelectedColor,
               display: "flex",
               justifyContent: isMobile ? "center" : "flex-start",
             }}

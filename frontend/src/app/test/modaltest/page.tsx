@@ -1,23 +1,15 @@
 import React from "react";
 import Button from "@/components/atoms/Button";
-import AddTransactionModal from "@/components/molecules/AddTransactionModal";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import AddContributorModal from "@/components/molecules/AddContributorModal"; // make sure this import is correct
 
 const ModalTestPage = () => {
   return (
     <div className="p-4">
-      <AddTransactionModal>
+      <AddContributorModal>
         <Button className="border-black bg-gray-800 text-white rounded-2xl border px-8 py-3 text-lg">
-          Open Transaction Modal
+          Open Contributor Modal
         </Button>
-      </AddTransactionModal>
+      </AddContributorModal>
     </div>
   );
 };
