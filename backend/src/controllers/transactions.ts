@@ -21,6 +21,7 @@ interface PaginationOptions {
  *   - `type` (string): Filters transactions by type (e.g., DONATION, WITHDRAWAL).
  *   - `organizationId` (string): Filters transactions by a specific organization
  *       ID.
+ *   - `fundId` (string): Filters transactions by a specific fund ID.
  *   - `startDate` (string): Filters transactions that occurred on or after this
  *       date.
  *   - `endDate` (string): Filters transactions that occurred on or before this
@@ -46,6 +47,7 @@ async function getTransactions(
   filters: {
     type?: string;
     organizationId?: string;
+    fundId?: string;
     startDate?: string;
     endDate?: string;
   },
@@ -60,6 +62,10 @@ async function getTransactions(
 
   if (filters.organizationId) {
     where.organizationId = filters.organizationId;
+  }
+
+  if (filters.fundId) {
+    where.fundId = filters.fundId;
   }
 
   if (filters.startDate || filters.endDate) {
@@ -124,12 +130,13 @@ const ensureValidTransaction = (data: any) => {
 
 /**
  * Creates a new transaction in the database after performing necessary
- * validations.
+ * validations, and updates the associated organization's financial state.
  *
- * @returns The created transaction object.
- * @throws If validation fails, the organization or contributor does not exist,
- *   the contributor does not belong to the specified organization, or the
- *   transaction type is invalid.
+ * @param transactionData - The transaction input data, excluding auto-generated
+ *   fields like `id`, `createdAt`, and `updatedAt`.
+ * @returns A Promise that resolves to the created transaction object.
+ * @throws {Error} If validation fails, any required entity is not found, or
+ *   transaction creation or updates fail.
  */
 const createTransaction = async (
   transactionData: Omit<Transaction, "id" | "createdAt" | "updatedAt">
@@ -146,6 +153,14 @@ const createTransaction = async (
     });
     if (!organization) {
       throw new Error("Organization not found.");
+    }
+
+    // Validate fund exists
+    const fund = await prisma.fund.findUnique({
+      where: { id: transactionData.fundId },
+    });
+    if (!fund) {
+      throw new Error("Fund not found.");
     }
 
     // Validate contributor exists
@@ -173,9 +188,8 @@ const createTransaction = async (
 
     const validData: Prisma.TransactionCreateInput = {
       organization: { connect: { id: transactionData.organizationId } },
-      contributor: transactionData.contributorId
-        ? { connect: { id: transactionData.contributorId } }
-        : undefined,
+      contributor: { connect: { id: transactionData.contributorId } },
+      fund: { connect: { id: transactionData.fundId } },
       type: transactionData.type as TransactionType,
       date: new Date(transactionData.date),
       amount: transactionData.amount,
@@ -189,21 +203,22 @@ const createTransaction = async (
     });
 
     // Determine whether to add or subtract the amount/units based on type
-    const amountUpdate = 
-    // Add the amount to organization if donation or investment; subtract if 
-    // otherwise (withdrawal, expense)
-      transactionData.type === "DONATION" || transactionData.type === "INVESTMENT"
+    const amountUpdate =
+      // Add the amount to organization if donation or investment; subtract if
+      // otherwise (withdrawal, expense)
+      transactionData.type === "DONATION" ||
+      transactionData.type === "INVESTMENT"
         ? { increment: transactionData.amount }
         : { decrement: transactionData.amount };
-    
+
     const unitsUpdate =
       transactionData.units !== undefined
-        ? transactionData.type === "DONATION" || transactionData.type === "INVESTMENT"
+        ? transactionData.type === "DONATION" ||
+          transactionData.type === "INVESTMENT"
           ? { increment: transactionData.amount }
           : { decrement: transactionData.amount }
         : undefined; // Don't update if units aren't found
 
-    
     // Update the organization's amount and units
     await prisma.organization.update({
       where: { id: transactionData.organizationId },
@@ -211,8 +226,8 @@ const createTransaction = async (
         amount: amountUpdate,
         units: unitsUpdate,
       },
-    })
-    
+    });
+
     return transaction;
   } catch (error) {
     if (error instanceof Error) {
@@ -240,12 +255,13 @@ async function updateTransaction(
 }
 
 /**
- * Deletes a transaction from the database and updates the associated
- * organization's financial data accordingly.
+ * Deletes a transaction by its unique ID and updates the associated
+ * organization's and fund's financial data accordingly.
  *
- * @returns The deleted transaction object.
- * @throws If the transaction is not found, if the deletion fails, or if an
- *   unknown error occurs.
+ * @param id - The unique identifier of the transaction to delete.
+ * @returns A Promise that resolves to the deleted transaction object.
+ * @throws {Error} If the transaction is not found, or if any update or deletion
+ *   fails due to a known or unknown error.
  */
 const deleteTransaction = async (id: string): Promise<Transaction> => {
   try {
@@ -257,12 +273,28 @@ const deleteTransaction = async (id: string): Promise<Transaction> => {
       throw new Error("Unable to locate transaction");
     }
     // update the associated organization's totals (units & amounts, based on transaction type)
-    const amountUpdated = transaction.type === "DONATION" || transaction.type === "INVESTMENT" ? {decrement: transaction.amount} : {increment: transaction.amount};
-    const unitsUpdated = transaction.units ? transaction.type === "DONATION" || transaction.type === "INVESTMENT" ? {decrement: transaction.units} : {increment: transaction.units}: undefined;
+    const amountUpdated =
+      transaction.type === "DONATION" || transaction.type === "INVESTMENT"
+        ? { decrement: transaction.amount }
+        : { increment: transaction.amount };
+    const unitsUpdated = transaction.units
+      ? transaction.type === "DONATION" || transaction.type === "INVESTMENT"
+        ? { decrement: transaction.units }
+        : { increment: transaction.units }
+      : undefined;
 
     if (transaction.organizationId) {
       await prisma.organization.update({
         where: { id: transaction.organizationId },
+        data: {
+          amount: amountUpdated,
+          units: unitsUpdated,
+        },
+      });
+    }
+    if (transaction.fundId) {
+      await prisma.fund.update({
+        where: { id: transaction.fundId },
         data: {
           amount: amountUpdated,
           units: unitsUpdated,
@@ -290,8 +322,8 @@ const deleteTransaction = async (id: string): Promise<Transaction> => {
 };
 
 /**
- * Retrieves all transactions for a specific organization with optional filtering,
- * sorting, and pagination.
+ * Retrieves all transactions for a specific organization with optional
+ * filtering, sorting, and pagination.
  *
  * @returns An object containing the transactions array and total count.
  * @throws If the organization does not exist, if query parameters are invalid,
@@ -310,7 +342,6 @@ const getOrganizationTransactions = async (
     order: "asc" | "desc";
   },
   pagination?: { skip?: number; take?: number }
-  
 ): Promise<{ transactions: Transaction[]; total: number }> => {
   try {
     // Validate organization exists
@@ -325,7 +356,7 @@ const getOrganizationTransactions = async (
     // Construct the where clause for filtering
     const where: Prisma.TransactionWhereInput = {
       organizationId: id,
-      ...(filter?.type && { type: filter.type }), 
+      ...(filter?.type && { type: filter.type }),
       ...(filter?.contributorId && { contributorId: filter.contributorId }),
       ...((filter?.startDate || filter?.endDate) && {
         date: {
@@ -333,17 +364,17 @@ const getOrganizationTransactions = async (
           ...(filter.endDate && { lte: filter.endDate }),
         },
       }),
-    };  
+    };
     // Get transactions and total count/number of transactions
     const [transactions, total] = await prisma.$transaction([
       prisma.transaction.findMany({
         where,
         orderBy: sort ? { [sort.field]: sort.order } : undefined,
-        skip: pagination?.skip || 0, 
-        take: pagination?.take || 100, 
+        skip: pagination?.skip || 0,
+        take: pagination?.take || 100,
         include: {
           contributor: true, // Include contributor details
-        }
+        },
       }),
       prisma.transaction.count({ where }), // Total count of transactions
     ]);
@@ -363,35 +394,36 @@ const getOrganizationTransactions = async (
   }
 };
 
-
 /**
- * Retrieves all transactions for a specific contributor with optional filtering,
- * sorting, and pagination.
+ * Retrieves all transactions for a specific contributor with optional
+ * filtering, sorting, and pagination.
  *
  * @returns An object containing the transactions array and total count.
  * @throws If the contributor does not exist, if query parameters are invalid,
  *   or if an unexpected error occurs.
  */
-async function getContributorTransactions(contributorId: string, filters: {
-  type?: string;
-  organizationId?: string;
-  startDate?: string;
-  endDate?: string;
-},
-sort?: SortOptions,
-pagination?: PaginationOptions
+async function getContributorTransactions(
+  contributorId: string,
+  filters: {
+    type?: string;
+    organizationId?: string;
+    startDate?: string;
+    endDate?: string;
+  },
+  sort?: SortOptions,
+  pagination?: PaginationOptions
 ) {
   //Validate contributor exists
   const contributor = await prisma.contributor.findUnique({
-    where: { id: contributorId}, 
-    select: {id: true} ,
+    where: { id: contributorId },
+    select: { id: true },
   });
   if (!contributor) {
     //contributor not found = 404
     throw new Error("Contributor not found.");
   }
   //setting up the filter
-  const where: Prisma.TransactionWhereInput = { contributorId};
+  const where: Prisma.TransactionWhereInput = { contributorId };
 
   if (filters.type) {
     where.type = filters.type as TransactionType;
@@ -400,8 +432,8 @@ pagination?: PaginationOptions
   if (filters.organizationId) {
     where.organizationId = filters.organizationId;
     const organization = await prisma.contributor.findUnique({
-      where: { id: filters.organizationId}, 
-      select: {id: true} ,
+      where: { id: filters.organizationId },
+      select: { id: true },
     });
     if (!organization) {
       //organization not found = 404
@@ -418,10 +450,9 @@ pagination?: PaginationOptions
       if (filters.endDate) {
         where.date.lte = new Date(filters.endDate);
       }
-    }
-    catch (e){
+    } catch (e) {
       //Invalid Query Input
-      throw new Error("Invalid Date Format.")
+      throw new Error("Invalid Date Format.");
     }
   }
 
@@ -440,7 +471,7 @@ pagination?: PaginationOptions
   return { transactions, total };
 }
 
-// TODO: get all transactions for a specific fund getFundTransactions
+// TODO: Get a specific funds transactions
 
 export default {
   createTransaction,

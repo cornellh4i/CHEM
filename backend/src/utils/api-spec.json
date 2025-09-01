@@ -19,6 +19,10 @@
     {
       "name": "Organization",
       "description": "Endpoints"
+    },
+    {
+      "name": "Transaction",
+      "description": "Endpoints"
     }
   ],
   "schemes": [
@@ -197,27 +201,6 @@
         }
       }
     },
-    "/contributors/{id}/transactions": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
     "/contributors/": {
       "get": {
         "description": "",
@@ -234,6 +217,11 @@
           },
           {
             "name": "organizationId",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "fundId",
             "in": "query",
             "type": "string"
           },
@@ -280,9 +268,6 @@
                   "example": "any"
                 },
                 "lastName": {
-                  "example": "any"
-                },
-                "organizationId": {
                   "example": "any"
                 }
               }
@@ -357,6 +342,27 @@
           },
           "400": {
             "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/contributors/{id}/transactions": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -690,6 +696,9 @@
                 "contributorId": {
                   "example": "any"
                 },
+                "fundId": {
+                  "example": "any"
+                },
                 "type": {
                   "example": "any"
                 },
@@ -897,8 +906,103 @@
         }
       }
     },
-    "/transactions/funds/{id}": {
+    "/funds/": {
       "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/funds/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/funds/transactions/{id}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/funds/contributors/{id}": {
+      "delete": {
         "description": "",
         "parameters": [
           {

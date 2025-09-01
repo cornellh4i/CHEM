@@ -6,19 +6,6 @@ import orgController from "../controllers/organizations";
 
 const contributorRouter = Router();
 
-contributorRouter.get("/:id/transactions", async (req, res) => {
-  try {
-    const transactions = await orgController.getOrganizationTransactions(
-      req.params.id
-    );
-    res.json(transactions);
-  } catch (error) {
-    res.status(500).json({
-      message: error instanceof Error ? error.message : "Unknown error",
-    });
-  }
-});
-
 // GET all contributors
 contributorRouter.get("/", async (req, res) => {
   try {
@@ -26,6 +13,7 @@ contributorRouter.get("/", async (req, res) => {
       firstName: req.query.firstName as string | undefined,
       lastName: req.query.lastName as string | undefined,
       organizationId: req.query.organizationId as string | undefined,
+      fundId: req.query.fundId as string | undefined, // ← new!
     };
     const sort = req.query.sortBy
       ? {
@@ -80,13 +68,9 @@ contributorRouter.post("/", async (req, res) => {
   try {
     const contributorData = req.body;
 
-    if (
-      !contributorData.firstName ||
-      !contributorData.lastName ||
-      !contributorData.organizationId
-    ) {
+    if (!contributorData.firstName || !contributorData.lastName) {
       return res.status(400).json({
-        error: "First name, last name, and organization ID are required",
+        error: "First name, last name are required",
       });
     }
 
@@ -139,6 +123,18 @@ contributorRouter.delete("/:id", async (req, res) => {
   }
 });
 
-// TODO: get all funds for a contributor by its id
+// get all transactions of contributor
+contributorRouter.get("/:id/transactions", async (req, res) => {
+  try {
+    const transactions = await orgController.getOrganizationTransactions(
+      req.params.id
+    );
+    res.json(transactions);
+  } catch (error) {
+    res.status(500).json({
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
 
 export default contributorRouter;

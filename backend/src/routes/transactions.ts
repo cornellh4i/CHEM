@@ -12,6 +12,7 @@ const transactionRouter = Router();
  *
  * - Type (e.g. DONATION, WITHDRAWAL, etc)
  * - OrganizationId
+ * - FundId
  * - StartDate and endDate (for date range filtering) Also supports sorting by
  *   date or amount and pagination (skip, take).
  */
@@ -20,6 +21,7 @@ transactionRouter.get("/", async (req, res) => {
     const filters = {
       type: req.query.type as string | undefined,
       organizationId: req.query.organizationId as string | undefined,
+      fundId: req.query.organizationId as string | undefined,
       startDate: req.query.startDate as string | undefined,
       endDate: req.query.endDate as string | undefined,
     };
@@ -105,6 +107,7 @@ transactionRouter.post("/", async (req, res) => {
     if (
       !transactionData.organizationId ||
       !transactionData.contributorId ||
+      !transactionData.fundId ||
       !transactionData.type ||
       !transactionData.date ||
       !transactionData.units ||
@@ -113,7 +116,7 @@ transactionRouter.post("/", async (req, res) => {
     ) {
       return res.status(400).json({
         error:
-          "Transaction organiation ID, contributor ID, type, date, units, amount, and description are required",
+          "Transaction organiation ID, contributor ID, fund ID, type, date, units, amount, and description are required",
       });
     }
 
@@ -154,32 +157,35 @@ transactionRouter.get("/organizations/:id", async (req, res) => {
 
     const filters = {
       type: req.query.type as TransactionType | undefined,
-      startDate: req.query.startDate ? new Date(req.query.startDate as string ) 
-      : undefined,
-      endDate: req.query.endDate ? new Date(req.query.endDate as string) 
-      : undefined,
-      contributorId: req.query.contributorId as string | undefined
+      startDate: req.query.startDate
+        ? new Date(req.query.startDate as string)
+        : undefined,
+      endDate: req.query.endDate
+        ? new Date(req.query.endDate as string)
+        : undefined,
+      contributorId: req.query.contributorId as string | undefined,
     };
 
     const sort = req.query.sortBy
-    ? {
-      field: req.query.sortBy as "date" | "amount",
-      order: (req.query.order as "asc" | "desc") || "asc",
-    }
-    : undefined;
+      ? {
+          field: req.query.sortBy as "date" | "amount",
+          order: (req.query.order as "asc" | "desc") || "asc",
+        }
+      : undefined;
 
     const pagination = {
       skip: req.query.skip ? Number(req.query.skip) : 0,
       take: req.query.take ? Number(req.query.take) : 100,
     };
 
-    const { transactions, total } = await controller.getOrganizationTransactions(
-      id,
-      filters,
-      sort,
-      pagination
-    );
-    res.status(200).json({ transactions, total })
+    const { transactions, total } =
+      await controller.getOrganizationTransactions(
+        id,
+        filters,
+        sort,
+        pagination
+      );
+    res.status(200).json({ transactions, total });
   } catch (error) {
     console.error(error);
     let statusCode = 500;
@@ -196,9 +202,9 @@ transactionRouter.get("/organizations/:id", async (req, res) => {
     const errorResponse: ErrorMessage = {
       error: errorMsg,
     };
-    res.status(statusCode).json(errorResponse); 
+    res.status(statusCode).json(errorResponse);
   }
-}); 
+});
 
 /* GET /transactions/contributors/:id route. Retrieves all transactions of
 a contributor with contributorId [id] */
@@ -254,8 +260,7 @@ transactionRouter.get("/contributors/:id", async (req, res) => {
   }
 });
 
-// TODO: get all transactions for a specific fund
-transactionRouter.get("/funds/:id", async (req, res) => {
-})
+/* TODO: GET /transactions/funds/:id route. Retrieves all transactions of
+a fund with fundId [id] */
 
 export default transactionRouter;

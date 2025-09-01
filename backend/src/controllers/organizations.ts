@@ -1,5 +1,11 @@
 import prisma from "../utils/client";
-import { Organization, Contributor, Transaction, Prisma } from "@prisma/client";
+import {
+  Organization,
+  Contributor,
+  Transaction,
+  FundType,
+  Prisma,
+} from "@prisma/client";
 
 // Get organizations with filtering, sorting, and pagination
 const getOrganizations = async (
@@ -19,8 +25,15 @@ const getOrganizations = async (
       name: filters?.name
         ? { contains: filters.name, mode: "insensitive" }
         : undefined, // filter based on name (case insensitive)
-      restriction: filters?.restriction, // filter based on restriction
-      type: filters?.type, // filter based on type
+      funds: {
+        some: {
+          restriction:
+            filters?.restriction === undefined
+              ? undefined
+              : filters.restriction === "true", // filter based on restriction
+          type: filters?.type as FundType | undefined,
+        },
+      },
     };
 
     // Use Prisma's transaction to get organizations and total count
@@ -106,8 +119,6 @@ const createOrganization = async (
     const validData: Prisma.OrganizationCreateInput = {
       name: organizationData.name,
       description: organizationData.description,
-      type: organizationData.type || "Endowment", // Use default if not provided
-      restriction: organizationData.restriction || "Restricted", // Use default if not provided
       units: organizationData.units || 0,
       amount: organizationData.amount || 0,
     };
@@ -208,12 +219,12 @@ const getOrganizationContributors = async (
     // Use Prisma's transaction to get contributors and total count
     const [contributors, total] = await prisma.$transaction([
       prisma.contributor.findMany({
-        where: { organizationId: id },
+        where: { id },
         orderBy: sort ? { [sort.field]: sort.order } : undefined, // sorting by field and order
         skip: pagination?.skip || 0, // skip organizations, 0 by default
         take: pagination?.take || 100, // take organizations, 100 by default
       }),
-      prisma.contributor.count({ where: { organizationId: id } }),
+      prisma.contributor.count({ where: { id } }),
     ]);
 
     // Return organizations and total count
@@ -249,9 +260,9 @@ const addContributorToOrganization = async (
     }
 
     // check if the contributor exists
-    const contributor = await prisma.contributor.findUnique({
+    const contributor = (await prisma.contributor.findUnique({
       where: { id: contributorId },
-    });
+    })) as { organizationId: string } & Contributor;
 
     if (!contributor) {
       throw new Error("Contributor not found");
@@ -264,7 +275,11 @@ const addContributorToOrganization = async (
 
     const updatedContributor = await prisma.contributor.update({
       where: { id: contributorId },
-      data: { organizationId: organizationId },
+      data: {
+        organization: {
+          connect: { id: organizationId },
+        },
+      },
     });
 
     return updatedContributor;
