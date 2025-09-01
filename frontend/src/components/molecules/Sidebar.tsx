@@ -196,16 +196,14 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
               <PortraitIcon
                 style={{
                   color:
-                    activePage === "settings"
-                      ? selectedColor
-                      : nonSelectedColor,
+                    activePage === "profile" ? selectedColor : nonSelectedColor,
                 }}
               />
             }
-            onClick={() => handleMenuClick("/settings")}
+            onClick={() => handleMenuClick("/profile")}
             style={{
               color:
-                activePage === "settings" ? selectedColor : nonSelectedColor,
+                activePage === "profile" ? selectedColor : nonSelectedColor,
               display: "flex",
               justifyContent: isMobile ? "center" : "flex-start",
             }}
