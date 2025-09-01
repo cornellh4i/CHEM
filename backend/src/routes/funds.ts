@@ -5,14 +5,35 @@ import express from "express";
 
 const fundRouter = Router();
 
-// TODO: get all funds
+// GET all funds
 fundRouter.get("/", async (req, res) => {
-  // implement route here
+  try {
+    const funds = await controller.getFunds();
+    res.status(200).json({ funds });
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error: error instanceof Error ? error.message : "Failed to get funds",
+    };
+    res.status(500).json(errorResponse);
+  }
 });
 
-// TODO: get fund by id
+// GET a single fund by id
 fundRouter.get("/:id", async (req, res) => {
-  // implement route here
+  try {
+    const fund = await controller.getFundById(req.params.id);
+    if (!fund) {
+      return res.status(404).json({ error: "Fund not found" });
+    }
+    res.status(200).json(fund);
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error: error instanceof Error ? error.message : "Failed to get fund",
+    };
+    res.status(500).json(errorResponse);
+  }
 });
 
 // TODO: create new fund
