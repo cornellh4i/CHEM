@@ -55,9 +55,9 @@ const getFundById = async (id: string): Promise<Fund | null> => {
 
 // TODO: update new fund
 
-// TODO: delete new fund
+// TODO: delete new fund - akhil jade
 
-// TODO: get all transactions by fund id
+// TODO: get all transactions by fund id - akhil jade
 
 /// TODO: get all contributors by fund id
 
