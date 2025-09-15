@@ -58,9 +58,17 @@ const getFundById = async (id: string): Promise<Fund | null> => {
 // TODO: delete new fund - akhil jade
 const deleteFundById = async (id: string): Promise<Fund | null> => {
   try {
-    const fund = await prisma.fund.findUnique({ where: { id }});
+    const fund = await prisma.fund.findUnique({ where: { id },});
+    // check if fund exists
     if (!fund) return null;
-    return await prisma.fund.delete({ where: { id }})
+
+    // delete related transactions
+    await prisma.transaction.deleteMany({
+      where: {fundId : id},
+    });
+
+    // delete fund
+    return await prisma.fund.delete({ where : { id } });
 
   } catch (error) {
     if (error instanceof Error) {
