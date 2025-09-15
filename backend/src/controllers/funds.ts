@@ -58,10 +58,56 @@ const getFundById = async (id: string): Promise<Fund | null> => {
 // TODO: delete new fund - akhil jade
 
 // TODO: get all transactions by fund id - akhil jade
+const getTransactionsByFundId = async (
+  id: string,
+  //sort based on either first name, last name, in ascending or descending order
+  sort?: {
+    field: "date" | "amount";
+    order: "asc" | "desc";
+  },
+  // pagination parameters
+  pagination?: { skip?: number; take?: number }
+): Promise<{ transactions: Transaction[]; total: number }> => {
+  try {
+    //Check if fund exists
+    const fundExists = await prisma.fund.findUniqueOrThrow({
+      where: { id },
+      select: { id: true },
+    });
+
+    // Use Prisma's transaction to get transactions and total count
+    const [transactions, total] = await prisma.$transaction([
+      prisma.transaction.findMany({
+        where: { fundId: id },
+        orderBy: sort ? { [sort.field]: sort.order } : undefined, // sorting by field and order
+        skip: pagination?.skip || 0, // skip transactions, 0 by default
+        take: pagination?.take || 100, // take transactions, 100 by default
+      }),
+      prisma.transaction.count({ where: { fundId: id } }),
+    ]);
+
+    // Return transactions and total count
+    return { transactions, total };
+  } catch (error) {
+    // Throw transactions not found error
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Fund not found");
+      }
+    }
+    // Throw a more informative error
+    if (error instanceof Error) {
+      throw new Error(`Failed to get transactions: ${error.message}`);
+    }
+    // throw a fund not found error
+    throw new Error("Failed to get fund due to an unknown error");
+  }
+};
 
 /// TODO: get all contributors by fund id
 
 export default {
   getFunds,
   getFundById,
+  getTransactionsByFundId,
 };
