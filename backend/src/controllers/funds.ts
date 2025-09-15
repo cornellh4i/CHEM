@@ -56,6 +56,21 @@ const getFundById = async (id: string): Promise<Fund | null> => {
 // TODO: update new fund
 
 // TODO: delete new fund - akhil jade
+const deleteFundById = async (id: string): Promise<Fund | null> => {
+  try {
+    const fund = await prisma.fund.findUnique({ where: { id }});
+    if (!fund) return null;
+    return await prisma.fund.delete({ where: { id }})
+
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to delete fund: ${error.message}`);
+    }
+    throw new Error("Failed to delete fund due to an unknown error");
+  }
+  
+};
+
 
 // TODO: get all transactions by fund id - akhil jade
 const getTransactionsByFundId = async (
@@ -110,4 +125,5 @@ export default {
   getFunds,
   getFundById,
   getTransactionsByFundId,
+  deleteFundById
 };
