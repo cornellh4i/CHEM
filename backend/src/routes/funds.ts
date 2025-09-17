@@ -46,14 +46,13 @@ fundRouter.put("/:id", async (req, res) => {
   // implement route here
 });
 
-// TODO: delete new fund
 fundRouter.delete("/:id", async (req, res) => {
   try {
     const fund = await controller.deleteFundById(req.params.id);
     if (!fund) {
       return res.status(404).json({ error: "Fund not found" });
     }
-    res.status(200).json({ message : "Fund deleted"});
+    res.status(200).json({ message: "Fund deleted" });
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
@@ -63,8 +62,6 @@ fundRouter.delete("/:id", async (req, res) => {
   }
 });
 
-
-// TODO: get all transactions by fund id
 fundRouter.get("/:id/transactions", async (req, res) => {
   try {
     // Get inputs
