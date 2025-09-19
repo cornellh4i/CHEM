@@ -71,9 +71,12 @@ async function main() {
   // Create Funds
   const techFund = await prisma.fund.create({
     data: {
+      name: "techFund",
+      description: "Tech corps tech fund",
       organizationId: techCorp.id,
       type: FundType.ENDOWMENT,
-      restriction: false,
+      restriction: true,
+      purpose: "For tech things only!",
       amount: 0,
       units: 0,
       contributors: {
@@ -84,9 +87,11 @@ async function main() {
 
   const ecoFund = await prisma.fund.create({
     data: {
+      name: "ecoFund",
+      description: "Eco foundations echo fund",
       organizationId: ecoFoundation.id,
       type: FundType.DONATION,
-      restriction: true,
+      restriction: false,
       amount: 0,
       units: 0,
       contributors: {

@@ -73,10 +73,14 @@ model Transaction {
 
 model Fund {
   id             String        @id @default(cuid())
+  name           String
+  description    String
   organization   Organization  @relation(fields: [organizationId], references: [id])
   organizationId String
   type           FundType
   restriction    Boolean?
+  // only has purpose field if restriction == True
+  purpose        String?
   contributors   Contributor[]
   transactions   Transaction[]
   units          Float?
