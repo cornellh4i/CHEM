@@ -69,6 +69,11 @@ const createFund = async (
       throw new Error(`Invalid fund type: ${data.type}`);
     }
 
+    // Validate restriction for endowment funds
+    if (data.type === FundType.ENDOWMENT && data.restriction == null) {
+      throw new Error("Endowment funds must have a restriction status (true or false).");
+    }
+
     const validData: Prisma.FundCreateInput = {
       organization: { connect: { id: data.organizationId } },
       type: data.type,
