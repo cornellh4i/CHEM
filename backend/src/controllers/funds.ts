@@ -51,7 +51,7 @@ const getFundById = async (id: string): Promise<Fund | null> => {
   }
 };
 
-// TODO: create new fund, Krish & Johnny
+// TODO: create new fund
 const createFund = async (
   data: Omit<Fund, "id" | "createdAt" | "updatedAt">
 ): Promise<Fund> => {
@@ -71,10 +71,14 @@ const createFund = async (
 
     // Validate restriction for endowment funds
     if (data.type === FundType.ENDOWMENT && data.restriction == null) {
-      throw new Error("Endowment funds must have a restriction status (true or false).");
+      throw new Error(
+        "Endowment funds must have a restriction status (true or false)."
+      );
     }
 
     const validData: Prisma.FundCreateInput = {
+      name: data.name,
+      description: data.description,
       organization: { connect: { id: data.organizationId } },
       type: data.type,
       restriction:
