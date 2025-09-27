@@ -52,8 +52,98 @@ const getFundById = async (id: string): Promise<Fund | null> => {
 };
 
 // TODO: create new fund
+const createFund = async (
+  data: Omit<Fund, "id" | "createdAt" | "updatedAt">
+): Promise<Fund> => {
+  try {
+    // Ensure organization exists
+    const organization = await prisma.organization.findUnique({
+      where: { id: data.organizationId },
+    });
+    if (!organization) {
+      throw new Error("Organization not found");
+    }
 
-// TODO: update new fund
+    // Validate fund type
+    if (!Object.values(FundType).includes(data.type as FundType)) {
+      throw new Error(`Invalid fund type: ${data.type}`);
+    }
+
+    // Validate restriction for endowment funds
+    if (data.type === FundType.ENDOWMENT && data.restriction == null) {
+      throw new Error(
+        "Endowment funds must have a restriction status (true or false)."
+      );
+    }
+
+    const validData: Prisma.FundCreateInput = {
+      name: data.name,
+      description: data.description,
+      organization: { connect: { id: data.organizationId } },
+      type: data.type,
+      restriction:
+        data.restriction === undefined ? undefined : data.restriction,
+      units: data.units || undefined,
+      amount: data.amount || 0,
+    };
+
+    const fund = await prisma.fund.create({ data: validData });
+    return fund;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        throw new Error("A fund with the provided data already exists");
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Failed to create fund: ${error.message}`);
+    }
+    throw new Error("Failed to create fund due to an unknown error");
+  }
+};
+
+// Update an existing fund
+const updateFund = async (
+  id: string,
+  fundData: Partial<Omit<Fund, "id" | "createdAt" | "updatedAt">>
+): Promise<Fund> => {
+  try {
+    // If organizationId is provided, ensure that organization exists
+    if (fundData.organizationId) {
+      const organization = await prisma.organization.findUnique({
+        where: { id: fundData.organizationId },
+      });
+      if (!organization) {
+        throw new Error("Organization not found");
+      }
+    }
+
+    const data: Prisma.FundUpdateInput = {
+      ...(fundData.type && { type: fundData.type }),
+      ...(fundData.restriction !== undefined && {
+        restriction: fundData.restriction,
+      }),
+      ...(fundData.units !== undefined && { units: fundData.units }),
+      ...(fundData.amount !== undefined && { amount: fundData.amount }),
+      ...(fundData.organizationId && {
+        organization: { connect: { id: fundData.organizationId } },
+      }),
+    };
+
+    const updatedFund = await prisma.fund.update({ where: { id }, data });
+    return updatedFund;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Fund not found");
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Failed to update fund: ${error.message}`);
+    }
+    throw new Error("Failed to update fund due to an unknown error");
+  }
+};
 
 const deleteFundById = async (id: string): Promise<Fund | null> => {
   try {
@@ -122,11 +212,57 @@ const getTransactionsByFundId = async (
   }
 };
 
-/// TODO: get all contributors by fund id
+/// TODO: get all contributors by fund id, Krish & Johnny
+const getContributorsByFundId = async (
+  id: string,
+  sort?: {
+    field: "firstName" | "lastName";
+    order: "asc" | "desc";
+  },
+  pagination?: { skip?: number; take?: number }
+): Promise<{ contributors: Contributor[]; total: number }> => {
+  try {
+    // Ensure fund exists
+    await prisma.fund.findUniqueOrThrow({
+      where: { id },
+      select: { id: true },
+    });
+
+    const where: Prisma.ContributorWhereInput = {
+      funds: { some: { id } },
+    };
+
+    const [contributors, total] = await prisma.$transaction([
+      prisma.contributor.findMany({
+        where,
+        orderBy: sort ? { [sort.field]: sort.order } : undefined,
+        skip: pagination?.skip || 0,
+        take: pagination?.take || 100,
+        include: { organization: true },
+      }),
+      prisma.contributor.count({ where }),
+    ]);
+
+    return { contributors, total };
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        throw new Error("Fund not found");
+      }
+    }
+    if (error instanceof Error) {
+      throw new Error(`Failed to get contributors: ${error.message}`);
+    }
+    throw new Error("Failed to get contributors due to an unknown error");
+  }
+};
 
 export default {
   getFunds,
   getFundById,
+  createFund,
+  updateFund,
   getTransactionsByFundId,
   deleteFundById,
+  getContributorsByFundId,
 };

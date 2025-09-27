@@ -38,12 +38,46 @@ fundRouter.get("/:id", async (req, res) => {
 
 // TODO: create new fund
 fundRouter.post("/", async (req, res) => {
-  // implement route here
+  try {
+    const fundData = req.body;
+
+    // Basic validation
+    if (!fundData.organizationId || !fundData.type) {
+      return res
+        .status(400)
+        .json({ error: "organizationId and type are required" });
+    }
+
+    const newFund = await controller.createFund(fundData);
+    res.status(201).json(newFund);
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error: error instanceof Error ? error.message : "Failed to create fund",
+    };
+    res.status(400).json(errorResponse);
+  }
 });
 
 // TODO: update new fund
 fundRouter.put("/:id", async (req, res) => {
-  // implement route here
+  try {
+    const id = req.params.id;
+    const fundData = req.body;
+    const updatedFund = await controller.updateFund(id, fundData);
+    res.status(200).json(updatedFund);
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error: error instanceof Error ? error.message : "Failed to update fund",
+    };
+    // If fund not found
+    if (errorResponse.error === "Fund not found") {
+      res.status(404).json(errorResponse);
+    } else {
+      res.status(400).json(errorResponse);
+    }
+  }
 });
 
 fundRouter.delete("/:id", async (req, res) => {
@@ -112,6 +146,51 @@ fundRouter.get("/:id/transactions", async (req, res) => {
   }
 });
 
-/// TODO: get all contributors by fund id
+/// TODO: get all contributors by fund id, Krish & Johnny
+fundRouter.get("/:id/contributors", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const sortBy = req.query.sortBy as string | undefined;
+    const order = req.query.order as string | undefined;
+    const validSortField = new Set(["firstName", "lastName"]);
+    const validOrders = new Set(["asc", "desc"]);
+
+    const sort =
+      sortBy && validSortField.has(sortBy)
+        ? {
+            field: sortBy as "firstName" | "lastName",
+            order: validOrders.has(order ?? "")
+              ? (order as "asc" | "desc")
+              : "asc",
+          }
+        : undefined;
+
+    const pagination = {
+      skip: req.query.skip ? Number(req.query.skip) : undefined,
+      take: req.query.take ? Number(req.query.take) : undefined,
+    };
+
+    const { contributors, total } = await controller.getContributorsByFundId(
+      id,
+      sort,
+      pagination
+    );
+    res.status(200).json({ contributors, total });
+  } catch (error) {
+    console.error(error);
+    const errorResponse: ErrorMessage = {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to get fund contributors",
+    };
+    if (errorResponse.error == "Fund not found") {
+      res.status(404).json(errorResponse);
+    } else {
+      res.status(500).json(errorResponse);
+    }
+  }
+});
 
 export default fundRouter;
