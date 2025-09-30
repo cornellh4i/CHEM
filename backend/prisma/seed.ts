@@ -27,25 +27,41 @@ async function main() {
   // Create Users
   const alice = await prisma.user.upsert({
     where: { email: "alice@example.com" },
-    update: {},
-    create: {
-      email: "alice@example.com",
+    update: {
+      firebaseUid: "firebase-alice",
+      organizationId: techCorp.id,
       firstName: "Alice",
       lastName: "Johnson",
       role: Role.USER,
     },
+    create: {
+      firebaseUid: "firebase-alice",
+      email: "alice@example.com",
+      firstName: "Alice",
+      lastName: "Johnson",
+      role: Role.USER,
+      organizationId: techCorp.id,
+    },
   });
-
   const bob = await prisma.user.upsert({
     where: { email: "bob@example.com" },
-    update: {},
-    create: {
-      email: "bob@example.com",
+    update: {
+      firebaseUid: "firebase-bob",
+      organizationId: ecoFoundation.id,
       firstName: "Bob",
       lastName: "Smith",
       role: Role.ADMIN,
     },
+    create: {
+      firebaseUid: "firebase-bob",
+      email: "bob@example.com",
+      firstName: "Bob",
+      lastName: "Smith",
+      role: Role.ADMIN,
+      organizationId: ecoFoundation.id,
+    },
   });
+
 
   // Create Contributors
   const charlie = await prisma.contributor.create({
