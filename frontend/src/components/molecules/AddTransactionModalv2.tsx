@@ -35,6 +35,7 @@ type TransactionData = {
   date: Dayjs | null;
   contributor: string;
   fund: string;
+  organizationId: string;
   amount: string;
   unitsPurchased: string;
   type: "DEPOSIT" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE" | null; // Update to match backend enum (uppercase)
@@ -53,6 +54,13 @@ type Organization = {
   id: string;
   name: string;
 };
+
+type Fund = {
+  id: string;
+  name: string;
+};
+
+// add funcs to load relevant details so user can create transaction
 const getContributors = async (): Promise<Contributor[]> => {
   try {
     const response = await fetch("http://localhost:8000/contributors", {
@@ -97,7 +105,7 @@ const getOrganizations = async (): Promise<Organization[]> => {
       throw new Error(errorData.error || "Failed to fetch organizations");
     }
 
-    // Parse the JSON response to retrieve the list of contributor objects
+    // Parse the JSON response to retrieve the list of organization objects
     const responseData = await response.json();
     if (responseData && Array.isArray(responseData.organizations)) {
       return responseData.organizations;
@@ -111,13 +119,54 @@ const getOrganizations = async (): Promise<Organization[]> => {
     throw error;
   }
 };
+const getFunds = async (): Promise<Fund[]> => {
+  try {
+    const response = await fetch("http://localhost:8000/funds", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      // Attempt to extract the error message from the response
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to fetch funds");
+    }
+
+    // Parse the JSON response to retrieve the list of funds objects
+    const responseData = await response.json();
+
+    // Handle the nested structure: {"funds":{"funds":[...], "total":4}}
+    if (
+      responseData &&
+      responseData.funds &&
+      Array.isArray(responseData.funds.funds)
+    ) {
+      return responseData.funds.funds;
+    } else if (responseData && Array.isArray(responseData.funds)) {
+      return responseData.funds;
+    } else if (Array.isArray(responseData)) {
+      // If the response is already an array, return it directly
+      return responseData;
+    } else {
+      console.error("Unexpected funds API response structure:", responseData);
+      return []; // Return empty array as fallback
+    }
+  } catch (error: any) {
+    throw error;
+  }
+};
+
 const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
+  // transaction we're gonna send to db
   const [transaction, setTransaction] = useState<TransactionData>({
     date: dayjs(),
     contributor: "",
     fund: "",
+    organizationId: "",
     amount: "",
     unitsPurchased: "",
     type: null,
@@ -125,13 +174,125 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
     documents: [],
   });
 
+  // state variables
+  const [contributors, setContributors] = useState<Contributor[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [funds, setFunds] = useState<Fund[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load data when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const loadData = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          const [contributorsData, organizationsData, fundsData] =
+            await Promise.all([
+              getContributors(),
+              getOrganizations(),
+              getFunds(),
+            ]);
+          setContributors(contributorsData);
+          setOrganizations(organizationsData);
+          setFunds(fundsData);
+        } catch (err: any) {
+          setError("Failed to load data. Please try again.");
+          console.error("Error loading data:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      loadData();
+    }
+  }, [isOpen]);
+
+  // Create transaction API call
+  const createTransaction = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Basic validation
+      if (
+        !transaction.contributor ||
+        !transaction.fund ||
+        !transaction.amount ||
+        !transaction.type
+      ) {
+        throw new Error("Please fill in all required fields");
+      }
+
+      // Get organizationId from selected contributor
+      const selectedContributor = contributors.find(
+        (c) => c.id === transaction.contributor
+      );
+      if (!selectedContributor) {
+        throw new Error("Please select a valid contributor");
+      }
+
+      const payload = {
+        date:
+          transaction.date?.format("YYYY-MM-DD") ||
+          dayjs().format("YYYY-MM-DD"),
+        contributorId: transaction.contributor,
+        fundId: transaction.fund,
+        organizationId: selectedContributor.organizationId,
+        amount: parseFloat(transaction.amount),
+        units: parseFloat(transaction.unitsPurchased) || 0, // Backend expects 'units'
+        type: transaction.type,
+        description: transaction.description || "",
+      };
+
+      const response = await fetch("http://localhost:8000/transactions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create transaction");
+      }
+
+      const result = await response.json();
+
+      // Success - reset form and close modal
+      setTransaction({
+        date: dayjs(),
+        contributor: "",
+        fund: "",
+        organizationId: "",
+        amount: "",
+        unitsPurchased: "",
+        type: null,
+        description: "",
+        documents: [],
+      });
+      setStep(1);
+      setIsOpen(false);
+    } catch (err: any) {
+      setError(err.message);
+      console.error("Error creating transaction:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleInputChange = (field: keyof TransactionData, value: any) => {
     setTransaction((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleNext = () => {
-    if (step < 3) setStep(step + 1);
-    else setIsOpen(false); // Final submit action could go here
+    if (step < 3) {
+      setStep(step + 1);
+    } else {
+      // Final submit - create transaction
+      createTransaction();
+    }
   };
 
   const handleBack = () => {
@@ -157,7 +318,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                   key={index}
                   className="border-gray-300 hover:border-black flex flex-1 items-center justify-center rounded-xl border-2 px-4 py-6 text-center text-lg transition-colors"
                   onClick={() => {
-                    if (index === 2) setTransaction({ ...transaction });
+                    if (index === 2) {
+                      setStep(2); // Go to Step 2 for "Add a single transaction"
+                    }
                   }}
                 >
                   {label}
@@ -173,41 +336,116 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
               Manually enter contribution
             </DialogTitle>
             <div>
-              <div className="mb-6 grid grid-cols-2 gap-6">
-                <div>
-                  <label className="mb-2 block text-sm font-medium">
-                    First Name
-                  </label>
-                  <Input placeholder="Jane" />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium">
-                    Last Name
-                  </label>
-                  <Input placeholder="Smith" />
-                </div>
+              <div className="mb-6">
+                <label className="mb-2 block text-sm font-medium">
+                  Select Contributor
+                </label>
+                <Select
+                  values={contributors.map((c) => ({
+                    value: c.id,
+                    label: `${c.firstName} ${c.lastName}`,
+                  }))}
+                  onSelect={(value: string) => {
+                    const selectedContributor = contributors.find(
+                      (c) => c.id === value
+                    );
+                    handleInputChange("contributor", value);
+                    if (selectedContributor) {
+                      handleInputChange(
+                        "organizationId",
+                        selectedContributor.organizationId
+                      );
+                    }
+                  }}
+                  placeholder="Choose a contributor"
+                  disabled={loading}
+                />
+              </div>
+              <div className="mb-6">
+                <label className="mb-2 block text-sm font-medium">
+                  Select Fund
+                </label>
+                <Select
+                  values={funds.map((f) => ({ value: f.id, label: f.name }))}
+                  onSelect={(value: string) => handleInputChange("fund", value)}
+                  placeholder={
+                    funds.length > 0 ? "Choose a fund" : "Loading funds..."
+                  }
+                  disabled={loading || funds.length === 0}
+                />
+                {funds.length === 0 && !loading && (
+                  <p className="text-gray-500 mt-1 text-sm">
+                    No funds available
+                  </p>
+                )}
               </div>
               <div className="mb-6 grid grid-cols-2 gap-6">
                 <div>
                   <label className="mb-2 block text-sm font-medium">
                     Amount of contribution
                   </label>
-                  <Input placeholder="Smith" />
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    value={transaction.amount}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleInputChange("amount", e.target.value)
+                    }
+                  />
                 </div>
                 <div>
                   <label className="mb-2 block text-sm font-medium">
                     Units purchased
                   </label>
-                  <Input placeholder="----" className="bg-gray-100" disabled />
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={transaction.unitsPurchased}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleInputChange("unitsPurchased", e.target.value)
+                    }
+                  />
                 </div>
+              </div>
+              <div className="mb-6">
+                <label className="mb-2 block text-base font-medium">
+                  Transaction Type
+                </label>
+                <RadioGroup
+                  value={transaction.type || ""}
+                  onValueChange={(value) =>
+                    handleInputChange("type", value as TransactionData["type"])
+                  }
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="DEPOSIT" id="deposit" />
+                    <label htmlFor="deposit">Deposit</label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="WITHDRAWAL" id="withdrawal" />
+                    <label htmlFor="withdrawal">Withdrawal</label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="INVESTMENT" id="investment" />
+                    <label htmlFor="investment">Investment</label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="EXPENSE" id="expense" />
+                    <label htmlFor="expense">Expense</label>
+                  </div>
+                </RadioGroup>
               </div>
               <div className="mb-6">
                 <label className="mb-2 block text-base font-medium">
                   Description of transaction
                 </label>
                 <textarea
-                  placeholder="Enter in a soft contributor..."
-                  className="border-gray-300 h-15% w-full rounded border p-3"
+                  placeholder="Enter transaction description..."
+                  className="border-gray-300 h-20 w-full rounded border p-3"
+                  value={transaction.description}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    handleInputChange("description", e.target.value)
+                  }
                 />
               </div>
               <div className="mb-3">
@@ -279,7 +517,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
         >
           {children}
         </DialogTrigger>
-        <DialogContent className="h-[678px] w-[800px] rounded-[8px] border-none p-0">
+        <DialogContent
+          className="h-[678px] w-[800px] rounded-[8px] border-none p-0"
+        >
           <div className="flex h-full">
             {/* Sidebar Stepper */}
             <div
@@ -311,6 +551,23 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
 
             {/* Main Step Content */}
             <div className="flex w-3/4 flex-col justify-between px-6 py-8">
+              {error && (
+                <div className="bg-red-100 border-red-300 text-red-700 mb-4 rounded border p-3">
+                  {error}
+                  <button
+                    className="text-red-500 hover:text-red-700 ml-2"
+                    onClick={() => setError(null)}
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+              {loading && (
+                <div className="text-gray-500 mb-4 text-center">
+                  <div className="border-gray-900 inline-block h-4 w-4 animate-spin rounded-full border-b-2"></div>
+                  <span className="ml-2">Loading...</span>
+                </div>
+              )}
               <div className="h-full overflow-y-auto pr-2">{renderStep()}</div>
 
               <div className="mt-6 flex justify-between">
@@ -320,8 +577,12 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                   </Button>
                 )}
                 {step === 1 && <div></div>}
-                <Button onClick={handleNext} style={{ padding: "8px 32px" }}>
-                  {step < 3 ? "Next" : "Submit"}
+                <Button
+                  onClick={handleNext}
+                  style={{ padding: "8px 32px" }}
+                  disabled={loading}
+                >
+                  {loading ? "Processing..." : step < 3 ? "Next" : "Submit"}
                 </Button>
               </div>
             </div>
