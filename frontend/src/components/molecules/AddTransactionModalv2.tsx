@@ -219,9 +219,12 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
         !transaction.contributor ||
         !transaction.fund ||
         !transaction.amount ||
-        !transaction.type
+        !transaction.type ||
+        !transaction.unitsPurchased
       ) {
-        throw new Error("Please fill in all required fields");
+        throw new Error(
+          "Please fill in all required fields including units purchased"
+        );
       }
 
       // Get organizationId from selected contributor
@@ -240,10 +243,41 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
         fundId: transaction.fund,
         organizationId: selectedContributor.organizationId,
         amount: parseFloat(transaction.amount),
-        units: parseFloat(transaction.unitsPurchased) || 0, // Backend expects 'units'
+        units: parseFloat(transaction.unitsPurchased) || 1, // Backend validation requires non-zero value
         type: transaction.type,
-        description: transaction.description || "",
+        description: transaction.description || "No description provided",
       };
+
+      // Debug: Log the payload to see what we're sending
+      console.log("Payload being sent:", payload);
+      console.log("Transaction state:", transaction);
+      console.log("Selected contributor:", selectedContributor);
+
+      // Additional validation - check for empty strings and undefined values
+      const requiredFields = {
+        organizationId: payload.organizationId,
+        contributorId: payload.contributorId,
+        fundId: payload.fundId,
+        type: payload.type,
+        date: payload.date,
+        units: payload.units,
+        amount: payload.amount,
+        description: payload.description,
+      };
+
+      console.log("Required fields check:", requiredFields);
+
+      // Check if any required field is missing or empty
+      for (const [key, value] of Object.entries(requiredFields)) {
+        if (
+          value === undefined ||
+          value === null ||
+          value === "" ||
+          (typeof value === "number" && isNaN(value))
+        ) {
+          throw new Error(`${key} is missing or invalid: ${value}`);
+        }
+      }
 
       const response = await fetch("http://localhost:8000/transactions", {
         method: "POST",
@@ -283,7 +317,63 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
   };
 
   const handleInputChange = (field: keyof TransactionData, value: any) => {
+    // Validate numeric fields to prevent negative values
+    if (field === "amount" || field === "unitsPurchased") {
+      const numericValue = parseFloat(value);
+      if (numericValue < 0) {
+        return; // Don't update if negative
+      }
+    }
     setTransaction((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Validation function to check if all required fields are filled
+  const validateForm = (): boolean => {
+    if (step === 1) {
+      return true; // Step 1 just requires selecting transaction type
+    }
+
+    if (step === 2) {
+      // Check required fields for step 2
+      const isContributorSelected = transaction.contributor.trim() !== "";
+      const isFundSelected = transaction.fund.trim() !== "";
+      const isAmountValid =
+        transaction.amount.trim() !== "" && parseFloat(transaction.amount) > 0;
+      const isTypeSelected = transaction.type !== null;
+
+      // Units validation depends on transaction type
+      let isUnitsValid = true;
+      if (
+        transaction.type === "WITHDRAWAL" ||
+        transaction.type === "INVESTMENT" ||
+        transaction.type === "EXPENSE"
+      ) {
+        // These types require units > 0
+        isUnitsValid =
+          transaction.unitsPurchased.trim() !== "" &&
+          parseFloat(transaction.unitsPurchased) > 0;
+      } else if (transaction.type === "DEPOSIT") {
+        // Deposits can have units = 0, but field should not be empty
+        isUnitsValid =
+          transaction.unitsPurchased.trim() !== "" &&
+          parseFloat(transaction.unitsPurchased) >= 0;
+      }
+
+      return (
+        isContributorSelected &&
+        isFundSelected &&
+        isAmountValid &&
+        isTypeSelected &&
+        isUnitsValid
+      );
+    }
+
+    if (step === 3) {
+      // Step 3 validation (if needed)
+      return true;
+    }
+
+    return false;
   };
 
   const handleNext = () => {
@@ -338,41 +428,49 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
             <div>
               <div className="mb-6">
                 <label className="mb-2 block text-sm font-medium">
-                  Select Contributor
+                  Select Contributor <span className="text-red-500">*</span>
                 </label>
-                <Select
-                  values={contributors.map((c) => ({
-                    value: c.id,
-                    label: `${c.firstName} ${c.lastName}`,
-                  }))}
-                  onSelect={(value: string) => {
-                    const selectedContributor = contributors.find(
-                      (c) => c.id === value
-                    );
-                    handleInputChange("contributor", value);
-                    if (selectedContributor) {
-                      handleInputChange(
-                        "organizationId",
-                        selectedContributor.organizationId
+                <div className="relative">
+                  <Select
+                    values={contributors.map((c) => ({
+                      value: c.id,
+                      label: `${c.firstName} ${c.lastName}`,
+                    }))}
+                    onSelect={(value: string) => {
+                      const selectedContributor = contributors.find(
+                        (c) => c.id === value
                       );
-                    }
-                  }}
-                  placeholder="Choose a contributor"
-                  disabled={loading}
-                />
+                      handleInputChange("contributor", value);
+                      if (selectedContributor) {
+                        handleInputChange(
+                          "organizationId",
+                          selectedContributor.organizationId
+                        );
+                      }
+                    }}
+                    placeholder="Choose a contributor"
+                    disabled={loading}
+                  />
+                  <div className="border-gray-300 pointer-events-none absolute inset-0 rounded-lg border" />
+                </div>
               </div>
               <div className="mb-6">
                 <label className="mb-2 block text-sm font-medium">
-                  Select Fund
+                  Select Fund <span className="text-red-500">*</span>
                 </label>
-                <Select
-                  values={funds.map((f) => ({ value: f.id, label: f.name }))}
-                  onSelect={(value: string) => handleInputChange("fund", value)}
-                  placeholder={
-                    funds.length > 0 ? "Choose a fund" : "Loading funds..."
-                  }
-                  disabled={loading || funds.length === 0}
-                />
+                <div className="relative">
+                  <Select
+                    values={funds.map((f) => ({ value: f.id, label: f.name }))}
+                    onSelect={(value: string) =>
+                      handleInputChange("fund", value)
+                    }
+                    placeholder={
+                      funds.length > 0 ? "Choose a fund" : "Loading funds..."
+                    }
+                    disabled={loading || funds.length === 0}
+                  />
+                  <div className="border-gray-300 pointer-events-none absolute inset-0 rounded-lg border" />
+                </div>
                 {funds.length === 0 && !loading && (
                   <p className="text-gray-500 mt-1 text-sm">
                     No funds available
@@ -382,11 +480,13 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
               <div className="mb-6 grid grid-cols-2 gap-6">
                 <div>
                   <label className="mb-2 block text-sm font-medium">
-                    Amount of contribution
+                    Amount of contribution{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <Input
                     type="number"
                     placeholder="0.00"
+                    min="0"
                     value={transaction.amount}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       handleInputChange("amount", e.target.value)
@@ -395,11 +495,17 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                 </div>
                 <div>
                   <label className="mb-2 block text-sm font-medium">
-                    Units purchased
+                    Units purchased <span className="text-red-500">*</span>
+                    {transaction.type === "DEPOSIT" && (
+                      <span className="text-gray-500 ml-1 text-xs">
+                        (can be 0 for deposits)
+                      </span>
+                    )}
                   </label>
                   <Input
                     type="number"
                     placeholder="0"
+                    min="0"
                     value={transaction.unitsPurchased}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       handleInputChange("unitsPurchased", e.target.value)
@@ -409,7 +515,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
               </div>
               <div className="mb-6">
                 <label className="mb-2 block text-base font-medium">
-                  Transaction Type
+                  Transaction Type <span className="text-red-500">*</span>
                 </label>
                 <RadioGroup
                   value={transaction.type || ""}
@@ -452,9 +558,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                 <label className="block text-base font-medium">
                   Add additional documents
                 </label>
-                <DragDrop
-                  onDrop={(files) => handleInputChange("documents", files)}
-                />
+                <div className="relative z-0">
+                  <DragDrop
+                    onDrop={(files) => handleInputChange("documents", files)}
+                  />
+                </div>
               </div>
               <div className="flex justify-end">
                 <button
@@ -517,9 +625,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
         >
           {children}
         </DialogTrigger>
-        <DialogContent
-          className="h-[678px] w-[800px] rounded-[8px] border-none p-0"
-        >
+        <DialogContent className="h-[678px] w-[800px] rounded-[8px] border-none p-0 shadow-2xl">
           <div className="flex h-full">
             {/* Sidebar Stepper */}
             <div
@@ -550,40 +656,59 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
             </div>
 
             {/* Main Step Content */}
-            <div className="flex w-3/4 flex-col justify-between px-6 py-8">
-              {error && (
-                <div className="bg-red-100 border-red-300 text-red-700 mb-4 rounded border p-3">
-                  {error}
-                  <button
-                    className="text-red-500 hover:text-red-700 ml-2"
-                    onClick={() => setError(null)}
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
-              {loading && (
-                <div className="text-gray-500 mb-4 text-center">
-                  <div className="border-gray-900 inline-block h-4 w-4 animate-spin rounded-full border-b-2"></div>
-                  <span className="ml-2">Loading...</span>
-                </div>
-              )}
-              <div className="h-full overflow-y-auto pr-2">{renderStep()}</div>
-
-              <div className="mt-6 flex justify-between">
-                {step > 1 && (
-                  <Button onClick={handleBack} style={{ padding: "8px 32px" }}>
-                    Back
-                  </Button>
+            <div className="relative w-3/4">
+              {/* Fixed Header - Status Messages */}
+              <div className="bg-white absolute left-0 right-0 top-0 z-10 px-6 pt-6">
+                {error && (
+                  <div className="bg-red-100 border-red-300 text-red-700 mb-4 rounded border p-3">
+                    {error}
+                    <button
+                      className="text-red-500 hover:text-red-700 ml-2"
+                      onClick={() => setError(null)}
+                    >
+                      ×
+                    </button>
+                  </div>
                 )}
-                {step === 1 && <div></div>}
-                <Button
-                  onClick={handleNext}
-                  style={{ padding: "8px 32px" }}
-                  disabled={loading}
-                >
-                  {loading ? "Processing..." : step < 3 ? "Next" : "Submit"}
-                </Button>
+                {loading && (
+                  <div className="text-gray-500 mb-4 text-center">
+                    <div className="border-gray-900 inline-block h-4 w-4 animate-spin rounded-full border-b-2"></div>
+                    <span className="ml-2">Loading...</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Scrollable Content Area */}
+              <div
+                className="absolute bottom-20 left-0 right-0 top-20 overflow-y-scroll px-6"
+                style={{
+                  scrollBehavior: "smooth",
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
+                <div className="py-4">{renderStep()}</div>
+              </div>
+
+              {/* Fixed Footer - Navigation Buttons */}
+              <div className="border-gray-200 bg-white absolute bottom-0 left-0 right-0 z-10 border-t px-6 py-4">
+                <div className="flex justify-between">
+                  {step > 1 && (
+                    <Button
+                      onClick={handleBack}
+                      style={{ padding: "8px 32px" }}
+                    >
+                      Back
+                    </Button>
+                  )}
+                  {step === 1 && <div></div>}
+                  <Button
+                    onClick={handleNext}
+                    style={{ padding: "8px 32px" }}
+                    disabled={loading || !validateForm()}
+                  >
+                    {loading ? "Processing..." : step < 3 ? "Next" : "Submit"}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
