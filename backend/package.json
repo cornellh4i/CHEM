@@ -20,7 +20,7 @@
   "dependencies": {
     "@prisma/client": "^5.20.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.2.3",
     "express": "^4.21.0",
     "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1",
