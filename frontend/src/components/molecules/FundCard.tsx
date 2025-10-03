@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaUser, FaPercentage } from 'react-icons/fa';
 import { LineChart, Line } from 'recharts';
 
@@ -30,6 +30,21 @@ const FundCard: React.FC<FundCardProps> = ({
   isEndowment,
   description,
 }) => {
+  // adjust width to fit screen sizes dynamically
+  const [chartWidth, setChartWidth] = useState(280);
+
+  useEffect(() => {
+    const updateChartWidth = () => {
+      const containerWidth = Math.min(357, window.innerWidth - 48);
+      const chartWidth = Math.max(200, containerWidth - 32); 
+      setChartWidth(Math.min(280, chartWidth));
+    };
+
+    updateChartWidth();
+    window.addEventListener('resize', updateChartWidth);
+    return () => window.removeEventListener('resize', updateChartWidth);
+  }, []);
+
   return (
     <div style={{
       maxWidth: '357px',
@@ -43,9 +58,9 @@ const FundCard: React.FC<FundCardProps> = ({
       transition: 'box-shadow 0.2s ease-in-out',
       cursor: 'pointer',
     }}>
-      <div>
+      <div style={{ width: '100%', overflow: 'hidden' }}>
         {/* Placeholder for chart */}
-        <LineChart width={280} height={80} data={dummyChartData}>
+        <LineChart width={chartWidth} height={80} data={dummyChartData}>
           <Line type="monotone" dataKey="value" stroke="#000" strokeWidth={2} dot={true} />
         </LineChart>
       </div>

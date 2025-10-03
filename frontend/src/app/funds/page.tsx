@@ -5,7 +5,7 @@ import AddFundModal from "@/components/molecules/AddFundModal";
 import React from "react";
 import AddIcon from "@mui/icons-material/Add";
 import Button from "@/components/atoms/Button";
-import FundsTable from "@/components/molecules/FundsTable";
+import FundsListTable from "@/components/molecules/FundsListTable";
 
 const FundsPage = () => {
   return (
@@ -34,7 +34,7 @@ const FundsPage = () => {
         <div className="text-gray-500 pl-1 text-left text-lg">
           No funds to display yet.
         </div>
-        <FundsTable />
+        <FundsListTable />
       </div>
     </DashboardTemplate>
   );
