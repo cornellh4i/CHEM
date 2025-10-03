@@ -15,6 +15,7 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Button from "@/components/atoms/Button";
 import SearchBar from "@/components/molecules/Searchbar";
 import ContributionsGraph from "@/components/molecules/ContributionsGraph";
+import AddFundModal from "@/components/molecules/AddFundModal";
 
 const FundsMainPage = () => {
   const buttonColor = "#838383";
@@ -56,20 +57,22 @@ const FundsMainPage = () => {
               <SettingsIcon fontSize="small" style={{ marginRight: 6 }} />
               Settings
             </Button>
-            <Button
-              variant="secondary"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                height: "40px",
-                padding: "0 16px",
-                marginBottom: 0,
-                color: "#418EC8",
-              }}
-            >
-              Create new fund
-              <KeyboardArrowDownIcon />
-            </Button>
+            <AddFundModal>
+              <Button
+                variant="secondary"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  height: "40px",
+                  padding: "0 16px",
+                  marginBottom: 0,
+                  color: "#418EC8",
+                }}
+              >
+                Create new fund
+                <KeyboardArrowDownIcon />
+              </Button>
+            </AddFundModal>
           </div>
         </div>
 

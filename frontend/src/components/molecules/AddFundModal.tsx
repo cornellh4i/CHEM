@@ -27,20 +27,55 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
   const [restriction, setRestriction] = useState("restricted");
   const [description, setDescription] = useState("");
 
-  const handleAdd = () => {
+  const handleCancel = () => {
+    setIsOpen(false);
+  };
+
+  const handleAdd = async () => {
     console.log({
       name,
       type,
       restriction,
       description,
     });
+
+    const body: {
+      name: string;
+      type: string;
+      description: string;
+      organizationId: string;
+      restriction?: boolean;
+    } = {
+      name,
+      type: type.toUpperCase(),
+      description,
+      organizationId: "techcorp-id", //hardcoded ts, should add some extra arg
+    };
+
+    if (type === "endowment") {
+      body.restriction = restriction === "restricted";
+    }
+
+    try {
+      const response = await fetch("http://localhost:8000/funds", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to add fund");
+      }
+
+      console.log("Fund added successfully");
+    } catch (error: any) {
+      console.error("Error adding fund, ", error);
+    }
     setIsOpen(false);
   };
-
-  const handleCancel = () => {
-    setIsOpen(false);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild onClick={() => setIsOpen(true)}>
@@ -89,23 +124,25 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
           </div>
 
           {/* Restriction Field (vertical layout) */}
-          <div className="mb-6">
-            <Label className="mb-2 block text-lg">Restriction</Label>
-            <RadioGroup
-              value={restriction}
-              onValueChange={setRestriction}
-              className="flex flex-col gap-2"
-            >
-              <div className="flex items-center gap-2">
-                <RadioGroupItem value="restricted" id="restricted" />
-                <Label htmlFor="restricted">Restricted</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <RadioGroupItem value="unrestricted" id="unrestricted" />
-                <Label htmlFor="unrestricted">Unrestricted</Label>
-              </div>
-            </RadioGroup>
-          </div>
+          {type === "endowment" && (
+            <div className="mb-6">
+              <Label className="mb-2 block text-lg">Restriction</Label>
+              <RadioGroup
+                value={restriction}
+                onValueChange={setRestriction}
+                className="flex flex-col gap-2"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="restricted" id="restricted" />
+                  <Label htmlFor="restricted">Restricted</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="unrestricted" id="unrestricted" />
+                  <Label htmlFor="unrestricted">Unrestricted</Label>
+                </div>
+              </RadioGroup>
+            </div>
+          )}
 
           {/* Description Field */}
           <div className="mb-6">
@@ -126,6 +163,7 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
               as="textarea"
             />
           </div>
+
           {/* Footer Buttons */}
           <DialogFooter className="mt-8 flex items-center justify-between">
             <Button variant="secondary" onClick={handleCancel}>
