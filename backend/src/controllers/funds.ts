@@ -77,8 +77,6 @@ const createFund = async (
     }
 
     const validData: Prisma.FundCreateInput = {
-      name: data.name,
-      description: data.description,
       organization: { connect: { id: data.organizationId } },
       type: data.type,
       restriction:
