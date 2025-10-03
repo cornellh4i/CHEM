@@ -28,6 +28,7 @@ import {
 
 type TransactionModalProps = {
   children: ReactNode;
+  onTransactionAdded?: () => void; // Callback to refresh parent data
 };
 
 // Define a type for our transaction data
@@ -38,7 +39,7 @@ type TransactionData = {
   organizationId: string;
   amount: string;
   unitsPurchased: string;
-  type: "DEPOSIT" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE" | null; // Update to match backend enum (uppercase)
+  type: "DONATION" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE" | null; // Update to match backend enum (uppercase)
   description: string;
   documents: File[];
 };
@@ -158,7 +159,10 @@ const getFunds = async (): Promise<Fund[]> => {
   }
 };
 
-const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
+const TransactionModal: React.FC<TransactionModalProps> = ({
+  children,
+  onTransactionAdded,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
   // transaction we're gonna send to db
@@ -308,6 +312,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
       });
       setStep(1);
       setIsOpen(false);
+
+      // Call callback to refresh parent data
+      if (onTransactionAdded) {
+        onTransactionAdded();
+      }
     } catch (err: any) {
       setError(err.message);
       console.error("Error creating transaction:", err);
@@ -352,11 +361,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
         isUnitsValid =
           transaction.unitsPurchased.trim() !== "" &&
           parseFloat(transaction.unitsPurchased) > 0;
-      } else if (transaction.type === "DEPOSIT") {
-        // Deposits can have units = 0, but field should not be empty
+      } else if (transaction.type === "DONATION") {
+        // DONATION can have units = 1, but field should not be empty
         isUnitsValid =
           transaction.unitsPurchased.trim() !== "" &&
-          parseFloat(transaction.unitsPurchased) >= 0;
+          parseFloat(transaction.unitsPurchased) > 0;
       }
 
       return (
@@ -496,10 +505,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                 <div>
                   <label className="mb-2 block text-sm font-medium">
                     Units purchased <span className="text-red-500">*</span>
-                    {transaction.type === "DEPOSIT" && (
-                      <span className="text-gray-500 ml-1 text-xs">
-                        (can be 0 for deposits)
-                      </span>
+                    {transaction.type === "DONATION" && (
+                      <span className="text-gray-500 ml-1 text-xs"></span>
                     )}
                   </label>
                   <Input
@@ -524,8 +531,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
                   }
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="DEPOSIT" id="deposit" />
-                    <label htmlFor="deposit">Deposit</label>
+                    <RadioGroupItem value="DONATION" id="donation" />
+                    <label htmlFor="donation">Donation</label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="WITHDRAWAL" id="withdrawal" />
