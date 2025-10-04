@@ -17,6 +17,9 @@ const firebaseConfig = {
 /** Firebase app */
 const app = initializeApp(firebaseConfig);
 
+/** Check Firebase app Connection */
+console.log("Firebase app", app.name, app.options.projectId);
+
 /** Auth instance associated with the created Firebase App */
 const auth = getAuth(app);
 
