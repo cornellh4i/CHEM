@@ -51,7 +51,6 @@ const getFundById = async (id: string): Promise<Fund | null> => {
   }
 };
 
-// TODO: create new fund
 const createFund = async (
   data: Omit<Fund, "id" | "createdAt" | "updatedAt">
 ): Promise<Fund> => {
@@ -60,42 +59,51 @@ const createFund = async (
     const organization = await prisma.organization.findUnique({
       where: { id: data.organizationId },
     });
-    if (!organization) {
-      throw new Error("Organization not found");
-    }
+    if (!organization) throw new Error("Organization not found");
 
     // Validate fund type
     if (!Object.values(FundType).includes(data.type as FundType)) {
       throw new Error(`Invalid fund type: ${data.type}`);
     }
 
-    // Validate restriction for endowment funds
+    // Validate restriction flag presence for endowment
     if (data.type === FundType.ENDOWMENT && data.restriction == null) {
       throw new Error(
         "Endowment funds must have a restriction status (true or false)."
       );
     }
 
+    // If restricted endowment, purpose required
+    if (data.type === FundType.ENDOWMENT && data.restriction === true) {
+      if (!data.purpose || !String(data.purpose).trim()) {
+        throw new Error(
+          "Restricted endowment funds must include a non-empty purpose."
+        );
+      }
+    }
+
     const validData: Prisma.FundCreateInput = {
+      name: data.name,
+      description: data.description,
       organization: { connect: { id: data.organizationId } },
       type: data.type,
-      restriction:
-        data.restriction === undefined ? undefined : data.restriction,
-      units: data.units || undefined,
-      amount: data.amount || 0,
+      restriction: data.restriction ?? undefined,
+      purpose: data.purpose ?? undefined, // NEW
+      units: data.units ?? undefined,
+      amount: data.amount ?? 0,
     };
 
     const fund = await prisma.fund.create({ data: validData });
     return fund;
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2002") {
-        throw new Error("A fund with the provided data already exists");
-      }
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new Error("A fund with the provided data already exists");
     }
-    if (error instanceof Error) {
+    if (error instanceof Error)
       throw new Error(`Failed to create fund: ${error.message}`);
-    }
     throw new Error("Failed to create fund due to an unknown error");
   }
 };

@@ -7,7 +7,6 @@ import { ScrollArea } from "@/components/ui/scroll";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -16,28 +15,39 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
-type AddFundModalProps = {
-  children: ReactNode;
-};
+type AddFundModalProps = { children: ReactNode };
 
 const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
-  const [type, setType] = useState("donation");
-  const [restriction, setRestriction] = useState("restricted");
+  const [type, setType] = useState<"donation" | "endowment">("donation");
+  const [restriction, setRestriction] = useState<"restricted" | "unrestricted">(
+    "restricted"
+  );
   const [description, setDescription] = useState("");
+  const [purpose, setPurpose] = useState(""); // NEW
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleCancel = () => {
     setIsOpen(false);
+    setErrorMsg(null);
+    setSubmitting(false);
+    // optional: reset fields on cancel
+    // setName(""); setType("donation"); setRestriction("restricted"); setDescription(""); setPurpose("");
   };
 
+  const isRestrictedEndowment =
+    type === "endowment" && restriction === "restricted";
+
   const handleAdd = async () => {
-    console.log({
-      name,
-      type,
-      restriction,
-      description,
-    });
+    setErrorMsg(null);
+
+    // Frontend required-field checks
+    if (!name.trim()) return setErrorMsg("Name is required.");
+    if (!type) return setErrorMsg("Type is required.");
+    if (isRestrictedEndowment && !purpose.trim())
+      return setErrorMsg("Purpose is required for restricted endowments.");
 
     const body: {
       name: string;
@@ -45,37 +55,48 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
       description: string;
       organizationId: string;
       restriction?: boolean;
+      purpose?: string;
+      units: number;
     } = {
-      name,
-      type: type.toUpperCase(),
-      description,
-      organizationId: "techcorp-id", //hardcoded ts, should add some extra arg
+      name: name.trim(),
+      type: type.toUpperCase(), // server expects FundType (e.g., ENDOWMENT or DONATION)
+      description: description.trim(),
+      organizationId: "techcorp-id", // TODO: replace with real org id
+      units: 0,
     };
 
     if (type === "endowment") {
       body.restriction = restriction === "restricted";
+      if (restriction === "restricted") {
+        body.purpose = purpose.trim();
+      }
     }
 
     try {
+      setSubmitting(true);
       const response = await fetch("http://localhost:8000/funds", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to add fund");
       }
 
-      console.log("Fund added successfully");
+      // success UX
+      // optional: reset fields
+      // setName(""); setType("donation"); setRestriction("restricted"); setDescription(""); setPurpose("");
+      setIsOpen(false);
     } catch (error: any) {
-      console.error("Error adding fund, ", error);
+      setErrorMsg(error?.message || "Failed to add fund");
+      console.error("Error adding fund:", error);
+    } finally {
+      setSubmitting(false);
     }
-    setIsOpen(false);
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild onClick={() => setIsOpen(true)}>
@@ -89,7 +110,7 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
             </DialogTitle>
           </DialogHeader>
 
-          {/* Name Field */}
+          {/* Name */}
           <div className="mb-6">
             <Label htmlFor="name" className="mb-2 block text-lg">
               Name
@@ -104,12 +125,12 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
             />
           </div>
 
-          {/* Type Field (vertical layout) */}
+          {/* Type */}
           <div className="mb-6">
             <Label className="mb-2 block text-lg">Type</Label>
             <RadioGroup
               value={type}
-              onValueChange={setType}
+              onValueChange={(v) => setType(v as "donation" | "endowment")}
               className="flex flex-col gap-2"
             >
               <div className="flex items-center gap-2">
@@ -123,13 +144,15 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
             </RadioGroup>
           </div>
 
-          {/* Restriction Field (vertical layout) */}
+          {/* Restriction (only for endowment) */}
           {type === "endowment" && (
             <div className="mb-6">
               <Label className="mb-2 block text-lg">Restriction</Label>
               <RadioGroup
                 value={restriction}
-                onValueChange={setRestriction}
+                onValueChange={(v) =>
+                  setRestriction(v as "restricted" | "unrestricted")
+                }
                 className="flex flex-col gap-2"
               >
                 <div className="flex items-center gap-2">
@@ -144,7 +167,29 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
             </div>
           )}
 
-          {/* Description Field */}
+          {/* Purpose (required when restricted endowment) */}
+          {isRestrictedEndowment && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="purpose" className="text-lg">
+                  Purpose
+                </Label>
+                <span className="text-red-500 text-sm">Required</span>
+              </div>
+              <Input
+                id="purpose"
+                placeholder="Describe the restriction purpose"
+                value={purpose}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setPurpose(e.target.value)
+                }
+                className="border-gray-300 h-32 w-full resize-none rounded-lg border-[1px] px-4 py-2 text-left"
+                as="textarea"
+              />
+            </div>
+          )}
+
+          {/* Description (optional) */}
           <div className="mb-6">
             <div className="flex items-center justify-between">
               <Label htmlFor="description" className="text-lg">
@@ -159,21 +204,31 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setDescription(e.target.value)
               }
-              className="border-gray-300 h-32 w-full resize-none rounded-lg border-[1px] px-4 py-2 text-left" // Ensures left-aligned text
+              className="border-gray-300 h-32 w-full resize-none rounded-lg border-[1px] px-4 py-2 text-left"
               as="textarea"
             />
           </div>
 
-          {/* Footer Buttons */}
+          {/* Error */}
+          {errorMsg && (
+            <div className="text-red-600 mb-4 text-sm">{errorMsg}</div>
+          )}
+
+          {/* Footer */}
           <DialogFooter className="mt-8 flex items-center justify-between">
-            <Button variant="secondary" onClick={handleCancel}>
+            <Button
+              variant="secondary"
+              onClick={handleCancel}
+              disabled={submitting}
+            >
               Cancel
             </Button>
             <Button
               style={{ backgroundColor: "black", color: "white" }}
               onClick={handleAdd}
+              disabled={submitting}
             >
-              Add
+              {submitting ? "Adding..." : "Add"}
             </Button>
           </DialogFooter>
         </ScrollArea>
