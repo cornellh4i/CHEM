@@ -36,26 +36,36 @@ fundRouter.get("/:id", async (req, res) => {
   }
 });
 
-// TODO: create new fund
+// POST /funds
 fundRouter.post("/", async (req, res) => {
   try {
     const fundData = req.body;
 
     // Basic validation
     if (!fundData.organizationId || !fundData.type) {
-      return res
-        .status(400)
-        .json({ error: "organizationId and type are required" });
+      return res.status(400).json({ error: "organizationId and type are required" });
+    }
+
+    // Normalize type for safety
+    if (typeof fundData.type === "string") {
+      fundData.type = fundData.type.toUpperCase();
+    }
+
+    // If endowment and restricted, purpose is required
+    if (fundData.type === "ENDOWMENT" && fundData.restriction === true) {
+      if (!fundData.purpose || !String(fundData.purpose).trim()) {
+        return res.status(400).json({ error: "Purpose is required for restricted endowment funds." });
+      }
     }
 
     const newFund = await controller.createFund(fundData);
-    res.status(201).json(newFund);
+    return res.status(201).json(newFund);
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
       error: error instanceof Error ? error.message : "Failed to create fund",
     };
-    res.status(400).json(errorResponse);
+    return res.status(400).json(errorResponse);
   }
 });
 
@@ -110,9 +120,9 @@ fundRouter.get("/:id/transactions", async (req, res) => {
     const sort =
       sortBy && validSortField.has(sortBy)
         ? {
-            field: sortBy as "date" | "amount",
-            order: validOrders.has(order) ? (order as "asc" | "desc") : "asc",
-          }
+          field: sortBy as "date" | "amount",
+          order: validOrders.has(order) ? (order as "asc" | "desc") : "asc",
+        }
         : undefined;
     const pagination = {
       skip: req.query.skip ? Number(req.query.skip) : undefined,
@@ -159,11 +169,11 @@ fundRouter.get("/:id/contributors", async (req, res) => {
     const sort =
       sortBy && validSortField.has(sortBy)
         ? {
-            field: sortBy as "firstName" | "lastName",
-            order: validOrders.has(order ?? "")
-              ? (order as "asc" | "desc")
-              : "asc",
-          }
+          field: sortBy as "firstName" | "lastName",
+          order: validOrders.has(order ?? "")
+            ? (order as "asc" | "desc")
+            : "asc",
+        }
         : undefined;
 
     const pagination = {
