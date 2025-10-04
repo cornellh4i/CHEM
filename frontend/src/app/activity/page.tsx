@@ -12,10 +12,17 @@ import Button from "@/components/atoms/Button";
 const ActivitiesPage = () => {
   // State to store search query
   const [searchQuery, setSearchQuery] = useState("");
+  // State to trigger table refresh
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleSearch = (query: string) => {
     console.log("Searching for:", query);
     setSearchQuery(query); // Update search query state
+  };
+
+  const handleTransactionAdded = () => {
+    // Trigger table refresh by updating key
+    setRefreshKey((prev) => prev + 1);
   };
 
   return (
@@ -27,7 +34,7 @@ const ActivitiesPage = () => {
             <SearchBar onSearch={handleSearch} width="50%" />
           </div>
 
-          <AddTransactionModal>
+          <AddTransactionModal onTransactionAdded={handleTransactionAdded}>
             <Button
               variant="primary"
               style={{
@@ -60,6 +67,7 @@ const ActivitiesPage = () => {
         <TransactionsTable
           tableType="transactions"
           searchQuery={searchQuery} // Pass search query to TransactionsTable
+          key={refreshKey} // Force re-render when refreshKey changes
         />
       </div>
     </DashboardTemplate>
