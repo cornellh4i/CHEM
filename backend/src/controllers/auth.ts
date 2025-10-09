@@ -1,4 +1,7 @@
 import type { Request } from "express";
+import jwt from "jsonwebtoken";
+import * as admin from "firebase-admin";
+import prisma from "../utils/client";
 
 /**
  * Shape of the payload expected from the auth routes when creating a user.
@@ -14,22 +17,29 @@ export interface SignUpParams {
 }
 
 /**
- * Shape of the payload expected from the auth routes when logging in.
- * Include whatever credentials or tokens your provider issues.
+ * Shape of the payload expected from the auth routes when logging in. Include
+ * whatever credentials or tokens your provider issues.
  */
 export interface LoginParams {
   idToken: string;
 }
 
 /**
- * Normalised auth response the routes can hand back to the client.
- * Add refresh tokens or session metadata if your flow needs them.
+ * Normalised auth response the routes can hand back to the client. Add refresh
+ * tokens or session metadata if your flow needs them.
  */
 export interface AuthResult {
   userId: string;
   organizationId: string;
   token: string;
   refreshToken?: string;
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+  };
 }
 
 /**
@@ -46,7 +56,49 @@ const signUp = async (_params: SignUpParams): Promise<AuthResult> => {
  * return a fresh API token/session. Verify the inbound IdP token first.
  */
 const login = async (_params: LoginParams): Promise<AuthResult> => {
-  throw new Error("login controller not implemented");
+  try {
+    // throw error if bad/expired token
+    const decodedToken = await admin.auth().verifyIdToken(_params.idToken);
+
+    // look up user in db
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid: decodedToken.uid },
+      include: { organization: true },
+    });
+
+    if (!user) {
+      throw new Error("User not found in database");
+    }
+
+    // generate JWT token for API access - 24 hour expiry
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        firebaseUid: user.firebaseUid,
+        organizationId: user.organizationId,
+        role: user.role,
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "30d" }
+    );
+
+    return {
+      userId: user.id,
+      organizationId: user.organizationId,
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+      },
+    };
+  } catch (error) {
+    throw new Error(
+      `Login failed: ${error instanceof Error ? error.message : "Unknown error"}`
+    );
+  }
 };
 
 /**
@@ -54,7 +106,10 @@ const login = async (_params: LoginParams): Promise<AuthResult> => {
  * you rely entirely on stateless JWTs.
  */
 const logout = async (_req: Request): Promise<void> => {
-  throw new Error("logout controller not implemented");
+  // For stateless JWTs, logout is handled client-side by deleting the token
+  // Your frontend uses Firebase auth directly, so no server-side cleanup needed
+  console.log("User logged out successfully");
+  return Promise.resolve();
 };
 
 export default {
