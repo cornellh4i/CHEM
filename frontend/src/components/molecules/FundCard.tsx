@@ -84,7 +84,6 @@ const FundCard: React.FC<FundCardProps> = ({
       </div>
 
       <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px' }}>
-        {isRestricted && (
           <span style={{
             padding: '4px 8px',
             display: 'flex',
@@ -95,9 +94,8 @@ const FundCard: React.FC<FundCardProps> = ({
             fontSize: '14px',
             fontWeight: 600,
             color: '#747474',
-          }}>Restricted</span>
-        )}
-        {isEndowment && (
+          }}>{isRestricted ? 'Restricted' : 'Unrestricted'}</span>
+        
           <span style={{
             padding: '4px 8px',
             display: 'flex',
@@ -108,8 +106,7 @@ const FundCard: React.FC<FundCardProps> = ({
             fontSize: '14px',
             fontWeight: 600,
             color: '#747474',
-          }}>Endowment</span>
-        )}
+          }}>{isEndowment ? 'Endowment' : 'Donation'}</span>
       </div>
 
       <p style={{  fontSize: '14px', color: '#000000', marginBottom: 0 }}>
