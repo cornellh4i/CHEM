@@ -1,6 +1,6 @@
 import type { Request } from "express";
 import jwt from "jsonwebtoken";
-import * as admin from "firebase-admin";
+import admin from "../utils/firebase";
 import prisma from "../utils/client";
 
 /**
@@ -63,14 +63,22 @@ const login = async (_params: LoginParams): Promise<AuthResult> => {
     // look up user in db
     const user = await prisma.user.findUnique({
       where: { firebaseUid: decodedToken.uid },
-      include: { organization: true },
+      select: {
+        id: true,
+        organizationId: true,
+        firebaseUid: true,
+        role: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+      },
     });
 
     if (!user) {
       throw new Error("User not found in database");
     }
 
-    // generate JWT token for API access - 24 hour expiry
+    // generate JWT token for API access - 30 day expiry
     const token = jwt.sign(
       {
         userId: user.id,
@@ -82,10 +90,11 @@ const login = async (_params: LoginParams): Promise<AuthResult> => {
       { expiresIn: "30d" }
     );
 
-    return {
+    const result: AuthResult = {
       userId: user.id,
       organizationId: user.organizationId,
       token,
+      refreshToken: string,
       user: {
         id: user.id,
         email: user.email,
@@ -94,6 +103,8 @@ const login = async (_params: LoginParams): Promise<AuthResult> => {
         role: user.role,
       },
     };
+
+    return result;
   } catch (error) {
     throw new Error(
       `Login failed: ${error instanceof Error ? error.message : "Unknown error"}`
@@ -106,8 +117,8 @@ const login = async (_params: LoginParams): Promise<AuthResult> => {
  * you rely entirely on stateless JWTs.
  */
 const logout = async (_req: Request): Promise<void> => {
-  // For stateless JWTs, logout is handled client-side by deleting the token
-  // Your frontend uses Firebase auth directly, so no server-side cleanup needed
+  // stateless JWTs logout is handled client-side by deleting the token
+  // frontend should call Firebase auth directly, no server-side cleanup needed
   console.log("User logged out successfully");
   return Promise.resolve();
 };
