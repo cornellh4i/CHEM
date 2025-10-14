@@ -3,7 +3,8 @@
 import { useState } from "react";
 import * as React from "react";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
-import ContributorsTable from "@/components/molecules/ContributorsTable";
+import FundsListTable from "@/components/molecules/FundsListTable";
+import FundsCardTable from "@/components/molecules/FundsCardTable";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -14,7 +15,7 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Button from "@/components/atoms/Button";
 import SearchBar from "@/components/molecules/Searchbar";
-import ContributionsGraph from "@/components/molecules/ContributionsGraph";
+// import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 import AddFundModal from "@/components/molecules/AddFundModal";
 
 const FundsMainPage = () => {
@@ -132,11 +133,7 @@ const FundsMainPage = () => {
             </ToggleButton>
           </ToggleButtonGroup>
         </div>
-        {viewMode === "list" ? (
-          <ContributorsTable searchQuery={searchQuery} />
-        ) : (
-          <ContributionsGraph />
-        )}
+        {viewMode === "list" ? <FundsListTable /> : <FundsCardTable />}
       </div>
     </DashboardTemplate>
   );
