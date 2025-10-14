@@ -27,12 +27,9 @@ const DragDrop = ({ onDrop }: DragDropProps) => {
   return (
     <div className="mt-[8px] w-full">
       <FileUploader
-        label="Drop"
-        uploadedLabel="Upload Successful"
         multiple={true}
         handleChange={handleChange}
         name="file"
-        hoverTitle="Drop"
         types={fileTypes}
       >
         <div className="border-gray-500 bg-gray-100 flex h-[120px] items-center justify-center rounded-2xl border-2 border-dotted">
