@@ -14,7 +14,7 @@ authRouter.post("/login", async (req, res) => {
   const { idToken } = req.body;
 
   if (!idToken) {
-    return res.start(400).json({ error: "idToken is required" });
+    return res.status(400).json({ error: "idToken is required" });
   }
 
   try {
@@ -23,7 +23,9 @@ authRouter.post("/login", async (req, res) => {
   } catch (error) {
     // error
     console.error("login error: ", error);
-    return res.status(401).json({ error });
+    return res
+      .status(401)
+      .json({ error: error instanceof Error ? error.message : "Login failed" });
   }
 });
 
