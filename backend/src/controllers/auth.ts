@@ -94,7 +94,6 @@ const login = async (_params: LoginParams): Promise<AuthResult> => {
       userId: user.id,
       organizationId: user.organizationId,
       token,
-      refreshToken: string,
       user: {
         id: user.id,
         email: user.email,

@@ -932,6 +932,12 @@
                 },
                 "type": {
                   "example": "any"
+                },
+                "restriction": {
+                  "example": "any"
+                },
+                "purpose": {
+                  "example": "any"
                 }
               }
             }

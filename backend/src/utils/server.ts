@@ -7,6 +7,7 @@ import organizationRouter from "../routes/organizations";
 import transactionRouter from "../routes/transactions";
 import swaggerFile from "../../api-spec.json";
 import fundRouter from "../routes/funds";
+import authRouter from "../routes/auth";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/contributors", contributorRouter);
 app.use("/organizations", organizationRouter);
 app.use("/transactions", transactionRouter);
 app.use("/funds", fundRouter);
+app.use("/auth", authRouter);
 
 // Root route
 // #swagger.ignore = true
