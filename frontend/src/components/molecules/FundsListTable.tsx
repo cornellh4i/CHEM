@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from 'next/navigation';
 
 const API_URL = "http://localhost:8000";
 
@@ -31,6 +32,7 @@ type Fund = {
 };
 
 export default function FundsListTable() {
+  const router = useRouter();
   const [funds, setFunds] = useState<Fund[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -111,7 +113,8 @@ export default function FundsListTable() {
       {funds.map((fund, index) => (
         <div
           key={index}
-          className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-4 rounded-xl shadow-sm border"
+          onClick={() => router.push(`/fundsMain/${fund.id}`)}
+          className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-4 rounded-xl shadow-sm border cursor-pointer hover:shadow-md transition-shadow"
         >
           <div className="flex flex-col gap-2">
             <span className="text-lg font-medium">{fund.name}</span>

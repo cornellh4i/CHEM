@@ -15,12 +15,12 @@ interface Transaction {
   description?: string;
   createdAt: string;
   updatedAt: string;
-  contributor: {
+  contributor?: {
     id: string;
     firstName: string;
     lastName: string;
   };
-  organization: {
+  organization?: {
     id: string;
     name: string;
     type: string;
@@ -45,6 +45,8 @@ interface TableData {
 interface TransactionsTableProps {
   tableType: "transactions" | "contributions";
   searchQuery?: string; // New prop to filter by organization name
+  fundId?: string; // Optional fundId to fetch transactions for a specific fund
+  fundName?: string; // Optional fund name to display when organization is missing
 }
 
 const API_URL = "http://localhost:8000";
@@ -52,6 +54,8 @@ const API_URL = "http://localhost:8000";
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
   tableType,
   searchQuery = "", // Default to empty string if not provided
+  fundId,
+  fundName,
 }) => {
   const PAGE_SIZE = 5;
   const [transactions, setTransactions] = useState<TableData[]>([]);
@@ -60,14 +64,18 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
   useEffect(() => {
     fetchTransactions();
-  }, [tableType]);
+  }, [tableType, fundId]);
 
   const fetchTransactions = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/transactions`);
+      // Use fund-specific endpoint if fundId is provided
+      const endpoint = fundId
+        ? `${API_URL}/funds/${fundId}/transactions`
+        : `${API_URL}/transactions`;
+      const response = await fetch(endpoint);
 
       if (!response.ok) {
         const statusText = response.statusText || "Unknown error";
@@ -76,14 +84,17 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
       const data = await response.json();
 
-      if (data && data.transactions) {
+      // Handle both response formats: { transactions } and { transactions, total }
+      const transactionsList = data.transactions || [];
+
+      if (transactionsList && Array.isArray(transactionsList)) {
         const filteredTransactions =
           tableType === "contributions"
-            ? data.transactions.filter(
+            ? transactionsList.filter(
                 (t: Transaction) =>
                   t.type === "DONATION" || t.type === "INVESTMENT"
               )
-            : data.transactions;
+            : transactionsList;
 
         const mappedData = filteredTransactions.map(
           (transaction: Transaction) => {
@@ -94,7 +105,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 ? `${transaction.contributor.firstName} ${transaction.contributor.lastName}`
                 : `--`,
               contributorId: transaction.contributorId || undefined,
-              fund: transaction.organization.name,
+              fund: transaction.organization?.name || fundName || "Unknown Fund",
               fundId: transaction.organizationId || undefined,
               type: formatTransactionType(transaction.type),
               units: transaction.units || undefined,
