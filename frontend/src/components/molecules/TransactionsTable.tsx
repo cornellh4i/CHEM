@@ -34,7 +34,7 @@ interface TableData {
   contributor?: string;
   contributorId?: string;
   fund: string;
-  fundId: string;
+  fundId?: string;
   type: string;
   units?: number;
   amount: number;
