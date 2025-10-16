@@ -80,6 +80,8 @@ const FundPage = () => {
 
   return (
     <FundTemplate
+      fundName="Fund Name"
+      fundDescription="This is a placeholder description for the fund. Replace with actual fund data."
       summary={summary}
       transactions={transactions}
       contributors={contributors}
