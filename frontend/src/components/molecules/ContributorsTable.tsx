@@ -15,54 +15,39 @@ interface Transaction {
   description?: string;
   createdAt: string;
   updatedAt: string;
-  contributor: {
-    id: string;
-    firstName: string;
-    lastName: string;
-  };
-  organization: {
-    id: string;
-    name: string;
-    type: string;
-    restriction: string;
-  };
+  organization: { id: string; name: string };
 }
 
 interface Contributor {
   id: string;
   firstName: string;
   lastName: string;
-  organization: {
-    id: string;
-    name: string;
-  };
+  organization?: { id: string; name: string };
   transactions: Transaction[];
   updatedAt: string;
 }
 
-interface TableData {
+type ContributorRow = {
   id: string;
   date: string;
   contributor: string;
   fund: string;
-  amount: number; // Store as a number for sorting
+  amount: number | null;
   hasTransactions: boolean;
-}
+};
 
 interface ContributorsTableProps {
-  searchQuery?: string; // New prop to filter by contributor name
+  searchQuery?: string;
 }
 
 const API_URL = "http://localhost:8000";
 
 const ContributorsTable: React.FC<ContributorsTableProps> = ({
-  searchQuery = "", // Default to empty string if not provided
+  searchQuery = "",
 }) => {
   const PAGE_SIZE = 5;
-  const [contributors, setContributors] = useState<TableData[]>([]);
-  const [organizations, setOrganizations] = useState<Record<string, string>>(
-    {}
-  );
+  const [contributors, setContributors] = useState<ContributorRow[]>([]);
+  const [organizations, setOrganizations] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,147 +57,108 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
 
   const fetchOrganizations = async () => {
     try {
-      const response = await fetch(`${API_URL}/organizations`);
-
-      if (!response.ok) {
-        console.warn(
-          "Could not fetch organizations, fund names may not display correctly"
-        );
-        return;
-      }
-
-      const data = await response.json();
-
-      if (data && data.organizations) {
-        // Create a lookup map of organization ID to name
-        const orgMap: Record<string, string> = {};
-        data.organizations.forEach((org: any) => {
-          if (org.id && org.name) {
-            orgMap[org.id] = org.name;
-          }
+      const res = await fetch(`${API_URL}/organizations`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data?.organizations) {
+        const map: Record<string, string> = {};
+        data.organizations.forEach((o: any) => {
+          if (o.id && o.name) map[o.id] = o.name;
         });
-
-        setOrganizations(orgMap);
+        setOrganizations(map);
       }
-    } catch (err) {
-      console.warn("Error fetching organizations:", err);
+    } catch {
+      /* non-fatal */
     }
   };
 
   const fetchContributors = async () => {
     setLoading(true);
     setError(null);
-
     try {
-      const response = await fetch(`${API_URL}/contributors`);
-
-      if (!response.ok) {
-        const statusText = response.statusText || "Unknown error";
-        throw new Error(`HTTP error! Status: ${response.status} ${statusText}`);
+      const res = await fetch(`${API_URL}/contributors`);
+      if (!res.ok) {
+        const statusText = res.statusText || "Unknown error";
+        throw new Error(`HTTP error! Status: ${res.status} ${statusText}`);
       }
+      const data = await res.json();
 
-      const data = await response.json();
-      console.log("Fetched", data);
+      if (data?.contributors) {
+        const rows: ContributorRow[] = data.contributors.map((c: Contributor) => {
+          const hasTx = c.transactions.length > 0;
+          const lastTx = hasTx ? c.transactions[c.transactions.length - 1] : null;
 
-      if (data && data.contributors) {
-        const mappedData = data.contributors.map((contributor: Contributor) => {
-          const hasTransactions = contributor.transactions.length > 0;
-          const latestTransaction = hasTransactions
-            ? contributor.transactions[contributor.transactions.length - 1]
-            : null;
-
-          const activityDate = latestTransaction
-            ? new Date(latestTransaction.date).toLocaleDateString()
-            : new Date(contributor.updatedAt).toLocaleDateString();
+          const date = lastTx
+            ? new Date(lastTx.date).toLocaleDateString()
+            : new Date(c.updatedAt).toLocaleDateString();
 
           let fund = "---";
-          if (latestTransaction) {
-            // Option 1: Use transaction.organization if it exists
-            if (
-              latestTransaction.organization &&
-              latestTransaction.organization.name
-            ) {
-              fund = latestTransaction.organization.name;
-            }
-            // Option 2: Use the organizationId to look it up in our organizations map
-            else if (
-              latestTransaction.organizationId &&
-              organizations[latestTransaction.organizationId]
-            ) {
-              fund = organizations[latestTransaction.organizationId];
-            }
-            // Option 3: Use the contributor's organization if available and the other options failed
-            else if (
-              contributor.organization &&
-              contributor.organization.name
-            ) {
-              fund = contributor.organization.name;
-            }
-          }
+          if (lastTx?.organization?.name) fund = lastTx.organization.name;
+          else if (lastTx?.organizationId && organizations[lastTx.organizationId])
+            fund = organizations[lastTx.organizationId];
+          else if (c.organization?.name) fund = c.organization.name;
 
-          const formattedAmount = latestTransaction
-            ? latestTransaction.type === "EXPENSE" ||
-              latestTransaction.type === "WITHDRAWAL"
-              ? -Math.abs(latestTransaction.amount)
-              : Math.abs(latestTransaction.amount)
+          const amount = lastTx
+            ? lastTx.type === "EXPENSE" || lastTx.type === "WITHDRAWAL"
+              ? -Math.abs(lastTx.amount)
+              : Math.abs(lastTx.amount)
             : null;
 
           return {
-            id: contributor.id,
-            date: activityDate,
-            contributor: `${contributor.firstName} ${contributor.lastName}`,
-            fund: fund,
-            amount: formattedAmount, // Will be null when no transactions
-            hasTransactions: hasTransactions,
+            id: c.id,
+            date,
+            contributor: `${c.firstName} ${c.lastName}`,
+            fund,
+            amount,
+            hasTransactions: hasTx,
           };
         });
 
-        // Sort contributors by date in descending order before setting the state
-        const sortedData: TableData[] = mappedData.sort(
-          (a: TableData, b: TableData) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        // newest first
+        rows.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         );
 
-        setContributors(sortedData); // Update state with sorted data
+        setContributors(rows);
+      } else {
+        setContributors([]);
       }
     } catch (err) {
       console.error("Error fetching contributors:", err);
       setError("Failed to load contributors. Please try again later.");
+      setContributors([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Filter contributors based on search query
+  // ---- robust filtering across fields ----
+  const norm = (v: unknown) =>
+    (v ?? "").toString().toLowerCase().normalize("NFKD");
+
   const filteredContributors = useMemo(() => {
-    if (!searchQuery || searchQuery.trim() === "") {
-      return contributors; // Return all contributors if no search query
-    }
+    const q = norm(searchQuery).trim();
+    if (!q) return contributors;
 
-    // Case-insensitive search for contributor names containing the query string
-    return contributors.filter((contributor) =>
-      contributor.contributor.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    return contributors.filter((c) => {
+      const haystack = [
+        c.contributor,
+        c.fund,
+        c.date,
+        c.amount,
+        c.hasTransactions ? "has transactions" : "no transactions",
+      ]
+        .map(norm)
+        .join(" ");
+      return haystack.includes(q);
+    });
   }, [contributors, searchQuery]);
+  // ---------------------------------------
 
-  const columns: Column<TableData>[] = [
-    {
-      header: "Date",
-      accessor: "date",
-      dataType: "date",
-      sortable: true,
-    },
-    {
-      header: "Contributor",
-      accessor: "contributor",
-      dataType: "string",
-      sortable: true,
-    },
-    {
-      header: "Fund",
-      accessor: "fund",
-      dataType: "string",
-      sortable: true,
-    },
+  const columns: Column<ContributorRow>[] = [
+    { header: "Date", accessor: "date", dataType: "date", sortable: true },
+    { header: "Contributor", accessor: "contributor", dataType: "string", sortable: true },
+    { header: "Fund", accessor: "fund", dataType: "string", sortable: true },
     {
       header: "Amount",
       accessor: "amount",
@@ -220,47 +166,40 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
       sortable: true,
       headerClassName: "text-right",
       className: "text-right font-medium",
-      Cell: (value, rowData) => {
-        if (value === null) {
+      Cell: (value) => {
+        if (value === null || value === undefined) {
           return <span className="text-gray-500">No Transactions Found</span>;
         }
-
         return (
           <span style={{ color: value < 0 ? "red" : "green" }}>
             {value < 0 ? "-" : "+"}
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "USD",
-            }).format(Math.abs(value))}
+            {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
+              Math.abs(value)
+            )}
           </span>
         );
       },
     },
   ];
 
-  if (loading) {
-    return <div>Loading contributors...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-100 text-red-700 rounded p-3 text-sm">{error}</div>
-    );
-  }
+  if (loading) return <div>Loading contributors...</div>;
+  if (error)
+    return <div className="bg-red-100 text-red-700 rounded p-3 text-sm">{error}</div>;
 
   return (
     <div>
-      {/* Display search results message if filtering */}
       {searchQuery && searchQuery.trim() !== "" && (
         <div className="mb-4 text-sm">
           {filteredContributors.length === 0
             ? `No contributors found for "${searchQuery}"`
-            : `Showing ${filteredContributors.length} contributor${filteredContributors.length !== 1 ? "s" : ""} for "${searchQuery}"`}
+            : `Showing ${filteredContributors.length} contributor${
+                filteredContributors.length !== 1 ? "s" : ""
+              } for "${searchQuery}"`}
         </div>
       )}
 
-      <SimpleTable<TableData>
-        data={filteredContributors} // Use the filtered data
+      <SimpleTable<ContributorRow>
+        data={filteredContributors}
         columns={columns}
         pageSize={PAGE_SIZE}
       />

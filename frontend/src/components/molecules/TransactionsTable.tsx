@@ -28,7 +28,7 @@ interface Transaction {
   };
 }
 
-interface TableData {
+type TxRow = {
   id: string;
   date: string;
   contributor?: string;
@@ -40,26 +40,28 @@ interface TableData {
   amount: number;
   restriction?: string;
   documentLink?: string;
-}
+  _desc?: string; // for searching description
+};
 
 interface TransactionsTableProps {
   tableType: "transactions" | "contributions";
-  searchQuery?: string; // New prop to filter by organization name
+  searchQuery?: string;
 }
 
 const API_URL = "http://localhost:8000";
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
   tableType,
-  searchQuery = "", // Default to empty string if not provided
+  searchQuery = "",
 }) => {
   const PAGE_SIZE = 5;
-  const [transactions, setTransactions] = useState<TableData[]>([]);
+  const [transactions, setTransactions] = useState<TxRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tableType]);
 
   const fetchTransactions = async () => {
@@ -68,7 +70,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
     try {
       const response = await fetch(`${API_URL}/transactions`);
-
       if (!response.ok) {
         const statusText = response.statusText || "Unknown error";
         throw new Error(`HTTP error! Status: ${response.status} ${statusText}`);
@@ -77,7 +78,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       const data = await response.json();
 
       if (data && data.transactions) {
-        const filteredTransactions =
+        const filtered =
           tableType === "contributions"
             ? data.transactions.filter(
                 (t: Transaction) =>
@@ -85,145 +86,114 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               )
             : data.transactions;
 
-        const mappedData = filteredTransactions.map(
-          (transaction: Transaction) => {
-            return {
-              id: transaction.id,
-              date: new Date(transaction.date).toLocaleDateString(),
-              contributor: transaction.contributor
-                ? `${transaction.contributor.firstName} ${transaction.contributor.lastName}`
-                : `--`,
-              contributorId: transaction.contributorId || undefined,
-              fund: transaction.organization.name,
-              fundId: transaction.organizationId || undefined,
-              type: formatTransactionType(transaction.type),
-              units: transaction.units || undefined,
-              amount:
-                transaction.type === "EXPENSE" ||
-                transaction.type === "WITHDRAWAL"
-                  ? -Math.abs(transaction.amount) // Ensure it's negative
-                  : transaction.amount, // Leave as is for other types
-            };
-          }
-        );
+        const mapped: TxRow[] = filtered.map((t: Transaction) => ({
+          id: t.id,
+          date: new Date(t.date).toLocaleDateString(),
+          contributor: t.contributor
+            ? `${t.contributor.firstName} ${t.contributor.lastName}`
+            : `--`,
+          contributorId: t.contributorId || undefined,
+          fund: t.organization.name,
+          fundId: t.organizationId || "",
+          type: formatTransactionType(t.type),
+          units: t.units || undefined,
+          amount:
+            t.type === "EXPENSE" || t.type === "WITHDRAWAL"
+              ? -Math.abs(t.amount)
+              : t.amount,
+          restriction: t.organization?.restriction ?? "",
+          _desc: t.description ?? "",
+        }));
 
-        setTransactions(mappedData);
+        setTransactions(mapped);
+      } else {
+        setTransactions([]);
       }
     } catch (err) {
       console.error("Error fetching transactions:", err);
       setError("Failed to load transactions. Please try again later.");
+      setTransactions([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const formatTransactionType = (type: TransactionType): string => {
-    return type.charAt(0) + type.slice(1).toLowerCase();
-  };
+  const formatTransactionType = (type: TransactionType): string =>
+    type.charAt(0) + type.slice(1).toLowerCase();
 
-  const getTableTitle = () => {
-    return tableType === "contributions" ? "Contributions" : "Transactions";
-  };
+  const getTableTitle = () =>
+    tableType === "contributions" ? "Contributions" : "Transactions";
 
-  // Filter transactions based on search query
+  // ---- robust filtering across fields ----
+  const norm = (v: unknown) =>
+    (v ?? "").toString().toLowerCase().normalize("NFKD");
+
   const filteredTransactions = useMemo(() => {
-    if (!searchQuery || searchQuery.trim() === "") {
-      return transactions; // Return all transactions if no search query
-    }
+    const q = norm(searchQuery).trim();
+    if (!q) return transactions;
 
-    // Case-insensitive search for organization names (fund) containing the query string
-    return transactions.filter((transaction) =>
-      transaction.fund.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    return transactions.filter((t) => {
+      const haystack = [
+        t.date,
+        t.contributor,
+        t.fund,
+        t.type,
+        t.units,
+        t.amount,
+        t.restriction,
+        t._desc,
+      ]
+        .map(norm)
+        .join(" ");
+      return haystack.includes(q);
+    });
   }, [transactions, searchQuery]);
+  // ---------------------------------------
 
-  const getColumns = (): Column<TableData>[] => {
-    const baseColumns: Column<TableData>[] = [
-      {
-        header: "Date",
-        accessor: "date",
-        dataType: "date",
-        sortable: true,
-      },
-      {
-        header: "Contributor",
-        accessor: "contributor",
-        dataType: "string",
-        sortable: true,
-      },
-      {
-        header: "Fund",
-        accessor: "fund",
-        dataType: "string",
-        sortable: true,
-      },
-      {
-        header: "Type",
-        accessor: "type",
-        dataType: "string",
-        sortable: true,
-      },
-      {
-        header: "Amount",
-        accessor: "amount",
-        dataType: "number",
-        sortable: true,
-        headerClassName: "text-right",
-        className: "text-right font-medium",
-        Cell: (value) => (
-          <span style={{ color: value < 0 ? "red" : "green" }}>
-            {value < 0 ? "-" : "+"}
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "USD",
-            }).format(Math.abs(value))}
-          </span>
-        ),
-      },
-    ];
+  const columns: Column<TxRow>[] = [
+    { header: "Date", accessor: "date", dataType: "date", sortable: true },
+    { header: "Contributor", accessor: "contributor", dataType: "string", sortable: true },
+    { header: "Fund", accessor: "fund", dataType: "string", sortable: true },
+    { header: "Type", accessor: "type", dataType: "string", sortable: true },
+    // Insert Units before Amount for transactions view
+    ...(tableType === "transactions"
+      ? [{ header: "Units", accessor: "units", dataType: "number", sortable: true } as Column<TxRow>]
+      : []),
+    {
+      header: "Amount",
+      accessor: "amount",
+      dataType: "number",
+      sortable: true,
+      headerClassName: "text-right",
+      className: "text-right font-medium",
+      Cell: (value) => (
+        <span style={{ color: value < 0 ? "red" : "green" }}>
+          {value < 0 ? "-" : "+"}
+          {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
+            Math.abs(value)
+          )}
+        </span>
+      ),
+    },
+  ];
 
-    // Add units column only for transactions table, positioned before Amount
-    // Since Amount is the last column (index 4), we insert Units at position 4
-    if (tableType === "transactions") {
-      baseColumns.splice(4, 0, {
-        header: "Units",
-        accessor: "units",
-        dataType: "number",
-        sortable: true,
-      });
-    }
-
-    return baseColumns;
-  };
-
-  const columns = getColumns();
-
-  if (loading) {
-    return <div>Loading {getTableTitle().toLowerCase()}...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-100 text-red-700 rounded p-3 text-sm">{error}</div>
-    );
-  }
+  if (loading) return <div>Loading {getTableTitle().toLowerCase()}...</div>;
+  if (error)
+    return <div className="bg-red-100 text-red-700 rounded p-3 text-sm">{error}</div>;
 
   return (
     <div>
-      {/* Display search results message if filtering */}
       {searchQuery && searchQuery.trim() !== "" && (
         <div className="mb-4 text-sm">
           {filteredTransactions.length === 0
             ? `No results found for "${searchQuery}"`
-            : `Showing ${filteredTransactions.length} result${filteredTransactions.length !== 1 ? "s" : ""} for "${searchQuery}"`}
+            : `Showing ${filteredTransactions.length} result${
+                filteredTransactions.length !== 1 ? "s" : ""
+              } for "${searchQuery}"`}
         </div>
       )}
 
-      <SimpleTable<TableData>
-        data={filteredTransactions} // Use the filtered data
-        columns={columns}
-        pageSize={PAGE_SIZE}
-      />
+      <SimpleTable<TxRow> data={filteredTransactions} columns={columns} pageSize={PAGE_SIZE} />
     </div>
   );
 };

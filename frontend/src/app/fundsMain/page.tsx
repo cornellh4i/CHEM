@@ -1,3 +1,4 @@
+// frontend/src/app/fundsMain/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -19,21 +20,13 @@ import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 const FundsMainPage = () => {
   const buttonColor = "#838383";
   const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearch = (query: string) => {
-    console.log("Searching for:", query);
-    setSearchQuery(query);
-  };
-
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
   const handleChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _event: React.MouseEvent<HTMLElement>,
     newView: "list" | "grid" | null
   ) => {
-    if (newView !== null) {
-      setViewMode(newView);
-    }
+    if (newView !== null) setViewMode(newView);
   };
 
   return (
@@ -74,11 +67,13 @@ const FundsMainPage = () => {
         </div>
 
         <div className="mb-12 flex items-center justify-center gap-x-4">
-          <div className="flex-grow">
+          <div className="flex-grow max-w-xl">
             <SearchBar
-              onSearch={handleSearch}
+              onSearch={setSearchQuery}          // Option B: local state drives table filter
               width="100%"
               placeholder="Search for a fund..."
+              emitOnType
+              debounceMs={250}
             />
           </div>
 
@@ -129,7 +124,9 @@ const FundsMainPage = () => {
             </ToggleButton>
           </ToggleButtonGroup>
         </div>
+
         {viewMode === "list" ? (
+          // ContributorsTable already supports filtering by contributor + fund
           <ContributorsTable searchQuery={searchQuery} />
         ) : (
           <ContributionsGraph />
