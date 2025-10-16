@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 const API_URL = "http://localhost:8000";
 
@@ -56,22 +56,24 @@ export default function FundsListTable() {
       const data = await response.json();
 
       if (data && data.funds && data.funds.funds) {
-        const mappedFunds: Fund[] = data.funds.funds.map((apiFund: ApiFund) => ({
-          name: apiFund.name,
-          id: apiFund.id,
-          restriction: apiFund.restriction ? "Restricted" : "Unrestricted",
-          type: apiFund.type === "ENDOWMENT" ? "Endowment" : "Donation",
-          contributors: 0,
-          units: apiFund.units || 0,
-          amount: apiFund.amount,
-        }));
+        const mappedFunds: Fund[] = data.funds.funds.map(
+          (apiFund: ApiFund) => ({
+            name: apiFund.name,
+            id: apiFund.id,
+            restriction: apiFund.restriction ? "Restricted" : "Unrestricted",
+            type: apiFund.type === "ENDOWMENT" ? "Endowment" : "Donation",
+            contributors: 0,
+            units: apiFund.units || 0,
+            amount: apiFund.amount,
+          })
+        );
 
         setFunds(mappedFunds);
       } else {
         setFunds([]);
       }
     } catch (err) {
-      console.error("errpr fetching funds:", err);
+      console.error("error fetching funds:", err);
       setError("failed to load funds");
     } finally {
       setLoading(false);
@@ -80,7 +82,7 @@ export default function FundsListTable() {
 
   if (loading) {
     return (
-      <div className="w-full flex justify-center items-center py-8">
+      <div className="flex w-full items-center justify-center py-8">
         <div className="text-lg text-muted-foreground">Loading funds...</div>
       </div>
     );
@@ -88,11 +90,13 @@ export default function FundsListTable() {
 
   if (error) {
     return (
-      <div className="w-full flex flex-col items-center justify-center py-8 gap-4">
-        <div className="text-lg text-red-600">Error: {error}</div>
+      <div
+        className="flex w-full flex-col items-center justify-center gap-4 py-8"
+      >
+        <div className="text-red-600 text-lg">Error: {error}</div>
         <button
           onClick={fetchFunds}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="bg-blue-500 text-white hover:bg-blue-600 rounded px-4 py-2"
         >
           Retry
         </button>
@@ -102,31 +106,32 @@ export default function FundsListTable() {
 
   if (funds.length === 0) {
     return (
-      <div className="w-full flex justify-center items-center py-8">
+      <div className="flex w-full items-center justify-center py-8">
         <div className="text-lg text-muted-foreground">No funds available</div>
       </div>
     );
   }
 
   return (
-    <div className="w-full flex flex-col gap-4">
-      {funds.map((fund, index) => (
+    <div className="flex w-full flex-col gap-4">
+      {funds.map((fund) => (
         <div
-          key={index}
+          key={fund.id}
           onClick={() => router.push(`/fundsMain/${fund.id}`)}
-          className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-4 rounded-xl shadow-sm border cursor-pointer hover:shadow-md transition-shadow"
+          className="bg-white flex flex-col items-start justify-between rounded-xl border p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow md:flex-row md:items-center"
         >
           <div className="flex flex-col gap-2">
             <span className="text-lg font-medium">{fund.name}</span>
             <div className="flex flex-wrap gap-2">
-              <Badge>{fund.id}</Badge>
-              <Badge>{fund.restriction}</Badge>
               <Badge>{fund.type}</Badge>
+              <Badge>{fund.restriction}</Badge>
             </div>
           </div>
 
-          <div className="flex flex-col md:items-end items-start gap-2 mt-4 md:mt-0">
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="mt-4 flex flex-col items-start gap-2 md:mt-0 md:items-end">
+            <div
+              className="flex items-center gap-4 text-sm text-muted-foreground"
+            >
               <span>{fund.contributors} contributors</span>
               <span>{fund.units.toLocaleString()} units</span>
             </div>
@@ -145,7 +150,7 @@ export default function FundsListTable() {
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="bg-muted text-sm text-muted-foreground rounded-full px-3 py-1 border">
+    <span className="rounded-full border bg-muted px-3 py-1 text-sm text-muted-foreground">
       {children}
     </span>
   );
