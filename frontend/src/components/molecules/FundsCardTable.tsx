@@ -22,6 +22,7 @@ interface ApiFund {
 
 // FundCard structure
 interface FundCardProps {
+  id: string;
   name: string;
   amount: number;
   contributors: number;
@@ -63,6 +64,7 @@ export default function FundsCardTable() {
           amount: apiFund.amount,
           contributors: 0, // todo: fetch contributors count from API
           percentage: 0, // todo: calculate percentage or get from API
+          id: apiFund.id,
           isRestricted: apiFund.restriction || false,
           isEndowment: apiFund.type === "ENDOWMENT",
           description: apiFund.description || "No description available",
@@ -115,6 +117,7 @@ export default function FundsCardTable() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {funds.map((fund, index) => (
           <FundCard
+            id={fund.id}
             key={index}
             name={fund.name}
             amount={fund.amount}

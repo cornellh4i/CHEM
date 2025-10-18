@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { FaUser, FaPercentage } from "react-icons/fa";
 import { LineChart, Line } from "recharts";
+import { useRouter } from "next/navigation";
 
 const dummyChartData = [
   { date: 1, value: 200 },
@@ -12,6 +13,7 @@ const dummyChartData = [
 ];
 
 interface FundCardProps {
+  id: string;
   name: string;
   amount: number;
   contributors: number;
@@ -22,6 +24,7 @@ interface FundCardProps {
 }
 
 const FundCard: React.FC<FundCardProps> = ({
+  id,
   name,
   amount,
   contributors,
@@ -30,6 +33,7 @@ const FundCard: React.FC<FundCardProps> = ({
   isEndowment,
   description,
 }) => {
+  const router = useRouter();
   // adjust width to fit screen sizes dynamically
   const [chartWidth, setChartWidth] = useState(280);
 
@@ -47,6 +51,13 @@ const FundCard: React.FC<FundCardProps> = ({
 
   return (
     <div
+      onClick={() => router.push(`/funds/${id}`)}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.1)")
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.boxShadow = "0 2px 6px rgba(0, 0, 0, 0.05)")
+      }
       style={{
         maxWidth: "357px",
         minHeight: "266px",
@@ -131,23 +142,21 @@ const FundCard: React.FC<FundCardProps> = ({
           marginBottom: "8px",
         }}
       >
-        {isEndowment && (
-          <span
-            style={{
-              padding: "4px 8px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              border: "1px solid #e5e7eb",
-              borderRadius: "16px",
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "#747474",
-            }}
-          >
-            {isRestricted ? "Restricted" : "Unrestricted"}
-          </span>
-        )}
+        <span
+          style={{
+            padding: "4px 8px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            border: "1px solid #e5e7eb",
+            borderRadius: "16px",
+            fontSize: "14px",
+            fontWeight: 600,
+            color: "#747474",
+          }}
+        >
+          {isRestricted ? "Restricted" : "Unrestricted"}
+        </span>
 
         <span
           style={{
