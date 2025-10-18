@@ -1,13 +1,74 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState, use } from "react";
 import FundTemplate from "@/components/templates/FundTemplate";
 import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 import TransactionsTable from "@/components/molecules/TransactionsTable";
 
-const FundPage = () => {
+const API_URL = "http://localhost:8000";
+
+interface FundData {
+  id: string;
+  name: string;
+  amount: number;
+  description: string;
+  organizationId: string;
+  type: "ENDOWMENT" | "DONATION";
+  restriction?: boolean;
+  purpose?: string;
+  units?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Contributor {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+}
+
+const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
+  const { fundId } = use(params);
   const [activeTab, setActiveTab] = useState<
     "summary" | "transactions" | "contributors"
   >("summary");
+
+  const [fundData, setFundData] = useState<FundData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [contributorsData, setContributors] = useState<Contributor[]>([]);
+
+  useEffect(() => {
+    const fetchFund = async () => {
+      try {
+        setLoading(true);
+        const [fundResponse, contributorsResponse] = await Promise.all([
+          fetch(`${API_URL}/funds/${fundId}`),
+          fetch(`${API_URL}/funds/${fundId}/contributors`),
+        ]);
+
+        if (!fundResponse.ok) {
+          throw new Error("failure to fetch fund");
+        }
+
+        const fundData = await fundResponse.json();
+        const contributorsData = await contributorsResponse.json();
+        setFundData(fundData);
+
+        setContributors(contributorsData.contributors || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "unknown error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFund();
+  }, [fundId]);
+
+  if (loading) return <div>loading fund data</div>;
+  if (error) return <div>error: {error}</div>;
+  if (!fundData) return <div>error: fund not found</div>;
 
   // Summary tab content
   const summary = (
@@ -16,12 +77,12 @@ const FundPage = () => {
         <div className="mb-4 flex items-center justify-between">
           <div>
             <div className="text-gray-500 text-sm">Account Balance</div>
-            <div className="text-3xl font-bold">$63,534</div>
+            <div className="text-3xl font-bold">
+              ${fundData.amount.toLocaleString()}
+            </div>
           </div>
           {/* Static date range for now */}
-          <div className="text-gray-600 text-sm">
-            Jan 04, 2023 — Jan 04, 2024
-          </div>
+          <div className="text-gray-600 text-sm">{fundData.createdAt}</div>
         </div>
         <ContributionsGraph />
         <div className="text-gray-700 mt-4 flex gap-12 text-sm">
@@ -47,7 +108,11 @@ const FundPage = () => {
           + Add a new transaction
         </button>
       </div>
-      <TransactionsTable tableType="contributions" />
+      <TransactionsTable
+        tableType="transactions"
+        fundId={fundId}
+        fundName={fundData.name}
+      />
     </div>
   );
 
@@ -60,18 +125,15 @@ const FundPage = () => {
         className="w-full rounded-md border px-4 py-2 text-sm"
       />
       <div className="space-y-2">
-        {[
-          // TODO make this connect 2 backend for contributors
-          { name: "Theo Rumburg", amount: "$11,508.97" },
-          { name: "John Clay", amount: "$11,508.97" },
-          { name: "Dorothy Rumburg", amount: "$11,508.97" },
-        ].map((contributor, index) => (
+        {contributorsData.map((contributor) => (
           <div
-            key={index}
+            key={contributor.id}
             className="text-gray-800 flex justify-between border-b pb-2 text-sm"
           >
-            <span>{contributor.name}</span>
-            <span className="font-medium">{contributor.amount}</span>
+            <span>
+              {contributor.firstName} {contributor.lastName}
+            </span>
+            <span className="font-medium">{contributor.email || "N/A"}</span>
           </div>
         ))}
       </div>
@@ -80,8 +142,8 @@ const FundPage = () => {
 
   return (
     <FundTemplate
-      fundName="Fund Name"
-      fundDescription="This is a placeholder description for the fund. Replace with actual fund data."
+      fundName={fundData.name}
+      fundDescription={fundData.description}
       summary={summary}
       transactions={transactions}
       contributors={contributors}

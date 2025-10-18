@@ -117,8 +117,8 @@ export default function FundsListTable() {
       {funds.map((fund) => (
         <div
           key={fund.id}
-          onClick={() => router.push(`/fundsMain/${fund.id}`)}
-          className="bg-white flex flex-col items-start justify-between rounded-xl border p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow md:flex-row md:items-center"
+          onClick={() => router.push(`/funds/${fund.id}`)}
+          className="bg-white flex cursor-pointer flex-col items-start justify-between rounded-xl border p-4 shadow-sm transition-shadow hover:shadow-md md:flex-row md:items-center"
         >
           <div className="flex flex-col gap-2">
             <span className="text-lg font-medium">{fund.name}</span>

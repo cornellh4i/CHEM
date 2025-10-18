@@ -51,9 +51,13 @@ const FundCard: React.FC<FundCardProps> = ({
 
   return (
     <div
-      onClick={() => router.push(`/fundsMain/${id}`)}
-      onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.1)"}
-      onMouseLeave={(e) => e.currentTarget.style.boxShadow = "0 2px 6px rgba(0, 0, 0, 0.05)"}
+      onClick={() => router.push(`/funds/${id}`)}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.1)")
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.boxShadow = "0 2px 6px rgba(0, 0, 0, 0.05)")
+      }
       style={{
         maxWidth: "357px",
         minHeight: "266px",
