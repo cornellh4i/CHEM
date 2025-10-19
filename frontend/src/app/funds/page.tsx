@@ -133,7 +133,11 @@ const FundsPage = () => {
             </ToggleButton>
           </ToggleButtonGroup>
         </div>
-        {viewMode === "list" ? <FundsListTable /> : <FundsCardTable />}
+        {viewMode === "list" ? (
+          <FundsListTable searchQuery={searchQuery} />
+        ) : (
+          <FundsCardTable searchQuery={searchQuery} />
+        )}
       </div>
     </DashboardTemplate>
   );
