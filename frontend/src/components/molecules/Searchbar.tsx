@@ -17,19 +17,47 @@ const SearchBar: React.FC<SearchBarProps> = ({
   style,
 }) => {
   const [query, setQuery] = useState("");
+  const debounceTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  React.useEffect(() => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      onSearch(query.trim());
+    }, 300);
+  }, [query, onSearch]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(event.target.value);
+    const val = event.target.value;
+    setQuery(val);
+    if (val.trim() === "") {
+      onSearch("");
+    }
+
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      onSearch(val.trim());
+    }, 300);
   };
 
   const handleSearch = () => {
-    onSearch(query);
+    onSearch(query.trim());
   };
 
   return (
     <TextField
       value={query}
       onChange={handleInputChange}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          onSearch(query.trim());
+        }
+      }}
       placeholder={placeholder}
       variant="outlined"
       style={{

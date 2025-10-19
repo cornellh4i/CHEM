@@ -67,8 +67,8 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchOrganizations().then(() => fetchContributors());
-  }, []);
+    fetchOrganizations().then(() => fetchContributors(searchQuery ?? ""));
+  }, [searchQuery]);
 
   const fetchOrganizations = async () => {
     try {
@@ -99,12 +99,17 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
     }
   };
 
-  const fetchContributors = async () => {
+  const fetchContributors = async (q: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/contributors`);
+      const url = new URL(`${API_URL}/contributors`);
+      if (q && q.trim() !== "") {
+        url.searchParams.set("q",q.trim());
+      }
+
+      const response = await fetch(url.toString());
 
       if (!response.ok) {
         const statusText = response.statusText || "Unknown error";
