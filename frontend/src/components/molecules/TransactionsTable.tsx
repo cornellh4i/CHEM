@@ -105,7 +105,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 ? `${transaction.contributor.firstName} ${transaction.contributor.lastName}`
                 : `--`,
               contributorId: transaction.contributorId || undefined,
-              fund: transaction.organization?.name || fundName || "Unknown Fund",
+              fund:
+                transaction.organization?.name || fundName || "Unknown Fund",
               fundId: transaction.organizationId || undefined,
               type: formatTransactionType(transaction.type),
               units: transaction.units || undefined,
@@ -138,13 +139,35 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
   // Filter transactions based on search query
   const filteredTransactions = useMemo(() => {
-    if (!searchQuery || searchQuery.trim() === "") {
-      return transactions; // Return all transactions if no search query
+    const q = (searchQuery ?? "").trim().toLowerCase();
+    if (!q) {
+      return transactions;
     }
+    const rowText = (t: TableData) =>
+      [
+        t.date,
+        t.contributor ?? "",
+        t.fund ?? "",
+        t.type ?? "",
+        t.units?.toString() ?? "",
+        (() => {
+          const sign = t.amount < 0 ? "-" : "+";
+          const amt = new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(Math.abs(t.amount));
+          return `${sign}${amt}`;
+        })(),
+        t.restriction ?? "",
+        t.documentLink ?? "",
+        t.id,
+      ]
+        .join("")
+        .toLowerCase();
 
     // Case-insensitive search for organization names (fund) containing the query string
     return transactions.filter((transaction) =>
-      transaction.fund.toLowerCase().includes(searchQuery.toLowerCase())
+      rowText(transaction).includes(q)
     );
   }, [transactions, searchQuery]);
 
