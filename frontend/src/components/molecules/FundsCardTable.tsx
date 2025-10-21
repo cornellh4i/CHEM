@@ -41,6 +41,9 @@ export default function FundsCardTable({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+
+  // Checks if there's a search term. If yes, only keep funds whose names include it (ignoring case).
+  // If not, show all funds.
   const filteredFunds = searchQuery
     ? funds.filter((fund) =>
         (fund.name ?? "").toLowerCase().includes(searchQuery.toLowerCase())
@@ -125,6 +128,8 @@ export default function FundsCardTable({
     );
   }
 
+
+  // Added code such that if there's a non-empty search, a small helper line with how many results matched is displayed to user.
   return (
     <div className="w-full">
       {searchQuery?.trim() && (

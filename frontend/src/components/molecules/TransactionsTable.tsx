@@ -137,12 +137,15 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     return tableType === "contributions" ? "Contributions" : "Transactions";
   };
 
-  // Filter transactions based on search query
+  // Normalize the user's search input by trimming spaces and converting to lowercase.
+  // If the query is empty, return all transactions without filtering.
   const filteredTransactions = useMemo(() => {
     const q = (searchQuery ?? "").trim().toLowerCase();
     if (!q) {
       return transactions;
     }
+    // Builds a single lowercase string containing all key fields of a table row,
+    // allowing flexible "search by anything" text matching across all attributes.
     const rowText = (t: TableData) =>
       [
         t.date,

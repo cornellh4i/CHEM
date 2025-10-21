@@ -182,7 +182,9 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
     }
   };
 
-  // Filter contributors based on search query
+  // Enables “search anything” on the table:
+  // normalize the query, and if present, build a combined text string per row
+  // (date, name, fund, amount, status, id) and keep rows that contain the query.
   const filteredContributors = useMemo(() => {
    const q = (searchQuery ?? "").trim().toLowerCase();
    if (!q) return contributors;

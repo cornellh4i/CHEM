@@ -39,6 +39,8 @@ export default function FundsCardTable({
   const [funds, setFunds] = useState<Fund[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Filter funds by name (case-insensitive). If there's no search text, show all funds.
   const router = useRouter();
 
   const filteredFunds = searchQuery
@@ -121,6 +123,8 @@ export default function FundsCardTable({
       </div>
     );
   }
+
+  // Added code such that if there's a non-empty search, a small helper line with how many results matched is displayed to user.
 
   return (
     <div className="flex w-full flex-col gap-4">
