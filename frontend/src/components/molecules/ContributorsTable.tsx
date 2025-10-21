@@ -67,8 +67,8 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchOrganizations().then(() => fetchContributors(searchQuery ?? ""));
-  }, [searchQuery]);
+    fetchOrganizations().then(() => fetchContributors());
+  }, []);
 
   const fetchOrganizations = async () => {
     try {
@@ -99,17 +99,12 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
     }
   };
 
-  const fetchContributors = async (q: string) => {
+  const fetchContributors = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const url = new URL(`${API_URL}/contributors`);
-      if (q && q.trim() !== "") {
-        url.searchParams.set("q",q.trim());
-      }
-
-      const response = await fetch(url.toString());
+      const response = await fetch(`${API_URL}/contributors`);
 
       if (!response.ok) {
         const statusText = response.statusText || "Unknown error";
@@ -189,14 +184,35 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
 
   // Filter contributors based on search query
   const filteredContributors = useMemo(() => {
-    if (!searchQuery || searchQuery.trim() === "") {
-      return contributors; // Return all contributors if no search query
-    }
+   const q = (searchQuery ?? "").trim().toLowerCase();
+   if (!q) return contributors;
 
-    // Case-insensitive search for contributor names containing the query string
-    return contributors.filter((contributor) =>
-      contributor.contributor.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+   const rowText = (r: TableData) => {
+     const amountStr =
+       r.amount === null || r.amount === undefined
+         ? "no transactions found"
+         : (() => {
+             const sign = r.amount < 0 ? "-" : "+";
+             const amt = new Intl.NumberFormat("en-US", {
+               style: "currency",
+               currency: "USD",
+             }).format(Math.abs(r.amount));
+             return `${sign}${amt}`;
+           })();
+
+     return [
+       r.date,
+       r.contributor,
+       r.fund,
+       amountStr,
+       r.hasTransactions ? "has transactions" : "no transactions",
+       r.id,
+    ]
+        .join(" ")
+        .toLowerCase();
+    };
+ 
+    return contributors.filter((r) => rowText(r).includes(q));
   }, [contributors, searchQuery]);
 
   const columns: Column<TableData>[] = [

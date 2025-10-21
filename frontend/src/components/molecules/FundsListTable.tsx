@@ -124,6 +124,11 @@ export default function FundsCardTable({
 
   return (
     <div className="flex w-full flex-col gap-4">
+      {searchQuery?.trim() && (
+     <div className="mb-2 text-sm text-gray-600">
+       {`Showing ${filteredFunds.length} funds for "${searchQuery}"`}
+      </div>
+    )}
       {filteredFunds.map((fund) => (
         <div
           key={fund.id}
