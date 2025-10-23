@@ -107,7 +107,7 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// logout controller: revokes user's refresh tokens
+// logout controller: revokes user's refresh tokens, logout on all devices
 export const logout = async (req: Request, res: Response) => {
   if (!req.auth) return res.status(401).json({ error: "Unauthorized" });
   const { uid } = req.auth;

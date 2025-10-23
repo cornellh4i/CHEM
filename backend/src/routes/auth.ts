@@ -1,3 +1,5 @@
+"use client";
+
 import { Router, Request, Response, NextFunction } from "express";
 import { signUp, login, logout } from "../controllers/auth";
 import admin from "../utils/firebase-admin";
@@ -19,14 +21,14 @@ function extractBearer(header?: string): string | null {
 async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = extractBearer(req.headers.authorization);
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    return res.status(401).json({ error: "Empty Token" });
   }
   try {
     const decoded = await admin.auth().verifyIdToken(token);
     req.auth = decoded;
     next();
   } catch {
-    return res.status(401).json({ error: "Unauthorized" });
+    return res.status(401).json({ error: "Invalid Token" });
   }
 }
 

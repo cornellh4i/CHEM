@@ -31,6 +31,7 @@ export async function signUpThenLoginFlow(apiBase: string, input: SignUpInput) {
 
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   const idToken = await cred.user.getIdToken();
+  console.log(idToken);
 
   console.log("before signup");
 
