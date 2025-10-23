@@ -1,129 +1,123 @@
-import type { Request } from "express";
-import jwt from "jsonwebtoken";
-import admin from "../utils/firebase";
+import type { Request, Response } from "express";
+import admin from "../utils/firebase-admin";
 import prisma from "../utils/client";
+// validates JSONs
+import { z } from "zod";
+import { Role } from "@prisma/client";
 
-/**
- * Shape of the payload expected from the auth routes when creating a user.
- * Extend as your sign-up flow evolves (e.g. invite codes, profile fields).
- */
-export interface SignUpParams {
-  idToken: string; // Firebase (or other IdP) token asserted by the client
-  organizationId: string;
-  profile?: {
-    email?: string;
-    displayName?: string;
-  };
+declare module "express" {
+  interface Request {
+    auth?: admin.auth.DecodedIdToken;
+  }
 }
 
-/**
- * Shape of the payload expected from the auth routes when logging in. Include
- * whatever credentials or tokens your provider issues.
- */
-export interface LoginParams {
-  idToken: string;
-}
+// --- validation ---
+const signUpBody = z.object({
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  role: z.nativeEnum(Role).default(Role.USER),
+  organizationName: z.string().min(1),
+  organizationDescription: z.string().optional(),
+});
 
-/**
- * Normalised auth response the routes can hand back to the client. Add refresh
- * tokens or session metadata if your flow needs them.
- */
-export interface AuthResult {
-  userId: string;
-  organizationId: string;
-  token: string;
-  refreshToken?: string;
-  user: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-  };
-}
+// sign up controller, creates new user and new org in database
+export const signUp = async (req: Request, res: Response) => {
+  console.log("hello");
+  console.log(admin.app.name);
+  if (!req.auth) return res.status(401).json({ error: "Unauthorized" });
+  const { uid: firebaseUid, email } = req.auth;
 
-/**
- * Persist a newly authenticated user and return the tokens/session info the
- * frontend needs. Implementation should verify the IdP token, create the user
- * row (scoped to the provided organization), and mint an API session/JWT.
- */
-const signUp = async (_params: SignUpParams): Promise<AuthResult> => {
-  throw new Error("signUp controller not implemented");
-};
-
-/**
- * Look up the authenticated user, ensure they belong to an organization, and
- * return a fresh API token/session. Verify the inbound IdP token first.
- */
-const login = async (_params: LoginParams): Promise<AuthResult> => {
   try {
-    // throw error if bad/expired token
-    const decodedToken = await admin.auth().verifyIdToken(_params.idToken);
-
-    // look up user in db
-    const user = await prisma.user.findUnique({
-      where: { firebaseUid: decodedToken.uid },
-      select: {
-        id: true,
-        organizationId: true,
-        firebaseUid: true,
-        role: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-      },
-    });
-
-    if (!user) {
-      throw new Error("User not found in database");
+    if (!email) {
+      return res.status(400).json({ error: "Email missing on Firebase token" });
     }
 
-    // generate JWT token for API access - 30 day expiry
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        firebaseUid: user.firebaseUid,
-        organizationId: user.organizationId,
-        role: user.role,
-      },
-      process.env.JWT_SECRET!,
-      { expiresIn: "30d" }
-    );
+    const parsed = signUpBody.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.flatten() });
+    }
+    const {
+      firstName,
+      lastName,
+      role,
+      organizationName,
+      organizationDescription,
+    } = parsed.data;
 
-    const result: AuthResult = {
-      userId: user.id,
-      organizationId: user.organizationId,
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-      },
-    };
+    // Prevent duplicate signup
+    const existing = await prisma.user.findUnique({ where: { firebaseUid } });
+    if (existing) {
+      return res
+        .status(409)
+        .json({ error: "User already exists. Use /auth/login." });
+    }
 
-    return result;
-  } catch (error) {
-    throw new Error(
-      `Login failed: ${error instanceof Error ? error.message : "Unknown error"}`
-    );
+    const result = await prisma.$transaction(async (tx) => {
+      const organization = await tx.organization.create({
+        data: {
+          name: organizationName,
+          description: organizationDescription,
+          // units/amount have defaults
+        },
+      });
+
+      const user = await tx.user.create({
+        data: {
+          firebaseUid,
+          email,
+          firstName,
+          lastName,
+          role,
+          organizationId: organization.id,
+        },
+        include: { organization: true },
+      });
+
+      return { user, organization };
+    });
+
+    return res.status(201).json(result);
+  } catch (e: any) {
+    const status = e?.status ?? 500;
+    return res.status(status).json({ error: e?.message ?? "Sign up failed" });
   }
 };
 
-/**
- * Tear down the user's active session/token (if stored server-side). No-op if
- * you rely entirely on stateless JWTs.
- */
-const logout = async (_req: Request): Promise<void> => {
-  // stateless JWTs logout is handled client-side by deleting the token
-  // frontend should call Firebase auth directly, no server-side cleanup needed
-  console.log("User logged out successfully");
-  return Promise.resolve();
+// login controller that takes in firebaseUid, finds corresponding user in database and returns the corresponding user
+export const login = async (req: Request, res: Response) => {
+  if (!req.auth) return res.status(401).json({ error: "Unauthorized" });
+  const { uid: firebaseUid } = req.auth;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      include: { organization: true },
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: "User not found. Complete /auth/signup first." });
+    }
+
+    return res.json({ user });
+  } catch (e: any) {
+    const status = e?.status ?? 500;
+    return res.status(status).json({ error: e?.message ?? "Login failed" });
+  }
 };
 
-export default {
-  signUp,
-  login,
-  logout,
+// logout controller: revokes user's refresh tokens
+export const logout = async (req: Request, res: Response) => {
+  if (!req.auth) return res.status(401).json({ error: "Unauthorized" });
+  const { uid } = req.auth;
+  try {
+    await admin.auth().revokeRefreshTokens(uid);
+    return res
+      .status(200)
+      .json({ success: true, message: "Logged out (tokens revoked)" });
+  } catch (e: any) {
+    const status = e?.status ?? 500;
+    return res.status(status).json({ error: e?.message ?? "Logout failed" });
+  }
 };

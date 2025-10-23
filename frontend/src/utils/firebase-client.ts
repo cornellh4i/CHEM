@@ -17,10 +17,21 @@ const firebaseConfig = {
 /** Firebase app */
 const app = initializeApp(firebaseConfig);
 
+console.log("[FB cfg]", {
+  proj: firebaseConfig.projectId,
+  apiKey: !!firebaseConfig.apiKey,
+  authDomain: firebaseConfig.authDomain,
+  appId: firebaseConfig.appId, // <-- must be a real value
+});
+
 /** Check Firebase app Connection */
 console.log("Firebase app", app.name, app.options.projectId);
 
 /** Auth instance associated with the created Firebase App */
 const auth = getAuth(app);
+
+export const __authMarker =
+  "[auth@client]:" + Math.random().toString(36).slice(2);
+console.log(__authMarker);
 
 export default auth;

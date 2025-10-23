@@ -1,7 +1,7 @@
 import React from "react";
 import { Appbar } from "@/components";
 import { signOut } from "firebase/auth";
-import auth from "../../utils/firebase";
+import auth from "../../utils/firebase-client";
 
 const Navbar = () => {
   /** Handles user sign out */

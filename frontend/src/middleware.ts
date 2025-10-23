@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import auth from "./utils/firebase";
+import auth from "./utils/firebase-client";
 
 /**
  * Takes a URL path and converts it into a matching regex
