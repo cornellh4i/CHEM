@@ -16,20 +16,7 @@ type SignUpInput = {
   organizationDescription?: string;
 };
 
-function safeBase(base: string) {
-  try {
-    // Ensure we have a valid absolute base URL; fall back if not
-    const u = new URL(base);
-    return u.origin;
-  } catch {
-    return "http://localhost:8000";
-  }
-}
-
 export async function signUpThenLoginFlow(apiBase: string, input: SignUpInput) {
-  console.log("inside signup flow");
-  const base = safeBase(apiBase);
-  console.log("API base:", base);
   const {
     email,
     password,
@@ -39,17 +26,11 @@ export async function signUpThenLoginFlow(apiBase: string, input: SignUpInput) {
     organizationName,
     organizationDescription,
   } = input;
-  console.log("test");
 
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   const idToken = await cred.user.getIdToken();
-  console.log(idToken);
 
-  console.log("before signup");
-
-  const signupUrl = new URL("/auth/signup", base).toString();
-  console.log("Signup URL:", signupUrl);
-  const signupResp = await fetch(signupUrl, {
+  const signupResp = await fetch(`${apiBase}/auth/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -71,15 +52,11 @@ export async function signUpThenLoginFlow(apiBase: string, input: SignUpInput) {
   }
   const signup = await signupResp.json();
 
-  console.log("afetr signup");
-
   const loginUser = await signInWithEmailAndPassword(auth, email, password);
   const loginToken = await loginUser.user.getIdToken();
 
   // 4) Call backend login (fetch the profile)
-  const loginUrl = new URL("/auth/login", base).toString();
-  console.log("Login URL:", loginUrl);
-  const loginResp = await fetch(loginUrl, {
+  const loginResp = await fetch(`${apiBase}/auth/login`, {
     headers: { Authorization: `Bearer ${loginToken}` },
   });
   if (!loginResp.ok) {

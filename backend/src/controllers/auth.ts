@@ -22,8 +22,6 @@ const signUpBody = z.object({
 
 // sign up controller, creates new user and new org in database
 export const signUp = async (req: Request, res: Response) => {
-  console.log("hello");
-  console.log(admin.app.name);
   if (!req.auth) return res.status(401).json({ error: "Unauthorized" });
   const { uid: firebaseUid, email } = req.auth;
 

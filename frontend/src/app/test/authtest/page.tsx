@@ -8,18 +8,14 @@ import {
 } from "firebase/auth";
 import auth, { __authMarker } from "@/utils/firebase-client";
 
-console.log("marker:", __authMarker, "app:", auth.app.name);
-
 const apiBase =
   process.env.NEXT_PUBLIC_BASE_URL_SERVER ?? "http://localhost:8000";
-console.log("authtest apiBase:", apiBase);
 
 export default function AuthFlowDemo() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string>("");
 
   async function run() {
-    console.log("inside run");
     setLoading(true);
     setResult("");
     try {
@@ -42,7 +38,6 @@ export default function AuthFlowDemo() {
     <main style={{ padding: 24 }}>
       <button
         onClick={() => {
-          console.log("button clicked");
           run();
         }}
         disabled={loading}
