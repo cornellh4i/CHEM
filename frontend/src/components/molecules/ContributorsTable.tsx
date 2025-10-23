@@ -182,16 +182,39 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
     }
   };
 
-  // Filter contributors based on search query
+  // Enables “search anything” on the table:
+  // normalize the query, and if present, build a combined text string per row
+  // (date, name, fund, amount, status, id) and keep rows that contain the query.
   const filteredContributors = useMemo(() => {
-    if (!searchQuery || searchQuery.trim() === "") {
-      return contributors; // Return all contributors if no search query
-    }
+   const q = (searchQuery ?? "").trim().toLowerCase();
+   if (!q) return contributors;
 
-    // Case-insensitive search for contributor names containing the query string
-    return contributors.filter((contributor) =>
-      contributor.contributor.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+   const rowText = (r: TableData) => {
+     const amountStr =
+       r.amount === null || r.amount === undefined
+         ? "no transactions found"
+         : (() => {
+             const sign = r.amount < 0 ? "-" : "+";
+             const amt = new Intl.NumberFormat("en-US", {
+               style: "currency",
+               currency: "USD",
+             }).format(Math.abs(r.amount));
+             return `${sign}${amt}`;
+           })();
+
+     return [
+       r.date,
+       r.contributor,
+       r.fund,
+       amountStr,
+       r.hasTransactions ? "has transactions" : "no transactions",
+       r.id,
+    ]
+        .join(" ")
+        .toLowerCase();
+    };
+ 
+    return contributors.filter((r) => rowText(r).includes(q));
   }, [contributors, searchQuery]);
 
   const columns: Column<TableData>[] = [
