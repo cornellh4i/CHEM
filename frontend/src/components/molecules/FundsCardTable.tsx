@@ -32,11 +32,23 @@ interface FundCardProps {
   description: string;
 }
 
-
-export default function FundsCardTable() {
+export default function FundsCardTable({
+  searchQuery,
+}: {
+  searchQuery: string;
+}) {
   const [funds, setFunds] = useState<FundCardProps[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+
+  // Checks if there's a search term. If yes, only keep funds whose names include it (ignoring case).
+  // If not, show all funds.
+  const filteredFunds = searchQuery
+    ? funds.filter((fund) =>
+        (fund.name ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : funds;
 
   useEffect(() => {
     fetchFunds();
@@ -59,16 +71,18 @@ export default function FundsCardTable() {
 
       if (data && data.funds && data.funds.funds) {
         // API data to FundCard format
-        const mappedFunds: FundCardProps[] = data.funds.funds.map((apiFund: ApiFund) => ({
-          name: apiFund.name,
-          amount: apiFund.amount,
-          contributors: 0, // todo: fetch contributors count from API
-          percentage: 0, // todo: calculate percentage or get from API
-          id: apiFund.id,
-          isRestricted: apiFund.restriction || false,
-          isEndowment: apiFund.type === "ENDOWMENT",
-          description: apiFund.description || "No description available",
-        }));
+        const mappedFunds: FundCardProps[] = data.funds.funds.map(
+          (apiFund: ApiFund) => ({
+            name: apiFund.name,
+            amount: apiFund.amount,
+            contributors: 0, // todo: fetch contributors count from API
+            percentage: 0, // todo: calculate percentage or get from API
+            id: apiFund.id,
+            isRestricted: apiFund.restriction || false,
+            isEndowment: apiFund.type === "ENDOWMENT",
+            description: apiFund.description || "No description available",
+          })
+        );
 
         setFunds(mappedFunds);
       } else {
@@ -84,19 +98,21 @@ export default function FundsCardTable() {
 
   if (loading) {
     return (
-      <div className="w-full flex justify-center items-center py-8">
-        <div className="text-lg text-gray-500">Loading funds...</div>
+      <div className="flex w-full items-center justify-center py-8">
+        <div className="text-gray-500 text-lg">Loading funds...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="w-full flex flex-col items-center justify-center py-8 gap-4">
-        <div className="text-lg text-red-600">Error: {error}</div>
+      <div
+        className="flex w-full flex-col items-center justify-center gap-4 py-8"
+      >
+        <div className="text-red-600 text-lg">Error: {error}</div>
         <button
           onClick={fetchFunds}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="bg-blue-500 text-white hover:bg-blue-600 rounded px-4 py-2"
         >
           Retry
         </button>
@@ -106,16 +122,23 @@ export default function FundsCardTable() {
 
   if (funds.length === 0) {
     return (
-      <div className="w-full flex justify-center items-center py-8">
-        <div className="text-lg text-gray-500">No funds available</div>
+      <div className="flex w-full items-center justify-center py-8">
+        <div className="text-gray-500 text-lg">No funds available</div>
       </div>
     );
   }
 
+
+  // Added code such that if there's a non-empty search, a small helper line with how many results matched is displayed to user.
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {funds.map((fund, index) => (
+      {searchQuery?.trim() && (
+     <div className="mb-2 text-sm text-gray-600">
+       {`Showing ${filteredFunds.length} funds for "${searchQuery}"`}
+      </div>
+    )}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {filteredFunds.map((fund, index) => (
           <FundCard
             id={fund.id}
             key={index}

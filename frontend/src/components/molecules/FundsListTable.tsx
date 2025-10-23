@@ -31,11 +31,23 @@ type Fund = {
   amount: number;
 };
 
-export default function FundsListTable() {
-  const router = useRouter();
+export default function FundsCardTable({
+  searchQuery,
+}: {
+  searchQuery: string;
+}) {
   const [funds, setFunds] = useState<Fund[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Filter funds by name (case-insensitive). If there's no search text, show all funds.
+  const router = useRouter();
+
+  const filteredFunds = searchQuery
+    ? funds.filter((fund) =>
+        (fund.name ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : funds;
 
   useEffect(() => {
     fetchFunds();
@@ -112,9 +124,16 @@ export default function FundsListTable() {
     );
   }
 
+  // Added code such that if there's a non-empty search, a small helper line with how many results matched is displayed to user.
+
   return (
     <div className="flex w-full flex-col gap-4">
-      {funds.map((fund) => (
+      {searchQuery?.trim() && (
+     <div className="mb-2 text-sm text-gray-600">
+       {`Showing ${filteredFunds.length} funds for "${searchQuery}"`}
+      </div>
+    )}
+      {filteredFunds.map((fund) => (
         <div
           key={fund.id}
           onClick={() => router.push(`/funds/${fund.id}`)}
@@ -129,9 +148,7 @@ export default function FundsListTable() {
           </div>
 
           <div className="mt-4 flex flex-col items-start gap-2 md:mt-0 md:items-end">
-            <div
-              className="flex items-center gap-4 text-sm text-muted-foreground"
-            >
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>{fund.contributors} contributors</span>
               <span>{fund.units.toLocaleString()} units</span>
             </div>

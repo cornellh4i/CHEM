@@ -18,18 +18,53 @@ const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
   const [query, setQuery] = useState("");
 
+  // This watches what you type: it saves the text, clears results if you erase everything,
+  // and waits 300ms after you stop typing before running the search.
+  // This way, results update as you type without running a search on every keystroke.
+  const debounceTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  React.useEffect(() => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      onSearch(query.trim());
+    }, 300);
+  }, [query, onSearch]);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(event.target.value);
+    const val = event.target.value;
+    setQuery(val);
+    if (val.trim() === "") {
+      onSearch("");
+    }
+
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      onSearch(val.trim());
+    }, 300);
   };
 
   const handleSearch = () => {
-    onSearch(query);
+    onSearch(query.trim());
   };
 
   return (
     <TextField
       value={query}
       onChange={handleInputChange}
+      // When the user presses Enter inside the input field, trigger the search function
+      // with the trimmed query text.
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          onSearch(query.trim());
+        }
+      }}
+
       placeholder={placeholder}
       variant="outlined"
       style={{
