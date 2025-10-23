@@ -1,7 +1,6 @@
 "use client";
-import React from "react";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
-import SearchBar from "@/components/molecules/Searchbar";
+import React from "react";
 import Switch from '@mui/material/Switch';
 import Person from "@mui/icons-material/Person";
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
@@ -29,15 +28,12 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({ title }) => (
 
 
 const ProfilePage = () => {
-  const handleSearch = (query: string) => {
-    console.log("Search query:", query);
-  };
-  // Removed: no longer needed
+  
+
   return (
     <DashboardTemplate>
       {/* Page header */}
       <div className="mb-8 flex justify-between items-center">
-        <SearchBar onSearch={handleSearch} />
         <div className="flex items-center gap-2 text-gray-700 text-base font-medium">
           <Person />
           Janice Smith

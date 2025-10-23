@@ -11,13 +11,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  firstName String
-  lastName  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String       @id @default(cuid())
+  firebaseUid    String       @unique
+  email          String       @unique
+  firstName      String
+  lastName       String
+  role           Role         @default(USER)
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }
 
 enum Role {
@@ -36,6 +39,7 @@ model Organization {
   funds        Fund[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  User         User[]
 }
 
 model Contributor {

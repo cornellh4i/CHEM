@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-
+import DashboardTemplate from '@/components/templates/DashboardTemplate';
+import Input from '@/components/atoms/Input';
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<'funds' | 'account'>('account');
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-8">
+    <DashboardTemplate>
+      <main className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
       {/* Tabs */}
@@ -74,40 +76,20 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                  <input
-                    type="text"
-                    value="Janice"
-                    readOnly
-                    className="border rounded px-3 py-2 w-full"
-                  />
+                  <Input placeholder="Jane" type="text" className="border rounded px-3 py-2 w-full" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                  <input
-                    type="text"
-                    value="Smith"
-                    readOnly
-                    className="border rounded px-3 py-2 w-full"
-                  />
+                  <Input placeholder="Smith" type="text" className="border rounded px-3 py-2 w-full" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Your Role</label>
-                  <input
-                    type="text"
-                    value="Analyst"
-                    readOnly
-                    className="border rounded px-3 py-2 w-full"
-                  />
+                  <Input placeholder="Analyst" type="text" className="border rounded px-3 py-2 w-full" />
                   <p className="text-xs text-gray-500 mt-1">This was assigned by your administrator</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input
-                    type="email"
-                    value="jsmith@gmail.com"
-                    readOnly
-                    className="border rounded px-3 py-2 w-full"
-                  />
+                  <Input placeholder="jsmith@gmail.com" type="email" className="border rounded px-3 py-2 w-full" />
                 </div>
               </div>
             </section>
@@ -116,12 +98,7 @@ export default function SettingsPage() {
             <section>
               <h2 className="text-lg font-semibold mb-2">Additional contact information</h2>
               <label className="block text-sm font-medium text-gray-700 mb-1">Phone number</label>
-              <input
-                type="tel"
-                value="+1 888-888-7777"
-                readOnly
-                className="border rounded px-3 py-2 w-full sm:w-1/2"
-              />
+              <Input placeholder="+1 888-888-7777" type="tel" className="border rounded px-3 py-2 w-full" />
             </section>
 
             {/* Password */}
@@ -147,5 +124,6 @@ export default function SettingsPage() {
         )}
       </div>
     </main>
+    </DashboardTemplate>
   );
 }

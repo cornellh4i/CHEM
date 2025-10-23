@@ -169,8 +169,8 @@ export default function OdysseyFundLanding() {
 
         <div className="bg-[#F6F5F8] py-12 mt-12 rounded-lg">
           <blockquote className="text-center">
-            <p className="text-2xl mb-2">"managing my endowments have never been more fun"</p>
-            <footer className="text-xl">– david</footer>
+              <p className="text-2xl mb-2">&quot;managing my endowments have never been more fun&quot;</p>
+              <footer className="text-xl">– david</footer>
           </blockquote>
         </div>
       </section>
@@ -203,7 +203,7 @@ export default function OdysseyFundLanding() {
                 </div>
               </div>
               <h3 className="text-2xl font-bold mb-3">Analytics</h3>
-              <p className="text-gray-700">Designed to give the most valuable insights into your endowment's growth</p>
+              <p className="text-gray-700"> Designed to give the most valuable insights into your endowment&apos;s growth</p>
             </CardContent>
           </Card>
 

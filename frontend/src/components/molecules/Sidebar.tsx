@@ -123,16 +123,13 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
               <FundsIcon
                 style={{
                   color:
-                    activePage === "fundsMain"
-                      ? selectedColor
-                      : nonSelectedColor,
+                    activePage === "funds" ? selectedColor : nonSelectedColor,
                 }}
               />
             }
-            onClick={() => handleMenuClick("/fundsMain")}
+            onClick={() => handleMenuClick("/funds")}
             style={{
-              color:
-                activePage === "fundsMain" ? selectedColor : nonSelectedColor,
+              color: activePage === "funds" ? selectedColor : nonSelectedColor,
               display: "flex",
               justifyContent: isMobile ? "center" : "flex-start",
             }}
