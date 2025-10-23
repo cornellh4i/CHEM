@@ -12,6 +12,7 @@ console.log("marker:", __authMarker, "app:", auth.app.name);
 
 const apiBase =
   process.env.NEXT_PUBLIC_BASE_URL_SERVER ?? "http://localhost:8000";
+console.log("authtest apiBase:", apiBase);
 
 export default function AuthFlowDemo() {
   const [loading, setLoading] = useState(false);
