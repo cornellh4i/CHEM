@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Firebase Token Generator</title>
+</head>
+
+<body>
+    <h1>Firebase Token Generator</h1>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.2.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUdQoUghx9l3mpq2ijFykwPiiqi7qSVvI",
+            authDomain: "chem-d6acf.firebaseapp.com",
+            projectId: "chem-d6acf",
+            storageBucket: "chem-d6acf.appspot.com",
+            messagingSenderId: "47364940103",
+            appId: "1:47364940103:web:de06e8eec11825a0f6ac62",
+            measurementId: "G-1GXSE31TTM",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const email = "testuser123@example.com"; // make unique each run
+        const password = "Test1234!";
+
+        createUserWithEmailAndPassword(auth, email, password)
+            .then(async (cred) => {
+                const uid = cred.user.uid;
+                const token = await cred.user.getIdToken();
+                console.log("Firebase UID:", uid);
+                console.log("Bearer token:", token);
+                alert(`Firebase UID: ${uid}\nToken: ${token}`);
+            })
+            .catch((err) => {
+                console.error("Error creating user:", err);
+                alert("Error creating user. Check console.");
+            });
+    </script>
+</body>
+
+</html>

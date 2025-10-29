@@ -1,15 +1,40 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import controller from "../controllers/funds";
 import { ErrorMessage } from "../utils/types";
 import auth from "../middleware/auth";
+import admin from "firebase-admin"
 import express from "express";
+import prisma from "../utils/client";
 
 const fundRouter = Router();
 
+declare module "express" {
+  interface Request {
+    user?: admin.auth.DecodedIdToken;
+  }
+}
+
+// function to get user's organizationId from database
+async function getUserOrganizationId(firebaseUid: string): Promise<string> {
+  const user = await prisma.user.findUnique({
+    where: { firebaseUid },
+    select: { organizationId: true }
+  });
+  if (!user) throw new Error("User not found");
+  return user.organizationId;
+}
+
 // GET all funds
-fundRouter.get("/", auth, async (req, res) => {
+fundRouter.get("/", auth, async (req: Request, res: Response) => {
   try {
-    const funds = await controller.getFunds();
+
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" })
+    }
+
+    const userOrganizationId = await getUserOrganizationId(req.user.uid);
+    const funds = await controller.getFunds({ organizationId: userOrganizationId });
+
     res.status(200).json({ funds });
   } catch (error) {
     console.error(error);
@@ -21,13 +46,25 @@ fundRouter.get("/", auth, async (req, res) => {
 });
 
 // GET a single fund by id
-fundRouter.get("/:id", auth, async (req, res) => {
+fundRouter.get("/:id", auth, async (req: Request, res: Response) => {
   try {
+
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" })
+    }
+
+    const userOrganizationId = await getUserOrganizationId(req.user.uid);
     const fund = await controller.getFundById(req.params.id);
+
     if (!fund) {
       return res.status(404).json({ error: "Fund not found" });
     }
+    if (userOrganizationId !== fund.organizationId) {
+      return res.status(403).json({ error: "Unauthorized" })
+    }
+
     res.status(200).json(fund);
+
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
@@ -38,7 +75,7 @@ fundRouter.get("/:id", auth, async (req, res) => {
 });
 
 // POST /funds
-fundRouter.post("/", auth, async (req, res) => {
+fundRouter.post("/", auth, async (req: Request, res: Response) => {
   try {
     const fundData = req.body;
 
@@ -59,6 +96,14 @@ fundRouter.post("/", auth, async (req, res) => {
       }
     }
 
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" })
+    }
+    const userOrganizationId = await getUserOrganizationId(req.user.uid);
+
+    if (userOrganizationId !== fundData.organizationId) {
+      return res.status(403).json({ error: "Unauthorized" })
+    }
     const newFund = await controller.createFund(fundData);
     return res.status(201).json(newFund);
   } catch (error) {
@@ -71,10 +116,25 @@ fundRouter.post("/", auth, async (req, res) => {
 });
 
 // TODO: update new fund
-fundRouter.put("/:id", auth, async (req, res) => {
+fundRouter.put("/:id", auth, async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     const fundData = req.body;
+
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" })
+    }
+    const userOrganizationId = await getUserOrganizationId(req.user.uid);
+
+    // Check if fund exists and belongs to user's organization
+    const fund = await controller.getFundById(id);
+    if (!fund) {
+      return res.status(404).json({ error: "Fund not found" });
+    }
+    if (userOrganizationId !== fund.organizationId) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
     const updatedFund = await controller.updateFund(id, fundData);
     res.status(200).json(updatedFund);
   } catch (error) {
@@ -91,12 +151,21 @@ fundRouter.put("/:id", auth, async (req, res) => {
   }
 });
 
-fundRouter.delete("/:id", auth, async (req, res) => {
+fundRouter.delete("/:id", auth, async (req: Request, res: Response) => {
   try {
-    const fund = await controller.deleteFundById(req.params.id);
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" })
+    }
+    const userOrganizationId = await getUserOrganizationId(req.user.uid);
+
+    const fund = await controller.getFundById(req.params.id);
     if (!fund) {
       return res.status(404).json({ error: "Fund not found" });
     }
+    if (userOrganizationId !== fund.organizationId) {
+      return res.status(403).json({ error: "Access denied"} )
+    }
+    await controller.deleteFundById(req.params.id);
     res.status(200).json({ message: "Fund deleted" });
   } catch (error) {
     console.error(error);
@@ -107,8 +176,13 @@ fundRouter.delete("/:id", auth, async (req, res) => {
   }
 });
 
-fundRouter.get("/:id/transactions", auth, async (req, res) => {
+fundRouter.get("/:id/transactions", auth, async (req: Request, res: Response) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" })
+    }
+    const userOrganizationId = await getUserOrganizationId(req.user.uid);
+    
     // Get inputs
     const sortBy = req.query.sortBy as string;
     const order = req.query.order as string;
@@ -116,6 +190,11 @@ fundRouter.get("/:id/transactions", auth, async (req, res) => {
     // Validate inputs
     const validSortField = new Set(["date", "amount"]);
     const validOrders = new Set(["asc", "desc"]);
+    
+    const fund = await controller.getFundById(id);
+    if (fund.organizationId !== userOrganizationId) {
+      return res.status(403).json({ error: "Access denited" });
+    }
 
     // Extract sort, and pagination from query parameters
     const sort =
@@ -158,9 +237,22 @@ fundRouter.get("/:id/transactions", auth, async (req, res) => {
 });
 
 /// TODO: get all contributors by fund id, Krish & Johnny
-fundRouter.get("/:id/contributors", auth, async (req, res) => {
+fundRouter.get("/:id/contributors", auth, async (req: Request, res: Response) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" })
+    }
+    const userOrganizationId = await getUserOrganizationId(req.user.uid);
+
     const { id } = req.params;
+
+    const fund = await controller.getFundById(id);
+    if (!fund) {
+      return res.status(404).json({ error: "Fund not found" });
+    }
+    if (fund.organizationId !== userOrganizationId) {
+      return res.status(403).json({ error: "Access denied" });
+    }
 
     const sortBy = req.query.sortBy as string | undefined;
     const order = req.query.order as string | undefined;

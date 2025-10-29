@@ -10,7 +10,7 @@ import {
 
 // Get all funds with filtering, sorting, and pagination
 const getFunds = async (
-  filters?: { type?: FundType; restriction?: boolean },
+  filters?: { type?: FundType; restriction?: boolean; organizationId?: string },
   sort?: { field: "createdAt" | "amount" | "units"; order: "asc" | "desc" },
   pagination?: { skip?: number; take?: number }
 ): Promise<{ funds: Fund[]; total: number }> => {
@@ -18,6 +18,7 @@ const getFunds = async (
     const where: Prisma.FundWhereInput = {
       type: filters?.type,
       restriction: filters?.restriction,
+      organizationId: filters?.organizationId
     };
 
     const [funds, total] = await prisma.$transaction([
