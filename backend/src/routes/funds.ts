@@ -1,12 +1,13 @@
 import { Router } from "express";
 import controller from "../controllers/funds";
 import { ErrorMessage } from "../utils/types";
+import auth from "../middleware/auth";
 import express from "express";
 
 const fundRouter = Router();
 
 // GET all funds
-fundRouter.get("/", async (req, res) => {
+fundRouter.get("/", auth, async (req, res) => {
   try {
     const funds = await controller.getFunds();
     res.status(200).json({ funds });
@@ -20,7 +21,7 @@ fundRouter.get("/", async (req, res) => {
 });
 
 // GET a single fund by id
-fundRouter.get("/:id", async (req, res) => {
+fundRouter.get("/:id", auth, async (req, res) => {
   try {
     const fund = await controller.getFundById(req.params.id);
     if (!fund) {
@@ -37,7 +38,7 @@ fundRouter.get("/:id", async (req, res) => {
 });
 
 // POST /funds
-fundRouter.post("/", async (req, res) => {
+fundRouter.post("/", auth, async (req, res) => {
   try {
     const fundData = req.body;
 
@@ -70,7 +71,7 @@ fundRouter.post("/", async (req, res) => {
 });
 
 // TODO: update new fund
-fundRouter.put("/:id", async (req, res) => {
+fundRouter.put("/:id", auth, async (req, res) => {
   try {
     const id = req.params.id;
     const fundData = req.body;
@@ -90,7 +91,7 @@ fundRouter.put("/:id", async (req, res) => {
   }
 });
 
-fundRouter.delete("/:id", async (req, res) => {
+fundRouter.delete("/:id", auth, async (req, res) => {
   try {
     const fund = await controller.deleteFundById(req.params.id);
     if (!fund) {
@@ -106,7 +107,7 @@ fundRouter.delete("/:id", async (req, res) => {
   }
 });
 
-fundRouter.get("/:id/transactions", async (req, res) => {
+fundRouter.get("/:id/transactions", auth, async (req, res) => {
   try {
     // Get inputs
     const sortBy = req.query.sortBy as string;
@@ -157,7 +158,7 @@ fundRouter.get("/:id/transactions", async (req, res) => {
 });
 
 /// TODO: get all contributors by fund id, Krish & Johnny
-fundRouter.get("/:id/contributors", async (req, res) => {
+fundRouter.get("/:id/contributors", auth, async (req, res) => {
   try {
     const { id } = req.params;
 
