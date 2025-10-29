@@ -1,5 +1,5 @@
 import React from "react";
-import auth from "@/utils/firebase";
+import auth from "@/utils/firebase-client";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";

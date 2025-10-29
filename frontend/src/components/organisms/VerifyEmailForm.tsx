@@ -1,5 +1,5 @@
 import React from "react";
-import auth from "@/utils/firebase";
+import auth from "@/utils/firebase-client";
 import { useSendEmailVerification } from "react-firebase-hooks/auth";
 import { Button, Toast } from "@/components";
 import { useToast } from "@/utils/hooks";
