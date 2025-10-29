@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 interface FundsTemplateProps {
+  fundName: string;
+  fundDescription: string;
   summary: ReactNode;
   transactions: ReactNode;
   contributors: ReactNode;
@@ -15,6 +17,8 @@ interface FundsTemplateProps {
 }
 
 const FundTemplate = ({
+  fundName,
+  fundDescription,
   summary,
   transactions,
   contributors,
@@ -58,12 +62,8 @@ const FundTemplate = ({
         </button>
 
         {/* Fund title and description */}
-        <h1 className="mb-1 text-3xl font-semibold">The Milstein Fund</h1>
-        <p className="text-gray-600 mb-6 max-w-3xl">
-          The Milstein Fund is a lorem ipsum dolor sit amet, consectetur
-          adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-          magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-          ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        <h1 className="mb-1 text-3xl font-semibold">{fundName}</h1>
+        <p className="text-gray-600 mb-6 max-w-3xl">{fundDescription}
         </p>
 
         {/* Tabs */}
