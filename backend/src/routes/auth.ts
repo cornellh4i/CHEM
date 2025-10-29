@@ -1,22 +1,40 @@
-import { Router } from "express";
-import controller from "../controllers/auth";
-import { ErrorMessage } from "../utils/types";
+"use client";
 
-const authRouter = Router();
+import { Router, Request, Response, NextFunction } from "express";
+import { signUp, login, logout } from "../controllers/auth";
+import admin from "../utils/firebase-admin";
 
-// POST /auth/signup → verifies IdP token, provisions user, returns app token
-authRouter.post("/signup", async (req, res) => {
-  // TODO
-});
+declare module "express" {
+  interface Request {
+    auth?: admin.auth.DecodedIdToken;
+  }
+}
 
-// POST /auth/login → validates IdP token, returns refreshed app token/session
-authRouter.post("/login", async (req, res) => {
-  // TODO
-});
+const router = Router();
 
-// POST /auth/logout → invalidates server-side session if applicable
-authRouter.post("/logout", async (req, res) => {
-  // TODO
-});
+function extractBearer(header?: string): string | null {
+  if (!header) return null;
+  const match = header.match(/^Bearer (.+)$/);
+  return match ? match[1] : null;
+}
 
-export default authRouter;
+async function requireAuth(req: Request, res: Response, next: NextFunction) {
+  const token = extractBearer(req.headers.authorization);
+  if (!token) {
+    return res.status(401).json({ error: "Empty Token" });
+  }
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    req.auth = decoded;
+    next();
+  } catch {
+    return res.status(401).json({ error: "Invalid Token" });
+  }
+}
+
+// TODO: replace with middleware functions
+router.post("/signup", requireAuth, signUp);
+router.get("/login", requireAuth, login);
+router.post("/logout", requireAuth, logout);
+
+export default router;

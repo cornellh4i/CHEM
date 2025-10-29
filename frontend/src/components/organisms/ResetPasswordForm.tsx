@@ -1,5 +1,5 @@
 import React from "react";
-import auth from "@/utils/firebase";
+import auth from "@/utils/firebase-client";
 import { useForm } from "react-hook-form";
 import { Button, Input, Toast } from "@/components";
 import { useToast, useResetPassword } from "@/utils/hooks";

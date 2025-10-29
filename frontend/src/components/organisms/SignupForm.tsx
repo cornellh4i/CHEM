@@ -1,6 +1,6 @@
 import React from "react";
 import api from "@/utils/api";
-import auth from "@/utils/firebase";
+import auth from "@/utils/firebase-client";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
