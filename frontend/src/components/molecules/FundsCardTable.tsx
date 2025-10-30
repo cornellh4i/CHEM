@@ -18,6 +18,8 @@ interface ApiFund {
   amount: number;
   createdAt: string;
   updatedAt: string;
+
+  // Prisma returns relation counts here (used to show #contributors/#transactions in the UI)
   _count?: {
     contributors?: number;
     transactions?: number;
@@ -73,7 +75,7 @@ export default function FundsCardTable({
 
       const data = await response.json();
 
-      // backend sends { funds: { funds: [...], total: number } }
+      // Normalize backend shape to expected structure
       const inner = Array.isArray(data.funds)
         ? data.funds
         : Array.isArray(data.funds?.funds)
@@ -85,9 +87,9 @@ export default function FundsCardTable({
           (apiFund: ApiFund) => ({
             id: apiFund.id,
             name: apiFund.name,
-            amount: apiFund.amount ?? 0,
-            contributors: apiFund._count?.contributors ?? 0,
-            percentage: apiFund.units ?? 0,
+            amount: apiFund.amount ?? 0, // fund total
+            contributors: apiFund._count?.contributors ?? 0, // number of contributors
+            percentage: apiFund.units ?? 0, // shown next to %
             isRestricted: apiFund.restriction || false,
             isEndowment: apiFund.type === "ENDOWMENT",
             description:

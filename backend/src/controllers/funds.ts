@@ -20,6 +20,8 @@ const getFunds = async (
       restriction: filters?.restriction,
     };
 
+    // Retrieves paginated funds with optional filters and sorting, 
+    // including related record counts (contributors, transactions) for each fund.
     const [funds, total] = await prisma.$transaction([
   prisma.fund.findMany({
     where,
