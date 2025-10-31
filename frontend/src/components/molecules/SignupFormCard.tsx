@@ -4,6 +4,7 @@ import { Button, Input } from "@/components";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 // import router from "next/router";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 const SignupFormCard = () => {
   const router = useRouter();
@@ -23,6 +24,45 @@ const SignupFormCard = () => {
     usedSimilar: "",
     usedSimilarProduct: "",
   });
+
+  const handleSignUp = async () => {
+    try {
+      const auth = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+      const firebaseUid = userCredential.user.uid;
+      console.log("Firebase user created with UID:", firebaseUid);
+      console.log(formData.role);
+
+      // Get the ID token from the user
+      const idToken = await userCredential.user.getIdToken();
+
+      const response = await fetch("http://localhost:8000/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          role: formData.role,
+          organizationName: "Placeholder Org Name",
+          organizationDescription: "Placeholder Org Description",
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+      const data = await response.json();
+      console.log("Signup response:", data);
+      //send user to dashboard after successful signup
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error during signup:", error);
+      throw new Error("an error occurred, " + error);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -246,9 +286,9 @@ const SignupFormCard = () => {
               className="border-gray-100 mb-6 w-full rounded-lg border p-2"
             >
               <option value="">Select</option>
-              <option value="Admin">Admin</option>
-              <option value="User">User</option>
-              <option value="Manager">Manager</option>
+              <option value="ADMIN">Admin</option>
+              <option value="USER">User</option>
+              <option value="MANAGER">Manager</option>
             </select>
 
             <div className="flex items-center justify-between">
@@ -371,6 +411,7 @@ const SignupFormCard = () => {
                   type="submit"
                   className="text-white focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mb-2 me-2 w-fit rounded-lg border px-5 py-3 text-sm font-normal hover:bg-[#2b537e] focus:outline-none focus:ring-4"
                   style={{ backgroundColor: "#3E6DA6" }}
+                  onClick={handleSignUp}
                 >
                   Create your workspace
                 </Button>
