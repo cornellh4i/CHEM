@@ -16,6 +16,8 @@ const SignupFormCard = () => {
     firstName: "",
     lastName: "",
     phone: "",
+    orgName: "",
+    orgDescription: "",
     workType: "",
     companySize: "",
     role: "",
@@ -39,6 +41,7 @@ const SignupFormCard = () => {
     }
 
     try {
+      // create user in firebase
       const auth = getAuth();
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -49,17 +52,17 @@ const SignupFormCard = () => {
       console.log("Firebase user created with UID:", firebaseUid);
       console.log(formData.role);
 
-      // Get the ID token from the user
       const idToken = await userCredential.user.getIdToken();
 
+      // once user has been populated in firebase, populate them in postgres also
       const response = await fetch("http://localhost:8000/auth/signup", {
         method: "POST",
         body: JSON.stringify({
           firstName: formData.firstName,
           lastName: formData.lastName,
           role: formData.role,
-          organizationName: "Placeholder Org Name",
-          organizationDescription: "Placeholder Org Description",
+          organizationName: formData.orgName,
+          organizationDescription: formData.orgDescription,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -68,11 +71,11 @@ const SignupFormCard = () => {
       });
       const data = await response.json();
       console.log("Signup response:", data);
+
       //send user to dashboard after successful signup
       router.push("/dashboard");
     } catch (error) {
       console.error("Error during signup:", error);
-      throw new Error("an error occurred, " + error);
     }
   };
 
@@ -89,7 +92,7 @@ const SignupFormCard = () => {
     const requiredFieldsByStep: { [key: number]: string[] } = {
       1: ["email", "password"],
       2: ["firstName", "lastName", "email", "phone"],
-      3: ["workType", "companySize", "role"],
+      3: ["orgName", "orgDescription", "workType", "companySize", "role"],
       4: ["usagePlan", "referralSource", "usedSimilar"],
     };
 
@@ -254,7 +257,22 @@ const SignupFormCard = () => {
             <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm">
               Help us personalize your experience
             </p>
-
+            <Input
+              label="Organization name"
+              name="orgName"
+              value={formData.orgName}
+              onChange={handleChange}
+              required
+              className="border-gray-300 mb-6 w-full rounded-lg border p-2"
+            />
+            <Input
+              label="Organization description"
+              name="orgDescription"
+              value={formData.orgDescription}
+              onChange={handleChange}
+              required
+              className="border-gray-300 mb-6 w-full rounded-lg border p-2"
+            />
             <label className="text-gray-700 mb-1 block text-sm font-medium">
               What kind of work do you do?
             </label>
