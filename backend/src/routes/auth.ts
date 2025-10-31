@@ -1,5 +1,3 @@
-"use client";
-
 import { Router, Request, Response, NextFunction } from "express";
 import { signUp, login, logout } from "../controllers/auth";
 import admin from "../utils/firebase-admin";
