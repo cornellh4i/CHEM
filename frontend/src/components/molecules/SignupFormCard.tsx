@@ -26,6 +26,18 @@ const SignupFormCard = () => {
   });
 
   const handleSignUp = async () => {
+    const requiredFields = ["usagePlan", "referralSource", "usedSimilar"];
+    for (let field of requiredFields) {
+      if (!formData[field as keyof typeof formData]) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+    }
+    if (formData.usedSimilar === "Yes" && !formData.usedSimilarProduct) {
+      alert("Please specify the product you've used.");
+      return;
+    }
+
     try {
       const auth = getAuth();
       const userCredential = await createUserWithEmailAndPassword(
@@ -408,7 +420,7 @@ const SignupFormCard = () => {
                   Go Back
                 </Button>
                 <Button
-                  type="submit"
+                  type="button"
                   className="text-white focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mb-2 me-2 w-fit rounded-lg border px-5 py-3 text-sm font-normal hover:bg-[#2b537e] focus:outline-none focus:ring-4"
                   style={{ backgroundColor: "#3E6DA6" }}
                   onClick={handleSignUp}
