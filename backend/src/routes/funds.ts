@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import controller from "../controllers/funds";
 import { ErrorMessage } from "../utils/types";
 import auth from "../middleware/auth";
-import admin from "firebase-admin"
+import admin from "firebase-admin";
 import express from "express";
 import prisma from "../utils/client";
 
@@ -18,7 +18,7 @@ declare module "express" {
 async function getUserOrganizationId(firebaseUid: string): Promise<string> {
   const user = await prisma.user.findUnique({
     where: { firebaseUid },
-    select: { organizationId: true }
+    select: { organizationId: true },
   });
   if (!user) throw new Error("User not found");
   return user.organizationId;
@@ -27,13 +27,14 @@ async function getUserOrganizationId(firebaseUid: string): Promise<string> {
 // GET all funds
 fundRouter.get("/", auth, async (req: Request, res: Response) => {
   try {
-
     if (!req.user) {
-      return res.status(401).json({ error: "Unauthorized" })
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     const userOrganizationId = await getUserOrganizationId(req.user.uid);
-    const funds = await controller.getFunds({ organizationId: userOrganizationId });
+    const funds = await controller.getFunds({
+      organizationId: userOrganizationId,
+    });
 
     res.status(200).json({ funds });
   } catch (error) {
@@ -48,9 +49,8 @@ fundRouter.get("/", auth, async (req: Request, res: Response) => {
 // GET a single fund by id
 fundRouter.get("/:id", auth, async (req: Request, res: Response) => {
   try {
-
     if (!req.user) {
-      return res.status(401).json({ error: "Unauthorized" })
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     const userOrganizationId = await getUserOrganizationId(req.user.uid);
@@ -60,11 +60,10 @@ fundRouter.get("/:id", auth, async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Fund not found" });
     }
     if (userOrganizationId !== fund.organizationId) {
-      return res.status(403).json({ error: "Unauthorized" })
+      return res.status(403).json({ error: "Unauthorized" });
     }
 
     res.status(200).json(fund);
-
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
@@ -81,7 +80,9 @@ fundRouter.post("/", auth, async (req: Request, res: Response) => {
 
     // Basic validation
     if (!fundData.organizationId || !fundData.type) {
-      return res.status(400).json({ error: "organizationId and type are required" });
+      return res
+        .status(400)
+        .json({ error: "organizationId and type are required" });
     }
 
     // Normalize type for safety
@@ -92,17 +93,19 @@ fundRouter.post("/", auth, async (req: Request, res: Response) => {
     // If endowment and restricted, purpose is required
     if (fundData.type === "ENDOWMENT" && fundData.restriction === true) {
       if (!fundData.purpose || !String(fundData.purpose).trim()) {
-        return res.status(400).json({ error: "Purpose is required for restricted endowment funds." });
+        return res.status(400).json({
+          error: "Purpose is required for restricted endowment funds.",
+        });
       }
     }
 
     if (!req.user) {
-      return res.status(401).json({ error: "Unauthorized" })
+      return res.status(401).json({ error: "Unauthorized" });
     }
     const userOrganizationId = await getUserOrganizationId(req.user.uid);
 
     if (userOrganizationId !== fundData.organizationId) {
-      return res.status(403).json({ error: "Unauthorized" })
+      return res.status(403).json({ error: "Unauthorized" });
     }
     const newFund = await controller.createFund(fundData);
     return res.status(201).json(newFund);
@@ -122,7 +125,7 @@ fundRouter.put("/:id", auth, async (req: Request, res: Response) => {
     const fundData = req.body;
 
     if (!req.user) {
-      return res.status(401).json({ error: "Unauthorized" })
+      return res.status(401).json({ error: "Unauthorized" });
     }
     const userOrganizationId = await getUserOrganizationId(req.user.uid);
 
@@ -154,7 +157,7 @@ fundRouter.put("/:id", auth, async (req: Request, res: Response) => {
 fundRouter.delete("/:id", auth, async (req: Request, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: "Unauthorized" })
+      return res.status(401).json({ error: "Unauthorized" });
     }
     const userOrganizationId = await getUserOrganizationId(req.user.uid);
 
@@ -163,7 +166,7 @@ fundRouter.delete("/:id", auth, async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Fund not found" });
     }
     if (userOrganizationId !== fund.organizationId) {
-      return res.status(403).json({ error: "Access denied"} )
+      return res.status(403).json({ error: "Access denied" });
     }
     await controller.deleteFundById(req.params.id);
     res.status(200).json({ message: "Fund deleted" });
@@ -176,124 +179,136 @@ fundRouter.delete("/:id", auth, async (req: Request, res: Response) => {
   }
 });
 
-fundRouter.get("/:id/transactions", auth, async (req: Request, res: Response) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ error: "Unauthorized" })
-    }
-    const userOrganizationId = await getUserOrganizationId(req.user.uid);
-    
-    // Get inputs
-    const sortBy = req.query.sortBy as string;
-    const order = req.query.order as string;
-    const { id } = req.params;
-    // Validate inputs
-    const validSortField = new Set(["date", "amount"]);
-    const validOrders = new Set(["asc", "desc"]);
-    
-    const fund = await controller.getFundById(id);
-    if (fund.organizationId !== userOrganizationId) {
-      return res.status(403).json({ error: "Access denited" });
-    }
+fundRouter.get(
+  "/:id/transactions",
+  auth,
+  async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      const userOrganizationId = await getUserOrganizationId(req.user.uid);
 
-    // Extract sort, and pagination from query parameters
-    const sort =
-      sortBy && validSortField.has(sortBy)
-        ? {
-          field: sortBy as "date" | "amount",
-          order: validOrders.has(order) ? (order as "asc" | "desc") : "asc",
-        }
-        : undefined;
-    const pagination = {
-      skip: req.query.skip ? Number(req.query.skip) : undefined,
-      take: req.query.take ? Number(req.query.take) : undefined,
-    };
+      // Get inputs
+      const sortBy = req.query.sortBy as string;
+      const order = req.query.order as string;
+      const { id } = req.params;
+      // Validate inputs
+      const validSortField = new Set(["date", "amount"]);
+      const validOrders = new Set(["asc", "desc"]);
 
-    // Fetch contributors from database using sort and pagination
-    const { transactions, total } = await controller.getTransactionsByFundId(
-      id,
-      sort,
-      pagination
-    );
+      const fund = await controller.getFundById(id);
+      if (fund == null) {
+        return res
+          .status(404)
+          .json({ error: "Fund does not exist in this organization. " });
+      } else if (fund.organizationId !== userOrganizationId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
 
-    // Return contributors with total count
-    res.status(200).json({ transactions, total });
-  } catch (error) {
-    console.error(error);
-    const errorResponse: ErrorMessage = {
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to get funds's transactions",
-    };
-    // 404 org not found
-    if (errorResponse.error == "Fund not found") {
-      res.status(404).json(errorResponse);
-    } else {
-      // all other errors
-      res.status(500).json(errorResponse);
+      // Extract sort, and pagination from query parameters
+      const sort =
+        sortBy && validSortField.has(sortBy)
+          ? {
+              field: sortBy as "date" | "amount",
+              order: validOrders.has(order) ? (order as "asc" | "desc") : "asc",
+            }
+          : undefined;
+      const pagination = {
+        skip: req.query.skip ? Number(req.query.skip) : undefined,
+        take: req.query.take ? Number(req.query.take) : undefined,
+      };
+
+      // Fetch contributors from database using sort and pagination
+      const { transactions, total } = await controller.getTransactionsByFundId(
+        id,
+        sort,
+        pagination
+      );
+
+      // Return contributors with total count
+      res.status(200).json({ transactions, total });
+    } catch (error) {
+      console.error(error);
+      const errorResponse: ErrorMessage = {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to get funds's transactions",
+      };
+      // 404 org not found
+      if (errorResponse.error == "Fund not found") {
+        res.status(404).json(errorResponse);
+      } else {
+        // all other errors
+        res.status(500).json(errorResponse);
+      }
     }
   }
-});
+);
 
 /// TODO: get all contributors by fund id, Krish & Johnny
-fundRouter.get("/:id/contributors", auth, async (req: Request, res: Response) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ error: "Unauthorized" })
-    }
-    const userOrganizationId = await getUserOrganizationId(req.user.uid);
+fundRouter.get(
+  "/:id/contributors",
+  auth,
+  async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      const userOrganizationId = await getUserOrganizationId(req.user.uid);
 
-    const { id } = req.params;
+      const { id } = req.params;
 
-    const fund = await controller.getFundById(id);
-    if (!fund) {
-      return res.status(404).json({ error: "Fund not found" });
-    }
-    if (fund.organizationId !== userOrganizationId) {
-      return res.status(403).json({ error: "Access denied" });
-    }
+      const fund = await controller.getFundById(id);
+      if (!fund) {
+        return res.status(404).json({ error: "Fund not found" });
+      }
+      if (fund.organizationId !== userOrganizationId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
 
-    const sortBy = req.query.sortBy as string | undefined;
-    const order = req.query.order as string | undefined;
-    const validSortField = new Set(["firstName", "lastName"]);
-    const validOrders = new Set(["asc", "desc"]);
+      const sortBy = req.query.sortBy as string | undefined;
+      const order = req.query.order as string | undefined;
+      const validSortField = new Set(["firstName", "lastName"]);
+      const validOrders = new Set(["asc", "desc"]);
 
-    const sort =
-      sortBy && validSortField.has(sortBy)
-        ? {
-          field: sortBy as "firstName" | "lastName",
-          order: validOrders.has(order ?? "")
-            ? (order as "asc" | "desc")
-            : "asc",
-        }
-        : undefined;
+      const sort =
+        sortBy && validSortField.has(sortBy)
+          ? {
+              field: sortBy as "firstName" | "lastName",
+              order: validOrders.has(order ?? "")
+                ? (order as "asc" | "desc")
+                : "asc",
+            }
+          : undefined;
 
-    const pagination = {
-      skip: req.query.skip ? Number(req.query.skip) : undefined,
-      take: req.query.take ? Number(req.query.take) : undefined,
-    };
+      const pagination = {
+        skip: req.query.skip ? Number(req.query.skip) : undefined,
+        take: req.query.take ? Number(req.query.take) : undefined,
+      };
 
-    const { contributors, total } = await controller.getContributorsByFundId(
-      id,
-      sort,
-      pagination
-    );
-    res.status(200).json({ contributors, total });
-  } catch (error) {
-    console.error(error);
-    const errorResponse: ErrorMessage = {
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to get fund contributors",
-    };
-    if (errorResponse.error == "Fund not found") {
-      res.status(404).json(errorResponse);
-    } else {
-      res.status(500).json(errorResponse);
+      const { contributors, total } = await controller.getContributorsByFundId(
+        id,
+        sort,
+        pagination
+      );
+      res.status(200).json({ contributors, total });
+    } catch (error) {
+      console.error(error);
+      const errorResponse: ErrorMessage = {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to get fund contributors",
+      };
+      if (errorResponse.error == "Fund not found") {
+        res.status(404).json(errorResponse);
+      } else {
+        res.status(500).json(errorResponse);
+      }
     }
   }
-});
+);
 
 export default fundRouter;
