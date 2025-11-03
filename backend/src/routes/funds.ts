@@ -25,7 +25,7 @@ async function getUserOrganizationId(firebaseUid: string): Promise<string> {
 }
 
 // GET all funds
-fundRouter.get("/", auth, async (req: Request, res: Response) => {
+fundRouter.get("/", async (req: Request, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -47,7 +47,7 @@ fundRouter.get("/", auth, async (req: Request, res: Response) => {
 });
 
 // GET a single fund by id
-fundRouter.get("/:id", auth, async (req: Request, res: Response) => {
+fundRouter.get("/:id", async (req: Request, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -74,7 +74,7 @@ fundRouter.get("/:id", auth, async (req: Request, res: Response) => {
 });
 
 // POST /funds
-fundRouter.post("/", auth, async (req: Request, res: Response) => {
+fundRouter.post("/", async (req: Request, res: Response) => {
   try {
     const fundData = req.body;
 
@@ -119,7 +119,7 @@ fundRouter.post("/", auth, async (req: Request, res: Response) => {
 });
 
 // TODO: update new fund
-fundRouter.put("/:id", auth, async (req: Request, res: Response) => {
+fundRouter.put("/:id", async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     const fundData = req.body;
@@ -154,7 +154,7 @@ fundRouter.put("/:id", auth, async (req: Request, res: Response) => {
   }
 });
 
-fundRouter.delete("/:id", auth, async (req: Request, res: Response) => {
+fundRouter.delete("/:id", async (req: Request, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -179,15 +179,28 @@ fundRouter.delete("/:id", auth, async (req: Request, res: Response) => {
   }
 });
 
-fundRouter.get(
-  "/:id/transactions",
-  auth,
-  async (req: Request, res: Response) => {
-    try {
-      if (!req.user) {
-        return res.status(401).json({ error: "Unauthorized" });
-      }
-      const userOrganizationId = await getUserOrganizationId(req.user.uid);
+fundRouter.get("/:id/transactions", async (req, res) => {
+  try {
+    // Get inputs
+    const sortBy = req.query.sortBy as string;
+    const order = req.query.order as string;
+    const { id } = req.params;
+    // Validate inputs
+    const validSortField = new Set(["date", "amount"]);
+    const validOrders = new Set(["asc", "desc"]);
+
+    // Extract sort, and pagination from query parameters
+    const sort =
+      sortBy && validSortField.has(sortBy)
+        ? {
+          field: sortBy as "date" | "amount",
+          order: validOrders.has(order) ? (order as "asc" | "desc") : "asc",
+        }
+        : undefined;
+    const pagination = {
+      skip: req.query.skip ? Number(req.query.skip) : undefined,
+      take: req.query.take ? Number(req.query.take) : undefined,
+    };
 
       // Get inputs
       const sortBy = req.query.sortBy as string;
@@ -248,6 +261,31 @@ fundRouter.get(
 );
 
 /// TODO: get all contributors by fund id, Krish & Johnny
+
+fundRouter.get("/:id/contributors", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const sortBy = req.query.sortBy as string | undefined;
+    const order = req.query.order as string | undefined;
+    const validSortField = new Set(["firstName", "lastName"]);
+    const validOrders = new Set(["asc", "desc"]);
+
+    const sort =
+      sortBy && validSortField.has(sortBy)
+        ? {
+          field: sortBy as "firstName" | "lastName",
+          order: validOrders.has(order ?? "")
+            ? (order as "asc" | "desc")
+            : "asc",
+        }
+        : undefined;
+
+    const pagination = {
+      skip: req.query.skip ? Number(req.query.skip) : undefined,
+      take: req.query.take ? Number(req.query.take) : undefined,
+    };
+
 fundRouter.get(
   "/:id/contributors",
   auth,
