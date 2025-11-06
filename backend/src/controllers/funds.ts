@@ -13,7 +13,7 @@ const getFunds = async (
   filters?: { type?: FundType; restriction?: boolean; organizationId?: string },
   sort?: { field: "createdAt" | "amount" | "units"; order: "asc" | "desc" },
   pagination?: { skip?: number; take?: number }
-): Promise<{ funds: Fund[]; total: number }> => {
+): Promise<{ funds: (Fund & { _count: { contributors: number; transactions: number } })[]; total: number }> => {
   try {
     const where: Prisma.FundWhereInput = {
       type: filters?.type,
@@ -21,15 +21,25 @@ const getFunds = async (
       organizationId: filters?.organizationId
     };
 
+    // Retrieves paginated funds with optional filters and sorting, 
+    // including related record counts (contributors, transactions) for each fund.
     const [funds, total] = await prisma.$transaction([
-      prisma.fund.findMany({
-        where,
-        orderBy: sort ? { [sort.field]: sort.order } : undefined,
-        skip: pagination?.skip || 0,
-        take: pagination?.take || 100,
-      }),
-      prisma.fund.count({ where }),
-    ]);
+  prisma.fund.findMany({
+    where,
+    orderBy: sort ? { [sort.field]: sort.order } : undefined,
+    skip: pagination?.skip || 0,
+    take: pagination?.take || 100,
+    include: {
+      _count: {
+        select: {
+          contributors: true,
+          transactions: true, // optional
+        },
+      },
+    },
+  }),
+  prisma.fund.count({ where }),
+]);
 
     return { funds, total };
   } catch (error) {
