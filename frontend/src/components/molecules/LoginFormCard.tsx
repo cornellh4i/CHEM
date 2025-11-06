@@ -3,6 +3,8 @@ import React from "react";
 import Image from "next/image";
 import { LoginForm } from "@/components";
 
+// can be used as a card warpper for auth modals
+
 const LoginFormCard = () => {
   return (
     <div className="bg-transparent w-96 p-6">
