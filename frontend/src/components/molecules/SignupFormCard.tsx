@@ -104,6 +104,12 @@ const SignupFormCard = () => {
       }
     }
 
+    // Validate password length on step 1
+    if (step === 1 && formData.password.length < 6) {
+      alert("Password must be at least 6 characters long.");
+      return;
+    }
+
     if (
       formData.usedSimilar === "Yes" &&
       !formData.usedSimilarProduct &&
