@@ -45,7 +45,7 @@ async function main() {
   });
 
   const mohamedUser = await prisma.user.upsert({
-    where: { email: "test2@gamil.com" }, // keeping provided address as-is
+    where: { email: "test2@gmail.com" }, // keeping provided address as-is
     update: {
       firebaseUid: "h1Vd3k44QDfwiqwoelqVleb6xit1",
       organizationId: mohamedsOrg.id,
@@ -55,7 +55,7 @@ async function main() {
     },
     create: {
       firebaseUid: "h1Vd3k44QDfwiqwoelqVleb6xit1",
-      email: "test2@gamil.com",
+      email: "test2@gmail.com",
       firstName: "Mohamed",
       lastName: "Kane",
       role: Role.USER,
