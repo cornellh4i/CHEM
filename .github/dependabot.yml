@@ -9,7 +9,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/backend"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
     allow:
       - dependency-type: "all"
     groups:
@@ -24,7 +24,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
     allow:
       - dependency-type: "all"
     groups:
@@ -42,7 +42,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
     allow:
       - dependency-type: "all"
     groups:
