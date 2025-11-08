@@ -6,7 +6,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import auth, { __authMarker } from "@/utils/firebase-client";
+import auth from "@/utils/firebase-client";
 
 const apiBase =
   process.env.NEXT_PUBLIC_BASE_URL_SERVER ?? "http://localhost:8000";
