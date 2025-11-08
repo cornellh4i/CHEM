@@ -170,7 +170,7 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
         <DialogTrigger asChild onClick={handleOpen}>
           {children}
         </DialogTrigger>
-        <DialogContent className="border-gray-300 bg-white z-[1000] rounded-lg border p-8 shadow-lg sm:min-h-[475px] sm:max-w-lg">
+        <DialogContent className="border-gray-300 !bg-white !opacity-100 z-[1000] rounded-lg border p-8 shadow-lg sm:min-h-[475px] sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="mb-4 text-lg font-semibold">
               Add a Contributor

@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import auth from "@/utils/firebase-client";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { Button, Input, Toast } from "@/components";
-import { useToast } from "@/utils/hooks";
+import { useRouter } from "next/navigation";
+import api from "@/utils/api";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
 
 interface FormInputs {
   email: string;
@@ -12,36 +14,80 @@ interface FormInputs {
 }
 
 const LoginForm = () => {
-  /** Handles form submission */
-  const onSubmit = async (data: FormInputs): Promise<void> => {
-    await signInWithEmailAndPassword(data.email, data.password);
-  };
-
   /** React hook form */
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<FormInputs>();
 
-  /** Firebase hooks */
-  const [signInWithEmailAndPassword, user, loading, error] =
-    useSignInWithEmailAndPassword(auth);
+  /** Router */
+  const router = useRouter();
 
-  /** Toast visibility hooks */
-  const { open, closeToast } = useToast(error);
+  /** Simple inline alert for backend failures */
+  const [alert, setAlert] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const friendlyFirebaseMessage = (code?: string, fallback?: string) => {
+    switch (code) {
+      case "auth/invalid-credential":
+      case "auth/wrong-password":
+      case "auth/user-not-found":
+        return "Invalid email or password.";
+      case "auth/invalid-email":
+        return "Please enter a valid email address.";
+      case "auth/too-many-requests":
+        return "Too many attempts. Please try again later.";
+      case "auth/user-disabled":
+        return "This account has been disabled.";
+      default:
+        return fallback || "Login failed. Please try again.";
+    }
+  };
+
+  /** Handles form submission */
+  const onSubmit = async (data: FormInputs): Promise<void> => {
+    setAlert(null);
+    setLoading(true);
+    try {
+      // Firebase sign-in to obtain ID token
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+
+      // Validate user exists in DB and fetch profile
+      await api.get("/auth/login");
+
+      // Navigate to dashboard
+      router.push("/dashboard");
+    } catch (e: unknown) {
+      if (e instanceof FirebaseError) {
+        setAlert(friendlyFirebaseMessage(e.code, e.message));
+      } else {
+        const msg = (e as any)?.message || "Login failed";
+        if (
+          typeof msg === "string" &&
+          msg.toLowerCase().includes("user not found")
+        ) {
+          router.push("/signup");
+        } else {
+          setAlert(msg);
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
-      <Toast open={open} onClose={closeToast}>
-        {error?.message}
+      {/* Popup toast for errors */}
+      <Toast open={!!alert} onClose={() => setAlert(null)} variant="error">
+        {alert}
       </Toast>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-6">
           <Input
             label="Email address"
-            placeholder="john.doe@company.com"
+            placeholder="Enter your email..."
             error={errors.email?.message}
             {...register("email", {
               required: { value: true, message: "Required" },
@@ -57,15 +103,17 @@ const LoginForm = () => {
           <Input
             label="Password"
             type="password"
-            placeholder="•••••••••"
+            placeholder="Enter your password..."
             error={errors.password?.message}
             {...register("password", {
               required: { value: true, message: "Required" },
             })}
           />
         </div>
-        <Button type="submit">Log in</Button>
-        <Link href="/auth/signup" passHref>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Log in"}
+        </Button>
+        <Link href="/signup" passHref>
           <Button variant="secondary">Sign up</Button>
         </Link>
         <Link href="/auth/forgot-password" passHref>

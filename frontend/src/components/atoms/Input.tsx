@@ -28,7 +28,7 @@ const Input = (
           disabled
             ? `cursor-not-allowed bg-gray-200 text-gray-500 placeholder-transparent`
             : "bg-white"
-        }`}
+        } ${props.className ?? ""}`}
         autoComplete="off"
         disabled={disabled}
         placeholder={disabled ? "" : props.placeholder}
