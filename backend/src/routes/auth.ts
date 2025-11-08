@@ -1,5 +1,3 @@
-"use client";
-
 import { Router } from "express";
 import { signUp, login, logout } from "../controllers/auth";
 import auth from "../middleware/auth";
