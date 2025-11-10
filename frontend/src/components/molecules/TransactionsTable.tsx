@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState, useEffect, useMemo } from "react";
 import { SimpleTable, Column } from "@/components/molecules/SimpleTable";
+import api from "@/utils/api";
 
 type TransactionType = "DONATION" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE";
 
@@ -49,7 +50,6 @@ interface TransactionsTableProps {
   fundName?: string; // Optional fund name to display when organization is missing
 }
 
-const API_URL = "http://localhost:8000";
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
   tableType,
@@ -73,16 +73,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     try {
       // Use fund-specific endpoint if fundId is provided
       const endpoint = fundId
-        ? `${API_URL}/funds/${fundId}/transactions`
-        : `${API_URL}/transactions`;
-      const response = await fetch(endpoint);
-
-      if (!response.ok) {
-        const statusText = response.statusText || "Unknown error";
-        throw new Error(`HTTP error! Status: ${response.status} ${statusText}`);
-      }
-
-      const data = await response.json();
+        ? `/funds/${fundId}/transactions`
+        : `/transactions`;
+      const response = await api.get(endpoint);
+      const data = response.data;
 
       // Handle both response formats: { transactions } and { transactions, total }
       const transactionsList = data.transactions || [];
