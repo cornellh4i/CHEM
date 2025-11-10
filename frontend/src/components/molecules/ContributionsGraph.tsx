@@ -14,6 +14,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import api from "@/utils/api";
 
 type TransactionType = "DONATION" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE";
 
@@ -41,13 +42,11 @@ interface Transaction {
   };
 }
 
-const API_URL = "http://localhost:8000";
 
 const fetchTransactions = async () => {
   try {
-    const response = await fetch(`${API_URL}/transactions`);
-    if (!response.ok) throw new Error("Failed to fetch transactions");
-    const data = await response.json();
+    const response = await api.get(`/transactions`);
+    const data = response.data;
     if (!data.transactions) return [];
 
     const lastMonthDate = new Date();

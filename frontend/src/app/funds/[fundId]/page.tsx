@@ -3,8 +3,7 @@ import React, { useEffect, useState, use } from "react";
 import FundTemplate from "@/components/templates/FundTemplate";
 import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 import TransactionsTable from "@/components/molecules/TransactionsTable";
-
-const API_URL = "http://localhost:8000";
+import api from "@/utils/api";
 
 interface FundData {
   id: string;
@@ -43,19 +42,16 @@ const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
       try {
         setLoading(true);
         const [fundResponse, contributorsResponse] = await Promise.all([
-          fetch(`${API_URL}/funds/${fundId}`),
-          fetch(`${API_URL}/funds/${fundId}/contributors`),
+          api.get(`/funds/${fundId}`),
+          api.get(`/funds/${fundId}/contributors`),
         ]);
-
-        if (!fundResponse.ok) {
-          throw new Error("failure to fetch fund");
-        }
-
-        const fundData = await fundResponse.json();
-        const contributorsData = await contributorsResponse.json();
+    
+        const fundData = fundResponse.data;
+        const contributorsData = contributorsResponse.data;
+        
         setFundData(fundData);
-
         setContributors(contributorsData.contributors || []);
+
       } catch (err) {
         setError(err instanceof Error ? err.message : "unknown error");
       } finally {

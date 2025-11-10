@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import FundCard from "./FundCard";
 
 // connected api
-const API_URL = "http://localhost:8000";
+import api from "@/utils/api";
 
 interface ApiFund {
   id: string;
@@ -66,20 +66,13 @@ export default function FundsCardTable({
 
     // fetches funds, mapping API response to match component's format
     try {
-      const response = await fetch(`${API_URL}/funds`);
-
-      if (!response.ok) {
-        const statusText = response.statusText || "unknown error";
-        throw new Error(`${response.status} ${statusText}`);
-      }
-
-      const data = await response.json();
+      const response = await api.get(`/funds`);
 
       // Normalize backend shape to expected structure
-      const inner = Array.isArray(data.funds)
-        ? data.funds
-        : Array.isArray(data.funds?.funds)
-        ? data.funds.funds
+      const inner = Array.isArray(response.data.funds)
+        ? response.data.funds
+        : Array.isArray(response.data.funds?.funds)
+        ? response.data.funds.funds
        : [];
 
      if (inner.length > 0) {
