@@ -105,6 +105,23 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
+// check if a user exists in the database by email (public endpoint)
+export const checkEmail = async (req: Request, res: Response) => {
+  const email = (req.query.email as string) || (req.body && req.body.email);
+  if (!email) return res.status(400).json({ error: "Email is required" });
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    return res.status(200).json({ exists: true });
+  } catch (e: any) {
+    const status = e?.status ?? 500;
+    return res.status(status).json({ error: e?.message ?? "Check failed" });
+  }
+};
+
 // logout controller: revokes user's refresh tokens, logout on all devices
 export const logout = async (req: Request, res: Response) => {
   if (!req.auth) return res.status(401).json({ error: "Unauthorized" });
