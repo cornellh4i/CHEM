@@ -8,6 +8,9 @@ import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 
 const apiBase = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
 
+
+// fetch the logged-in user via /auth/login using their Firebase ID token
+// and replace the default org name with the organization name returned from the backend.
 const DashboardPage = () => {
   const [orgName, setOrgName] = useState<string>("Museum of the Sea");
 

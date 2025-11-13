@@ -39,7 +39,8 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({ title }) => (
 );
 
 
-
+// Listen for Firebase auth changes, and whenever a user is logged in,
+// call /auth/login with their ID token to load and store the full user record from the backend.
 const ProfilePage = () => {
   const [user, setUser] = useState<CurrentUser | null>(null);
 

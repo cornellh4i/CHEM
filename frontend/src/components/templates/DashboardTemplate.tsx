@@ -32,6 +32,9 @@ const DashboardTemplate = ({ children }: DefaultTemplateProps) => {
     setCollapsed(!collapsed);
   };
 
+
+// Subscribe to Firebase auth changes and, when a user is logged in,
+// call /auth/login with their ID token to load and store the full backend user in state.
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       try {
