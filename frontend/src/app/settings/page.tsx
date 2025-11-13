@@ -1,10 +1,49 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DashboardTemplate from '@/components/templates/DashboardTemplate';
 import Input from '@/components/atoms/Input';
+import auth from '@/utils/firebase-client';
+import { onAuthStateChanged } from 'firebase/auth';
+const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+
+type CurrentUser = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  organization?: { name: string };
+};
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<'funds' | 'account'>('account');
+  const [user, setUser] = useState<CurrentUser | null>(null);
+
+  // Load current user from backend using Firebase auth state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      try {
+        if (!firebaseUser) {
+          setUser(null);
+          return;
+        }
+        const token = await firebaseUser.getIdToken();
+        const res = await fetch(`${apiBase}/auth/login`, {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          console.error('Failed to fetch user in settings', res.status);
+          return;
+        }
+        const data = await res.json();
+        setUser(data.user);
+      } catch (err) {
+        console.error('Error loading user in settings', err);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
     <DashboardTemplate>
@@ -76,20 +115,42 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                  <Input placeholder="Jane" type="text" className="border rounded px-3 py-2 w-full" />
+                  <Input
+                    type="text"
+                    className="border rounded px-3 py-2 w-full"
+                    value={user?.firstName ?? ''}
+                    readOnly
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                  <Input placeholder="Smith" type="text" className="border rounded px-3 py-2 w-full" />
+                  <Input
+                    type="text"
+                    className="border rounded px-3 py-2 w-full"
+                    value={user?.lastName ?? ''}
+                    readOnly
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Your Role</label>
-                  <Input placeholder="Analyst" type="text" className="border rounded px-3 py-2 w-full" />
-                  <p className="text-xs text-gray-500 mt-1">This was assigned by your administrator</p>
+                  <Input
+                    type="text"
+                    className="border rounded px-3 py-2 w-full"
+                    value={user?.role ?? ''}
+                    readOnly
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    This was assigned by your administrator
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <Input placeholder="jsmith@gmail.com" type="email" className="border rounded px-3 py-2 w-full" />
+                  <Input
+                    type="email"
+                    className="border rounded px-3 py-2 w-full"
+                    value={user?.email ?? ''}
+                    readOnly
+                  />
                 </div>
               </div>
             </section>
