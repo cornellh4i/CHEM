@@ -38,7 +38,7 @@ const Input = (
         }}
       />
 
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs" style={{ color: "#dc2626" }}>{error}</p>}
     </div>
   );
 };
