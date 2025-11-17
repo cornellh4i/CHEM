@@ -1,9 +1,22 @@
 "use client";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Switch from '@mui/material/Switch';
 import Person from "@mui/icons-material/Person";
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import auth from "@/utils/firebase-client";
+import { onAuthStateChanged } from "firebase/auth";
+
+const apiBase =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+
+type CurrentUser = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  organization?: { name: string };
+};
 
 interface ProfileFieldProps {
   label: string;
@@ -26,9 +39,35 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({ title }) => (
 );
 
 
-
+// Listen for Firebase auth changes, and whenever a user is logged in,
+// call /auth/login with their ID token to load and store the full user record from the backend.
 const ProfilePage = () => {
-  
+  const [user, setUser] = useState<CurrentUser | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      try {
+        if (!firebaseUser) {
+          setUser(null);
+          return;
+        }
+        const token = await firebaseUser.getIdToken();
+        const res = await fetch(`${apiBase}/auth/login`, {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          console.error("Failed to load profile user", res.status);
+          return;
+        }
+        const data = await res.json();
+        setUser(data.user);
+      } catch (err) {
+        console.error("Error loading profile user", err);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
     <DashboardTemplate>
@@ -36,7 +75,7 @@ const ProfilePage = () => {
       <div className="mb-8 flex justify-between items-center">
         <div className="flex items-center gap-2 text-gray-700 text-base font-medium">
           <Person />
-          Janice Smith
+          {user ? `${user.firstName} ${user.lastName}` : "Loading user..."}
         </div>
       </div>
       <div className="h-px bg-gray-200 w-full mb-6" />
@@ -69,10 +108,16 @@ const ProfilePage = () => {
               </div>
               <div className="bg-gray-50 p-6 rounded-md border">
                 <div className="grid grid-cols-2 gap-4">
-                  <ProfileField label="First Name" value="Janice" />
-                  <ProfileField label="Last Name" value="Smith" />
-                  <ProfileField label="Date of Birth" value="04-06-2005" />
-                  <ProfileField label="Phone Number" value="+1 888-888-7777" />
+                  <ProfileField
+                    label="First Name"
+                    value={user?.firstName ?? "Not set"}
+                  />
+                  <ProfileField
+                    label="Last Name"
+                    value={user?.lastName ?? "Not set"}
+                  />
+                  <ProfileField label="Date of Birth" value="Not set" />
+                  <ProfileField label="Phone Number" value="Not set" />
                 </div>
               </div>
             </div>
@@ -83,8 +128,14 @@ const ProfilePage = () => {
         <SectionHeader title="Details" />
         <div className="bg-white rounded-lg shadow-md p-6 border space-y-6">
           <div className="space-y-4">
-            <ProfileField label="Role" value="Analyst" />
-            <ProfileField label="Email Address" value="janicesmith@gmail.com" />
+            <ProfileField
+              label="Role"
+              value={user?.role ?? "USER"}
+            />
+            <ProfileField
+              label="Email Address"
+              value={user?.email ?? "Not set"}
+            />
             <ProfileField label="Password" value="••••••••" />
           </div>
         </div>

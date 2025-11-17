@@ -16,9 +16,19 @@ import { usePathname } from "next/navigation";
 interface SidebarProps {
   collapsed: boolean;
   handleToggleSidebar: () => void;
+  user: {
+    firstName: string;
+    lastName: string;
+    organization?: { name: string };
+  } | null;
 }
 
-const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
+
+const SidebarComponent = ({
+  collapsed,
+  handleToggleSidebar,
+  user,
+}: SidebarProps) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [activePage, setActivePage] = useState<string>("dashboard");
   const router = useRouter();
@@ -205,7 +215,10 @@ const SidebarComponent = ({ collapsed, handleToggleSidebar }: SidebarProps) => {
               justifyContent: isMobile ? "center" : "flex-start",
             }}
           >
-            {!collapsed && "Diego Marques"}
+            {!collapsed &&
+              (user
+                ? `${user.firstName} ${user.lastName}`
+                : "Profile")}
           </MenuItem>
         </Menu>
       </div>
