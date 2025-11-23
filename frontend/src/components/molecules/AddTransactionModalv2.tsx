@@ -14,6 +14,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
 import Toast from "@/components/atoms/Toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import api from "@/utils/api";
 
 import {
   Dialog,
@@ -64,27 +65,15 @@ type Fund = {
 // add funcs to load relevant details so user can create transaction
 const getContributors = async (): Promise<Contributor[]> => {
   try {
-    const response = await fetch("http://localhost:8000/contributors", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await api.get("/contributors");
+    const responseData = response.data;
 
-    if (!response.ok) {
-      // Attempt to extract the error message from the response
-      const errorData = await response.json();
-    }
-
-    // Parse the JSON response to retrieve the list of contributor objects
-    const responseData = await response.json();
     if (responseData && Array.isArray(responseData.contributors)) {
       return responseData.contributors;
     } else if (Array.isArray(responseData)) {
-      // If the response is already an array, return it directly
       return responseData;
     } else {
-      return []; // Return empty array as fallback
+      return [];
     }
   } catch (error: any) {
     console.error("Error fetching contributors:", error);
@@ -93,28 +82,15 @@ const getContributors = async (): Promise<Contributor[]> => {
 };
 const getOrganizations = async (): Promise<Organization[]> => {
   try {
-    const response = await fetch("http://localhost:8000/organizations", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await api.get("/organizations");
+    const responseData = response.data;
 
-    if (!response.ok) {
-      // Attempt to extract the error message from the response
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to fetch organizations");
-    }
-
-    // Parse the JSON response to retrieve the list of organization objects
-    const responseData = await response.json();
     if (responseData && Array.isArray(responseData.organizations)) {
       return responseData.organizations;
     } else if (Array.isArray(responseData)) {
-      // If the response is already an array, return it directly
       return responseData;
     } else {
-      return []; // Return empty array as fallback
+      return [];
     }
   } catch (error: any) {
     throw error;
@@ -122,23 +98,9 @@ const getOrganizations = async (): Promise<Organization[]> => {
 };
 const getFunds = async (): Promise<Fund[]> => {
   try {
-    const response = await fetch("http://localhost:8000/funds", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await api.get("/funds");
+    const responseData = response.data;
 
-    if (!response.ok) {
-      // Attempt to extract the error message from the response
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to fetch funds");
-    }
-
-    // Parse the JSON response to retrieve the list of funds objects
-    const responseData = await response.json();
-
-    // Handle the nested structure: {"funds":{"funds":[...], "total":4}}
     if (
       responseData &&
       responseData.funds &&
@@ -148,11 +110,10 @@ const getFunds = async (): Promise<Fund[]> => {
     } else if (responseData && Array.isArray(responseData.funds)) {
       return responseData.funds;
     } else if (Array.isArray(responseData)) {
-      // If the response is already an array, return it directly
       return responseData;
     } else {
       console.error("Unexpected funds API response structure:", responseData);
-      return []; // Return empty array as fallback
+      return [];
     }
   } catch (error: any) {
     throw error;
@@ -283,20 +244,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
         }
       }
 
-      const response = await fetch("http://localhost:8000/transactions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create transaction");
-      }
-
-      const result = await response.json();
+      await api.post("/transactions", payload);
 
       // Success - reset form and close modal
       setTransaction({

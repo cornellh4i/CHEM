@@ -10,7 +10,7 @@ const Home: NextPage = () => {
         <Button onClick={() => (window.location.href = "/dashboard")}>
           Enter Dashboard
         </Button>
-        <Button onClick={() => (window.location.href = "/login")}>
+        <Button onClick={() => (window.location.href = "/auth/login")}>
           Login or Signup
         </Button>
       </div>

@@ -54,16 +54,25 @@ const routes = {
   ],
 
   /** Users can access */
-  userPaths: ["/posts"],
+  userPaths: [],
 
   /** Users can access only in certain conditions; admins can access */
-  userRestrictedPaths: ["/users/:userid", "/posts/:postid"],
+  userRestrictedPaths: [],
 
   /** Admins can access */
-  adminPaths: ["/users", "/website"],
+  adminPaths: [],
 
   /** Anyone can access */
-  publicPaths: ["/", "about", "/dashboard", "/profile"],
+  publicPaths: [
+    "/",
+    "/auth/login",
+    "/auth/signup",
+    "/dashboard",
+    "/activity",
+    "/profile",
+    "/funds",
+    "/settings",
+  ],
 };
 
 /** Middleware that runs for every protected route */

@@ -80,7 +80,7 @@ const LoginForm = () => {
               (typeof message === "string" &&
                 message.toLowerCase().includes("user not found"));
             if (notFound) {
-              router.push("/signup");
+              router.push("/auth/signup");
               return;
             }
             setAlert(message || "Login failed");
@@ -94,7 +94,7 @@ const LoginForm = () => {
           typeof msg === "string" &&
           msg.toLowerCase().includes("user not found")
         ) {
-          router.push("/signup");
+          router.push("/auth/signup");
         } else {
           setAlert(msg);
         }
@@ -148,7 +148,7 @@ const LoginForm = () => {
         <div className="text-gray-600 dark:text-gray-300 text-center text-sm">
           Don’t have an account?{" "}
           <Link
-            href="/signup"
+            href="/auth/signup"
             className="text-[#3E6DA6] underline hover:text-[#2b537e]"
           >
             Sign up

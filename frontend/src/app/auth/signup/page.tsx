@@ -1,14 +1,11 @@
 "use client";
-
 import React from "react";
-import { LoginTemplate, SignupFormCard } from "@/components";
+import SignupFormCard from "@/components/molecules/SignupFormCard";
 
 const SignupPage = () => {
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-700">
-      <div>
-        <SignupFormCard />
-      </div>
+    <div className="flex min-h-screen items-center justify-center bg-[#fefcfc]">
+      <SignupFormCard />
     </div>
   );
 };

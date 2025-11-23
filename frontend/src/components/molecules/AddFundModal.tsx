@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import api from "@/utils/api";
 
 type AddFundModalProps = { children: ReactNode };
 
@@ -74,20 +75,7 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
 
     try {
       setSubmitting(true);
-      const response = await fetch("http://localhost:8000/funds", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Failed to add fund");
-      }
-
-      // success UX
-      // optional: reset fields
-      // setName(""); setType("donation"); setRestriction("restricted"); setDescription(""); setPurpose("");
+      await api.post("/funds", body);
       setIsOpen(false);
     } catch (error: any) {
       setErrorMsg(error?.message || "Failed to add fund");
