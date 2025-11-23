@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import auth from "@/utils/firebase-client";
 import Link from "next/link";
@@ -31,9 +33,9 @@ const LoginForm = () => {
   const friendlyFirebaseMessage = (code?: string, fallback?: string) => {
     switch (code) {
       case "auth/invalid-credential":
-      case "auth/wrong-password":
-      case "auth/user-not-found":
         return "Invalid email or password.";
+      case "auth/wrong-password":
+        return "Invalid password.";
       case "auth/invalid-email":
         return "Please enter a valid email address.";
       case "auth/too-many-requests":
@@ -48,6 +50,8 @@ const LoginForm = () => {
   /** Handles form submission */
   const onSubmit = async (data: FormInputs): Promise<void> => {
     setAlert(null);
+    // Idempotency: ignore if a login attempt is already in-process
+    if (loading) return;
     setLoading(true);
     try {
       // Firebase sign-in to obtain ID token
@@ -60,7 +64,30 @@ const LoginForm = () => {
       router.push("/dashboard");
     } catch (e: unknown) {
       if (e instanceof FirebaseError) {
-        setAlert(friendlyFirebaseMessage(e.code, e.message));
+        if (e.code == "auth/invalid-credential") {
+          // check in local db by email; if user missing -> signup, else show credential alert
+          try {
+            await api.get(
+              `/auth/check-email?email=${encodeURIComponent(data.email)}`
+            );
+            // user exists in DB, show the usual credential error
+            setAlert(friendlyFirebaseMessage(e.code, e.message));
+          } catch (err: any) {
+            const message =
+              (err && (err.message || (err.data && err.data.error))) || "";
+            const notFound =
+              err?.status === 404 ||
+              (typeof message === "string" &&
+                message.toLowerCase().includes("user not found"));
+            if (notFound) {
+              router.push("/signup");
+              return;
+            }
+            setAlert(message || "Login failed");
+          }
+        } else {
+          setAlert(friendlyFirebaseMessage(e.code, e.message));
+        }
       } else {
         const msg = (e as any)?.message || "Login failed";
         if (
@@ -110,15 +137,23 @@ const LoginForm = () => {
             })}
           />
         </div>
-        <Button type="submit" disabled={loading}>
+        <Button
+          type="submit"
+          disabled={loading}
+          className="text-white focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mb-4 me-2 w-full rounded-lg border bg-grey-light px-5 py-3 text-sm font-normal hover:bg-grey-dark focus:outline-none focus:ring-4"
+          style={{ backgroundColor: "#3E6DA6" }}
+        >
           {loading ? "Logging in..." : "Log in"}
         </Button>
-        <Link href="/signup" passHref>
-          <Button variant="secondary">Sign up</Button>
-        </Link>
-        <Link href="/auth/forgot-password" passHref>
-          <Button variant="secondary">Forgot password</Button>
-        </Link>
+        <div className="text-gray-600 dark:text-gray-300 text-center text-sm">
+          Don’t have an account?{" "}
+          <Link
+            href="/signup"
+            className="text-[#3E6DA6] underline hover:text-[#2b537e]"
+          >
+            Sign up
+          </Link>
+        </div>
       </form>
     </div>
   );
