@@ -38,6 +38,7 @@ const FundTemplate = ({
       <Sidebar
         collapsed={collapsed}
         handleToggleSidebar={handleToggleSidebar}
+        user={null} // no user context here; sidebar will show "Profile"
       />
 
       <div

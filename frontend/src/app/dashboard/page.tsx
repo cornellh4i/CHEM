@@ -1,14 +1,47 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import auth from "@/utils/firebase-client";
 import TransactionsTable from "@/components/molecules/TransactionsTable";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import BarGraph from "@/components/molecules/BarGraph";
 import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 
+const apiBase = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+
+
+// fetch the logged-in user via /auth/login using their Firebase ID token
+// and replace the default org name with the organization name returned from the backend.
 const DashboardPage = () => {
+  const [orgName, setOrgName] = useState<string>("Museum of the Sea");
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const token = await auth.currentUser?.getIdToken();
+        if (!token) return;
+        const res = await fetch(`${apiBase}/auth/login`, {
+          method: "GET", // backend route is router.get("/login", ...)
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) {
+          console.error("Failed to fetch user", res.status);
+          return;
+        }
+        const data = await res.json();
+        const org = data.user?.organization?.name;
+        if (org) setOrgName(org);
+      } catch (err) {
+        console.error("Error loading user", err);
+      }
+    };
+    void loadUser();
+  }, []);
+
   return (
     <DashboardTemplate>
-      <div className="mb-8 text-4xl font-bold">Museum of the Sea</div>
+      <div className="mb-8 text-4xl font-bold">{orgName}</div>
       <div className="flex items-center justify-between">
         <div className="text-3xl font-medium">Contribution Total</div>
         <button className="bg-gray-200 text-black hover:bg-gray-300 focus:ring-gray-300 dark:border-gray-300 mb-2 me-2 inline-flex items-center rounded-xl px-4 py-1.5 text-center text-lg font-light focus:outline-none focus:ring-2">
