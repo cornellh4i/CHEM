@@ -99,7 +99,10 @@ const handleRequest = async (
   if (response.ok) {
     return Promise.resolve({ ...response, data });
   } else {
-    return Promise.reject(new Error(data.error));
+    const err: any = new Error(data?.error || "Request failed");
+    err.status = response.status;
+    err.data = data;
+    return Promise.reject(err);
   }
 };
 
