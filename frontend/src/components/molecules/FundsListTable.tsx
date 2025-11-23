@@ -4,8 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-
-const API_URL = "http://localhost:8000";
+import api from "@/utils/api";
 
 interface ApiFund {
   id: string;
@@ -58,14 +57,8 @@ export default function FundsCardTable({
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/funds`);
-
-      if (!response.ok) {
-        const statusText = response.statusText || "unknown error";
-        throw new Error(`${response.status} ${statusText}`);
-      }
-
-      const data = await response.json();
+      const response = await api.get(`/funds`);
+      const data = response.data;
 
       if (data && data.funds && data.funds.funds) {
         const mappedFunds: Fund[] = data.funds.funds.map(
