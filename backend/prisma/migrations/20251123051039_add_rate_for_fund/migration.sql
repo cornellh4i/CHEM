@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Fund" ADD COLUMN     "rate" DOUBLE PRECISION;
