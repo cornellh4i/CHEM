@@ -88,6 +88,7 @@ const handleRequest = async (
     method: method,
     headers: { ...authHeader, ...headers },
     body: JSON.stringify(body),
+    credentials: "include" as RequestCredentials, // enable cookies for session-based auth
   };
   const response = await fetch(SERVER_URL + url, options);
 

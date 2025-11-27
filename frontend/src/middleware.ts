@@ -1,5 +1,4 @@
 import { NextResponse, NextRequest } from "next/server";
-import auth from "./utils/firebase-client";
 
 /**
  * Takes a URL path and converts it into a matching regex
@@ -54,7 +53,7 @@ const routes = {
   ],
 
   /** Users can access */
-  userPaths: [],
+  userPaths: ["/dashboard", "/activity", "/profile", "/funds", "/settings", "/contributors"],
 
   /** Users can access only in certain conditions; admins can access */
   userRestrictedPaths: [],
@@ -63,16 +62,7 @@ const routes = {
   adminPaths: [],
 
   /** Anyone can access */
-  publicPaths: [
-    "/",
-    "/auth/login",
-    "/auth/signup",
-    "/dashboard",
-    "/activity",
-    "/profile",
-    "/funds",
-    "/settings",
-  ],
+  publicPaths: ["/", "/auth/login", "/auth/signup"],
 };
 
 /** Middleware that runs for every protected route */
@@ -80,25 +70,24 @@ export const middleware = async (request: NextRequest) => {
   /** URL path */
   const path = request.nextUrl.pathname;
 
-  // Get token and claims
-  const { token, claims } = auth.currentUser
-    ? await auth.currentUser.getIdTokenResult()
-    : { token: null, claims: null };
+  // Read session cookie (just check if it exists, backend will verify it)
+  const sessionCookie = request.cookies.get("session")?.value;
+  const isAuthed = !!sessionCookie;
 
   switch (true) {
     // Auth paths
     case match(path, routes.authPaths):
-      // If user is logged in, redirect to About
-      if (token) {
-        return NextResponse.redirect(new URL("/about", request.url));
+      // If user has session cookie, redirect to dashboard
+      if (isAuthed) {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
       }
       // Everyone else can access
       break;
 
     // User paths
     case match(path, routes.userPaths):
-      // If user is not logged in, redirect to Login
-      if (!token) {
+      // If user doesn't have session cookie, redirect to Login
+      if (!isAuthed) {
         return NextResponse.redirect(new URL("/auth/login", request.url));
       }
       // Everyone else can access
@@ -106,42 +95,30 @@ export const middleware = async (request: NextRequest) => {
 
     // User restricted paths
     case match(path, routes.userRestrictedPaths):
-      // If user is not logged in, redirect to Login
-      if (!token) {
+      // If user doesn't have session cookie, redirect to Login
+      if (!isAuthed) {
         return NextResponse.redirect(new URL("/auth/login", request.url));
       }
-      // If user token and trying to access a user profile, check for access
-      else if (token && claims?.user && match(path, "/users/:userid")) {
-        console.log("check for access");
-      }
-      // If user token and trying to access a post, check for access
-      else if (token && claims?.user && match(path, "/posts/:postid")) {
-        console.log("check for access");
-      }
-      // Everyone else can access
+      // Backend will verify specific permissions
       break;
 
     // Admin paths
     case match(path, routes.adminPaths):
-      // If user is not logged in, redirect to Login
-      if (!token) {
+      // If user doesn't have session cookie, redirect to Login
+      if (!isAuthed) {
         return NextResponse.redirect(new URL("/auth/login", request.url));
       }
-      // If user is logged in but not admin, redirect to About
-      else if (token && !claims?.admin) {
-        return NextResponse.redirect(new URL("/about", request.url));
-      }
-      // Everyone else can access
+      // Backend will verify admin permissions
       break;
 
     // Public paths
     case match(path, routes.publicPaths):
-      // Everyone else can access
+      // Everyone can access
       break;
 
     // Default case
     default:
-      // Everyone else can access
+      // Everyone can access
       break;
   }
 };

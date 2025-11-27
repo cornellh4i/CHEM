@@ -3,17 +3,34 @@ import controller from "../controllers/contributors";
 import { ErrorMessage } from "../utils/types";
 import express from "express";
 import orgController from "../controllers/organizations";
+import auth from "../middleware/auth";
+import prisma from "../utils/client";
 
 const contributorRouter = Router();
 
-// GET all contributors
-contributorRouter.get("/", async (req, res) => {
+// GET all contributors - filtered by logged-in user's organization
+contributorRouter.get("/", auth, async (req, res) => {
   try {
+    if (!(req as any).auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Get user's organizationId from database
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
     const filters = {
       firstName: req.query.firstName as string | undefined,
       lastName: req.query.lastName as string | undefined,
-      organizationId: req.query.organizationId as string | undefined,
-      fundId: req.query.fundId as string | undefined, // ← new!
+      organizationId: user.organizationId, // Use logged-in user's organizationId
+      fundId: req.query.fundId as string | undefined,
     };
     const sort = req.query.sortBy
       ? {

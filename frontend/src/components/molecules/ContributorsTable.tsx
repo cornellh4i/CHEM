@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState, useEffect, useMemo } from "react";
 import { SimpleTable, Column } from "@/components/molecules/SimpleTable";
+import api from "@/utils/api";
 
 type TransactionType = "DONATION" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE";
 
@@ -53,8 +54,6 @@ interface ContributorsTableProps {
   searchQuery?: string; // New prop to filter by contributor name
 }
 
-const API_URL = "http://localhost:8000";
-
 const ContributorsTable: React.FC<ContributorsTableProps> = ({
   searchQuery = "", // Default to empty string if not provided
 }) => {
@@ -72,16 +71,8 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
 
   const fetchOrganizations = async () => {
     try {
-      const response = await fetch(`${API_URL}/organizations`);
-
-      if (!response.ok) {
-        console.warn(
-          "Could not fetch organizations, fund names may not display correctly"
-        );
-        return;
-      }
-
-      const data = await response.json();
+      const response = await api.get("/organizations");
+      const data = response.data;
 
       if (data && data.organizations) {
         // Create a lookup map of organization ID to name
@@ -104,14 +95,8 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/contributors`);
-
-      if (!response.ok) {
-        const statusText = response.statusText || "Unknown error";
-        throw new Error(`HTTP error! Status: ${response.status} ${statusText}`);
-      }
-
-      const data = await response.json();
+      const response = await api.get("/contributors");
+      const data = response.data;
       console.log("Fetched", data);
 
       if (data && data.contributors) {
@@ -243,7 +228,7 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
       sortable: true,
       headerClassName: "text-right",
       className: "text-right font-medium",
-      Cell: (value, rowData) => {
+      Cell: (value) => {
         if (value === null) {
           return <span className="text-gray-500">No Transactions Found</span>;
         }
