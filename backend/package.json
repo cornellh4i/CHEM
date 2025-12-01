@@ -40,7 +40,7 @@
     "nodemon": "^3.1.11",
     "prettier": "^3.7.3",
     "prettier-plugin-jsdoc": "^1.7.0",
-    "prisma": "^5.20.0",
+    "prisma": "^7.0.1",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
