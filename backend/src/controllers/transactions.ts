@@ -166,7 +166,7 @@ const createTransaction = async (
     // Calculate units if fund is unitized (has a rate)
     let calculatedUnits: number | undefined = undefined;
     if (fund.rate && fund.rate > 0) {
-      calculatedUnits = Number((transactionData.amount / fund.rate).toFixed(4));
+      calculatedUnits = Number((transactionData.amount / fund.rate).toFixed(2));
     }
 
     // Validate contributor exists
