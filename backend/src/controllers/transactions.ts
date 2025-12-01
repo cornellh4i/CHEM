@@ -142,11 +142,6 @@ const createTransaction = async (
   transactionData: Omit<Transaction, "id" | "createdAt" | "updatedAt">
 ): Promise<Transaction> => {
   try {
-    const validationError = ensureValidTransaction(transactionData);
-    if (validationError) {
-      throw new Error(validationError);
-    }
-
     // Validate organization exists
     const organization = await prisma.organization.findUnique({
       where: { id: transactionData.organizationId },
@@ -155,7 +150,7 @@ const createTransaction = async (
       throw new Error("Organization not found.");
     }
 
-    // Validate fund exists
+    // Validate fund exists and calculate units BEFORE validation
     const fund = await prisma.fund.findUnique({
       where: { id: transactionData.fundId },
     });
@@ -167,6 +162,18 @@ const createTransaction = async (
     let calculatedUnits: number | undefined = undefined;
     if (fund.rate && fund.rate > 0) {
       calculatedUnits = Number((transactionData.amount / fund.rate).toFixed(2));
+    }
+
+    // Add calculated units to transaction data for validation
+    const dataWithUnits = {
+      ...transactionData,
+      units: calculatedUnits,
+    };
+
+    // Now validate with complete data including calculated units
+    const validationError = ensureValidTransaction(dataWithUnits);
+    if (validationError) {
+      throw new Error(validationError);
     }
 
     // Validate contributor exists
