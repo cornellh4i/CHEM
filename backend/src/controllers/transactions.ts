@@ -163,19 +163,17 @@ const createTransaction = async (
       throw new Error("Fund not found.");
     }
 
-    // Validate contributor exists
-    if (transactionData.contributorId) {
-      const contributor = await prisma.contributor.findUnique({
-        where: { id: transactionData.contributorId },
-      });
-      if (
-        !contributor ||
-        contributor.organizationId !== transactionData.organizationId
-      ) {
-        throw new Error(
-          "Contributor not found or does not belong to the given organization."
-        );
-      }
+    // Validate contributor exists (required)
+    const contributor = await prisma.contributor.findUnique({
+      where: { id: transactionData.contributorId },
+    });
+    if (
+      !contributor ||
+      contributor.organizationId !== transactionData.organizationId
+    ) {
+      throw new Error(
+        "Contributor not found or does not belong to the given organization."
+      );
     }
     // Validate transaction type
     if (
@@ -186,46 +184,64 @@ const createTransaction = async (
       throw new Error(`Invalid transaction type: ${transactionData.type}`);
     }
 
+    const unitsDelta =
+      typeof transactionData.units === "number"
+        ? transactionData.units
+        : undefined;
+    const signedUnits =
+      unitsDelta !== undefined
+        ? transactionData.type === "DONATION" ||
+          transactionData.type === "INVESTMENT"
+          ? unitsDelta
+          : -unitsDelta
+        : undefined;
+    const fundUnitsAfter =
+      signedUnits !== undefined ? (fund.units ?? 0) + signedUnits : undefined;
+
     const validData: Prisma.TransactionCreateInput = {
       organization: { connect: { id: transactionData.organizationId } },
-      contributor: { connect: { id: transactionData.contributorId } },
       fund: { connect: { id: transactionData.fundId } },
+      contributor: { connect: { id: transactionData.contributorId } },
       type: transactionData.type as TransactionType,
       date: new Date(transactionData.date),
       amount: transactionData.amount,
-      units: transactionData.units || undefined,
+      units: unitsDelta,
       description: transactionData.description || undefined,
     };
 
-    // Create transaction
-    const transaction = await prisma.transaction.create({
-      data: validData,
-    });
+    const transaction = await prisma.$transaction(async (tx) => {
+      const created = await tx.transaction.create({
+        data: validData,
+      });
 
-    // Determine whether to add or subtract the amount/units based on type
-    const amountUpdate =
-      // Add the amount to organization if donation or investment; subtract if
-      // otherwise (withdrawal, expense)
-      transactionData.type === "DONATION" ||
-      transactionData.type === "INVESTMENT"
-        ? { increment: transactionData.amount }
-        : { decrement: transactionData.amount };
-
-    const unitsUpdate =
-      transactionData.units !== undefined
-        ? transactionData.type === "DONATION" ||
-          transactionData.type === "INVESTMENT"
+      const amountUpdate =
+        transactionData.type === "DONATION" ||
+        transactionData.type === "INVESTMENT"
           ? { increment: transactionData.amount }
-          : { decrement: transactionData.amount }
-        : undefined; // Don't update if units aren't found
+          : { decrement: transactionData.amount };
 
-    // Update the organization's amount and units
-    await prisma.organization.update({
-      where: { id: transactionData.organizationId },
-      data: {
-        amount: amountUpdate,
-        units: unitsUpdate,
-      },
+      // Update organization totals
+      await tx.organization.update({
+        where: { id: transactionData.organizationId },
+        data: {
+          amount: amountUpdate,
+          ...(signedUnits !== undefined && {
+            units: { increment: signedUnits },
+          }),
+        },
+      });
+
+      // Update fund totals and ensure contributor is linked to fund for counts
+      await tx.fund.update({
+        where: { id: transactionData.fundId },
+        data: {
+          amount: amountUpdate,
+          ...(fundUnitsAfter !== undefined && { units: fundUnitsAfter }),
+          contributors: { connect: { id: transactionData.contributorId } },
+        },
+      });
+
+      return created;
     });
 
     return transaction;

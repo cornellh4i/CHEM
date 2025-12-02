@@ -1,19 +1,16 @@
-import { create } from "domain";
 import prisma from "../utils/client";
-import {
-  Fund,
-  FundType,
-  Transaction,
-  Contributor,
-  Prisma,
-} from "@prisma/client";
+import { Fund, FundType, Prisma, Transaction, Contributor } from "@prisma/client";
+
+type FundWithCounts = Fund & {
+  _count: { contributors: number; transactions: number };
+};
 
 // Get all funds with filtering, sorting, and pagination
 const getFunds = async (
   filters?: { type?: FundType; restriction?: boolean; organizationId?: string },
   sort?: { field: "createdAt" | "amount" | "units"; order: "asc" | "desc" },
   pagination?: { skip?: number; take?: number }
-): Promise<{ funds: (Fund & { _count: { contributors: number; transactions: number } })[]; total: number }> => {
+): Promise<{ funds: FundWithCounts[]; total: number }> => {
   try {
     const where: Prisma.FundWhereInput = {
       type: filters?.type,
@@ -24,22 +21,33 @@ const getFunds = async (
     // Retrieves paginated funds with optional filters and sorting, 
     // including related record counts (contributors, transactions) for each fund.
     const [funds, total] = await prisma.$transaction([
-  prisma.fund.findMany({
-    where,
-    orderBy: sort ? { [sort.field]: sort.order } : undefined,
-    skip: pagination?.skip || 0,
-    take: pagination?.take || 100,
-    include: {
-      _count: {
+      prisma.fund.findMany({
+        where,
+        orderBy: sort ? { [sort.field]: sort.order } : undefined,
+        skip: pagination?.skip || 0,
+        take: pagination?.take || 100,
         select: {
-          contributors: true,
-          transactions: true, // optional
+          id: true,
+          name: true,
+          description: true,
+          organizationId: true,
+          type: true,
+          restriction: true,
+          purpose: true,
+          units: true,
+          amount: true,
+          createdAt: true,
+          updatedAt: true,
+          _count: {
+            select: {
+              contributors: true,
+              transactions: true, // optional
+            },
+          },
         },
-      },
-    },
-  }),
-  prisma.fund.count({ where }),
-]);
+      }),
+      prisma.fund.count({ where }),
+    ]);
 
     return { funds, total };
   } catch (error) {
@@ -51,9 +59,30 @@ const getFunds = async (
 };
 
 // Get fund by id
-const getFundById = async (id: string): Promise<Fund | null> => {
+const getFundById = async (id: string): Promise<FundWithCounts | null> => {
   try {
-    return await prisma.fund.findUnique({ where: { id } });
+    return await prisma.fund.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        organizationId: true,
+        type: true,
+        restriction: true,
+        purpose: true,
+        units: true,
+        amount: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            contributors: true,
+            transactions: true,
+          },
+        },
+      },
+    });
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Failed to get fund: ${error.message}`);
@@ -164,7 +193,10 @@ const updateFund = async (
 
 const deleteFundById = async (id: string): Promise<Fund | null> => {
   try {
-    const fund = await prisma.fund.findUnique({ where: { id } });
+    const fund = await prisma.fund.findUnique({
+      where: { id },
+      select: { id: true },
+    });
     // check if fund exists
     if (!fund) return null;
 
@@ -204,6 +236,10 @@ const getTransactionsByFundId = async (
     const [transactions, total] = await prisma.$transaction([
       prisma.transaction.findMany({
         where: { fundId: id },
+        include: {
+          contributor: true,
+          organization: true,
+        },
         orderBy: sort ? { [sort.field]: sort.order } : undefined, // sorting by field and order
         skip: pagination?.skip || 0, // skip transactions, 0 by default
         take: pagination?.take || 100, // take transactions, 100 by default
