@@ -14,6 +14,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import Toast from "@/components/atoms/Toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import api from "@/utils/api";
 
 import {
   Dialog,
@@ -54,20 +55,10 @@ type Organization = {
 };
 const getContributors = async (): Promise<Contributor[]> => {
   try {
-    const response = await fetch("http://localhost:8000/contributors", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await api.get("/contributors");
 
-    if (!response.ok) {
-      // Attempt to extract the error message from the response
-      const errorData = await response.json();
-    }
-
-    // Parse the JSON response to retrieve the list of contributor objects
-    const responseData = await response.json();
+    // Parse the response to retrieve the list of contributor objects
+    const responseData = response.data;
     if (responseData && Array.isArray(responseData.contributors)) {
       return responseData.contributors;
     } else if (Array.isArray(responseData)) {
@@ -83,21 +74,10 @@ const getContributors = async (): Promise<Contributor[]> => {
 };
 const getOrganizations = async (): Promise<Organization[]> => {
   try {
-    const response = await fetch("http://localhost:8000/organizations", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await api.get("/organizations");
 
-    if (!response.ok) {
-      // Attempt to extract the error message from the response
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to fetch organizations");
-    }
-
-    // Parse the JSON response to retrieve the list of contributor objects
-    const responseData = await response.json();
+    // Parse the response to retrieve the list of organization objects
+    const responseData = response.data;
     if (responseData && Array.isArray(responseData.organizations)) {
       return responseData.organizations;
     } else if (Array.isArray(responseData)) {
@@ -237,21 +217,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
       };
 
       try {
-        const response = await fetch("http://localhost:8000/transactions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(transactionPayload),
-        });
+        const response = await api.post("/transactions", transactionPayload);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          showError(errorData.error || "Failed to create transaction");
-          return;
-        }
-
-        const newTransaction = await response.json();
+        const newTransaction = response.data;
         console.log("Transaction successfully created:", newTransaction);
 
         // Reset the transaction state to initial values

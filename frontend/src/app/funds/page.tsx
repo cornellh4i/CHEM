@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as React from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import auth from "@/utils/firebase-client";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import FundsListTable from "@/components/molecules/FundsListTable";
 import FundsCardTable from "@/components/molecules/FundsCardTable";
@@ -18,9 +20,35 @@ import SearchBar from "@/components/molecules/Searchbar";
 // import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 import AddFundModal from "@/components/molecules/AddFundModal";
 
+const apiBase = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+
 const FundsPage = () => {
   const buttonColor = "#838383";
   const [searchQuery, setSearchQuery] = useState("");
+  const [organizationId, setOrganizationId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setOrganizationId(null);
+        return;
+      }
+      try {
+        const token = await user.getIdToken();
+        const res = await fetch(`${apiBase}/auth/login`, {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setOrganizationId(data.user?.organizationId || null);
+        }
+      } catch (err) {
+        console.error("Error fetching user org", err);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleSearch = (query: string) => {
     console.log("Searching for:", query);
@@ -58,7 +86,7 @@ const FundsPage = () => {
               <SettingsIcon fontSize="small" style={{ marginRight: 6 }} />
               Settings
             </Button>
-            <AddFundModal>
+            <AddFundModal organizationId={organizationId || ""}>
               <Button
                 variant="secondary"
                 style={{

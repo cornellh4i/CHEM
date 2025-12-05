@@ -16,9 +16,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import api from "@/utils/api";
 
-type AddFundModalProps = { children: ReactNode };
+type AddFundModalProps = { children: ReactNode; organizationId: string };
 
-const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
+const AddFundModal: React.FC<AddFundModalProps> = ({
+  children,
+  organizationId,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [type, setType] = useState<"donation" | "endowment">("donation");
@@ -62,7 +65,7 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
       name: name.trim(),
       type: type.toUpperCase(), // server expects FundType (e.g., ENDOWMENT or DONATION)
       description: description.trim(),
-      organizationId: "techcorp-id", // TODO: replace with real org id
+      organizationId,
       units: 0,
     };
 

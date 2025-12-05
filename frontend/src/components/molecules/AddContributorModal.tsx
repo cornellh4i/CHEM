@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { ReactNode, useState, useEffect } from "react";
@@ -12,6 +11,7 @@ import {
 import Button from "@/components/atoms/Button";
 import Toast from "@/components/atoms/Toast";
 import Select from "@/components/atoms/Select";
+import api from "@/utils/api";
 
 // Define types
 type Organization = {
@@ -32,21 +32,10 @@ type AddContributorModalProps = {
 // Function to fetch organizations
 const getOrganizations = async (): Promise<Organization[]> => {
   try {
-    const response = await fetch("http://localhost:8000/organizations", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await api.get("/organizations");
 
-    if (!response.ok) {
-      // Attempt to extract the error message from the response
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to fetch organizations");
-    }
-
-    // Parse the JSON response to retrieve the list of contributor objects
-    const responseData = await response.json();
+    // Parse the response to retrieve the list of organization objects
+    const responseData = response.data;
     if (responseData && Array.isArray(responseData.organizations)) {
       return responseData.organizations;
     } else if (Array.isArray(responseData)) {
@@ -132,21 +121,9 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
   const handleAdd = async () => {
     if (validateForm()) {
       try {
-        const response = await fetch("http://localhost:8000/contributors", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(contributor),
-        });
+        const response = await api.post("/contributors", contributor);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          showError(errorData.error || "Failed to create contributor");
-          return;
-        }
-
-        const newContributor = await response.json();
+        const newContributor = response.data;
         console.log("Contributor successfully created:", newContributor);
 
         // Reset the contributor state to initial values
@@ -170,7 +147,7 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
         <DialogTrigger asChild onClick={handleOpen}>
           {children}
         </DialogTrigger>
-        <DialogContent className="border-gray-300 !bg-white !opacity-100 z-[1000] rounded-lg border p-8 shadow-lg sm:min-h-[475px] sm:max-w-lg">
+        <DialogContent className="border-gray-300 !bg-white z-[1000] rounded-lg border p-8 !opacity-100 shadow-lg sm:min-h-[475px] sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="mb-4 text-lg font-semibold">
               Add a Contributor
