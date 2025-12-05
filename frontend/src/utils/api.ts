@@ -79,8 +79,11 @@ const handleRequest = async (
   // Handle auth
   let authHeader = {};
   try {
+    await auth.authStateReady(); // Wait for Firebase auth to initialize
     const token = await auth.currentUser?.getIdToken();
-    authHeader = { Authorization: `Bearer ${token}` };
+    if (token) {
+      authHeader = { Authorization: `Bearer ${token}` };
+    }
   } catch {}
 
   // Handle request

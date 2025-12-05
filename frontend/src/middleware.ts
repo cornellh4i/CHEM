@@ -53,7 +53,7 @@ const routes = {
   ],
 
   /** Users can access */
-  userPaths: ["/dashboard", "/activity", "/profile", "/funds", "/settings", "/contributors"],
+  userPaths: ["/dashboard", "/activity", "/profile", "/funds", "/funds/:fundId", "/settings", "/contributors"],
 
   /** Users can access only in certain conditions; admins can access */
   userRestrictedPaths: [],
