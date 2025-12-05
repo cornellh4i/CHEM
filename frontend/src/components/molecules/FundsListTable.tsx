@@ -18,6 +18,10 @@ interface ApiFund {
   amount: number;
   createdAt: string;
   updatedAt: string;
+  _count?: {
+    contributors?: number;
+    transactions?: number;
+  };
 }
 
 type Fund = {
@@ -60,23 +64,23 @@ export default function FundsCardTable({
       const response = await api.get(`/funds`);
       const data = response.data;
 
-      if (data && data.funds && data.funds.funds) {
-        const mappedFunds: Fund[] = data.funds.funds.map(
-          (apiFund: ApiFund) => ({
-            name: apiFund.name,
-            id: apiFund.id,
-            restriction: apiFund.restriction ? "Restricted" : "Unrestricted",
-            type: apiFund.type === "ENDOWMENT" ? "Endowment" : "Donation",
-            contributors: 0,
-            units: apiFund.units || 0,
-            amount: apiFund.amount,
-          })
-        );
+      const fundsPayload = Array.isArray(data?.funds)
+        ? data.funds
+        : Array.isArray(data?.funds?.funds)
+        ? data.funds.funds
+        : [];
 
-        setFunds(mappedFunds);
-      } else {
-        setFunds([]);
-      }
+      const mappedFunds: Fund[] = fundsPayload.map((apiFund: ApiFund) => ({
+        name: apiFund.name,
+        id: apiFund.id,
+        restriction: apiFund.restriction ? "Restricted" : "Unrestricted",
+        type: apiFund.type === "ENDOWMENT" ? "Endowment" : "Donation",
+        contributors: apiFund._count?.contributors ?? 0,
+        units: apiFund.units ?? 0,
+        amount: apiFund.amount ?? 0,
+      }));
+
+      setFunds(mappedFunds);
     } catch (err) {
       console.error("error fetching funds:", err);
       setError("failed to load funds");

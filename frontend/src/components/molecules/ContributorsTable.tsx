@@ -45,50 +45,27 @@ interface TableData {
   id: string;
   date: string;
   contributor: string;
-  fund: string;
-  amount: number; // Store as a number for sorting
+  amount: number | null; // Store as a number for sorting
   hasTransactions: boolean;
 }
 
 interface ContributorsTableProps {
   searchQuery?: string; // New prop to filter by contributor name
+  refreshToken?: number; // bump this value to force a refetch
 }
 
 const ContributorsTable: React.FC<ContributorsTableProps> = ({
   searchQuery = "", // Default to empty string if not provided
+  refreshToken = 0,
 }) => {
   const PAGE_SIZE = 5;
   const [contributors, setContributors] = useState<TableData[]>([]);
-  const [organizations, setOrganizations] = useState<Record<string, string>>(
-    {}
-  );
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchOrganizations().then(() => fetchContributors());
-  }, []);
-
-  const fetchOrganizations = async () => {
-    try {
-      const response = await api.get("/organizations");
-      const data = response.data;
-
-      if (data && data.organizations) {
-        // Create a lookup map of organization ID to name
-        const orgMap: Record<string, string> = {};
-        data.organizations.forEach((org: any) => {
-          if (org.id && org.name) {
-            orgMap[org.id] = org.name;
-          }
-        });
-
-        setOrganizations(orgMap);
-      }
-    } catch (err) {
-      console.warn("Error fetching organizations:", err);
-    }
-  };
+    fetchContributors();
+  }, [refreshToken]);
 
   const fetchContributors = async () => {
     setLoading(true);
@@ -110,31 +87,6 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
             ? new Date(latestTransaction.date).toLocaleDateString()
             : new Date(contributor.updatedAt).toLocaleDateString();
 
-          let fund = "---";
-          if (latestTransaction) {
-            // Option 1: Use transaction.organization if it exists
-            if (
-              latestTransaction.organization &&
-              latestTransaction.organization.name
-            ) {
-              fund = latestTransaction.organization.name;
-            }
-            // Option 2: Use the organizationId to look it up in our organizations map
-            else if (
-              latestTransaction.organizationId &&
-              organizations[latestTransaction.organizationId]
-            ) {
-              fund = organizations[latestTransaction.organizationId];
-            }
-            // Option 3: Use the contributor's organization if available and the other options failed
-            else if (
-              contributor.organization &&
-              contributor.organization.name
-            ) {
-              fund = contributor.organization.name;
-            }
-          }
-
           const formattedAmount = latestTransaction
             ? latestTransaction.type === "EXPENSE" ||
               latestTransaction.type === "WITHDRAWAL"
@@ -146,7 +98,6 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
             id: contributor.id,
             date: activityDate,
             contributor: `${contributor.firstName} ${contributor.lastName}`,
-            fund: fund,
             amount: formattedAmount, // Will be null when no transactions
             hasTransactions: hasTransactions,
           };
@@ -154,7 +105,8 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
 
         // Sort contributors by date in descending order before setting the state
         const sortedData: TableData[] = mappedData.sort(
-          (a: TableData, b: TableData) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          (a: TableData, b: TableData) =>
+            new Date(b.date).getTime() - new Date(a.date).getTime()
         );
 
         setContributors(sortedData); // Update state with sorted data
@@ -171,34 +123,33 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
   // normalize the query, and if present, build a combined text string per row
   // (date, name, fund, amount, status, id) and keep rows that contain the query.
   const filteredContributors = useMemo(() => {
-   const q = (searchQuery ?? "").trim().toLowerCase();
-   if (!q) return contributors;
+    const q = (searchQuery ?? "").trim().toLowerCase();
+    if (!q) return contributors;
 
-   const rowText = (r: TableData) => {
-     const amountStr =
-       r.amount === null || r.amount === undefined
-         ? "no transactions found"
-         : (() => {
-             const sign = r.amount < 0 ? "-" : "+";
-             const amt = new Intl.NumberFormat("en-US", {
-               style: "currency",
-               currency: "USD",
-             }).format(Math.abs(r.amount));
-             return `${sign}${amt}`;
-           })();
+    const rowText = (r: TableData) => {
+      const amountStr =
+        r.amount === null || r.amount === undefined
+          ? "no transactions found"
+          : (() => {
+              const sign = r.amount < 0 ? "-" : "+";
+              const amt = new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+              }).format(Math.abs(r.amount));
+              return `${sign}${amt}`;
+            })();
 
-     return [
-       r.date,
-       r.contributor,
-       r.fund,
-       amountStr,
-       r.hasTransactions ? "has transactions" : "no transactions",
-       r.id,
-    ]
+      return [
+        r.date,
+        r.contributor,
+        amountStr,
+        r.hasTransactions ? "has transactions" : "no transactions",
+        r.id,
+      ]
         .join(" ")
         .toLowerCase();
     };
- 
+
     return contributors.filter((r) => rowText(r).includes(q));
   }, [contributors, searchQuery]);
 
@@ -212,12 +163,6 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
     {
       header: "Contributor",
       accessor: "contributor",
-      dataType: "string",
-      sortable: true,
-    },
-    {
-      header: "Fund",
-      accessor: "fund",
       dataType: "string",
       sortable: true,
     },

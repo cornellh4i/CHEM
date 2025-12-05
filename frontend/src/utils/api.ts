@@ -1,5 +1,6 @@
 import { SERVER_URL } from "@/utils/constants";
 import auth from "@/utils/firebase-client";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 interface ApiResponse extends Response {
   data: any;

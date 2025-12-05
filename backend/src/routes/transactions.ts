@@ -119,20 +119,18 @@ transactionRouter.post("/", async (req, res) => {
   try {
     const transactionData = req.body;
 
-    // Basic validation
+    // Basic validation (units and description are optional)
     if (
       !transactionData.organizationId ||
       !transactionData.contributorId ||
       !transactionData.fundId ||
       !transactionData.type ||
       !transactionData.date ||
-      !transactionData.units ||
-      !transactionData.amount ||
-      !transactionData.description
+      !transactionData.amount
     ) {
       return res.status(400).json({
         error:
-          "Transaction organiation ID, contributor ID, fund ID, type, date, units, amount, and description are required",
+          "Transaction organization ID, contributor ID, fund ID, type, date, and amount are required",
       });
     }
 

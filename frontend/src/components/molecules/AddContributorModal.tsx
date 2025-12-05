@@ -11,68 +11,31 @@ import {
 } from "@/components/ui/dialog";
 import Button from "@/components/atoms/Button";
 import Toast from "@/components/atoms/Toast";
-import Select from "@/components/atoms/Select";
-
-// Define types
-type Organization = {
-  id: string;
-  name: string;
-};
+import api from "@/utils/api";
 
 type ContributorData = {
   firstName: string;
   lastName: string;
-  organizationId: string;
 };
 
 type AddContributorModalProps = {
   children: ReactNode;
-};
-
-// Function to fetch organizations
-const getOrganizations = async (): Promise<Organization[]> => {
-  try {
-    const response = await fetch("http://localhost:8000/organizations", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      // Attempt to extract the error message from the response
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to fetch organizations");
-    }
-
-    // Parse the JSON response to retrieve the list of contributor objects
-    const responseData = await response.json();
-    if (responseData && Array.isArray(responseData.organizations)) {
-      return responseData.organizations;
-    } else if (Array.isArray(responseData)) {
-      // If the response is already an array, return it directly
-      return responseData;
-    } else {
-      return []; // Return empty array as fallback
-    }
-  } catch (error: any) {
-    throw error;
-  }
+  onAdded?: () => void;
 };
 
 const AddContributorModal: React.FC<AddContributorModalProps> = ({
   children,
+  onAdded,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [userOrgId, setUserOrgId] = useState<string | null>(null);
 
   // Initial contributor state
   const initialContributorState: ContributorData = {
     firstName: "",
     lastName: "",
-    organizationId: "",
   };
 
   // State to store all form values
@@ -83,18 +46,24 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
 
-  // Effect to fetch organizations when modal opens
+  // Load the logged-in user's organization so new contributors can be attached automatically.
   useEffect(() => {
-    const fetchOrganizations = async () => {
+    const fetchUserOrg = async () => {
       try {
-        const data = await getOrganizations();
-        setOrganizations(data);
+        const res = await api.get("/auth/login");
+        const user = res.data?.user;
+        const orgId = user?.organizationId || user?.organization?.id;
+        if (!orgId) {
+          throw new Error("No organization found for user.");
+        }
+        setUserOrgId(orgId);
       } catch (err: any) {
-        showError("Failed to load organizations.");
+        console.error("Failed to load user org", err);
+        showError("Failed to load your organization. Please try again.");
       }
     };
 
-    fetchOrganizations();
+    fetchUserOrg();
   }, []);
 
   // Handle input changes
@@ -115,8 +84,8 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
       showError("Please enter a last name");
       return false;
     }
-    if (!contributor.organizationId) {
-      showError("Please select an organization");
+    if (!userOrgId) {
+      showError("We could not determine your organization. Please refresh and try again.");
       return false;
     }
     return true;
@@ -132,28 +101,20 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
   const handleAdd = async () => {
     if (validateForm()) {
       try {
-        const response = await fetch("http://localhost:8000/contributors", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(contributor),
-        });
+        const payload = {
+          ...contributor,
+          organizationId: userOrgId,
+        };
+        const response = await api.post("/contributors", payload);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          showError(errorData.error || "Failed to create contributor");
-          return;
-        }
-
-        const newContributor = await response.json();
-        console.log("Contributor successfully created:", newContributor);
+        console.log("Contributor successfully created:", response.data);
 
         // Reset the contributor state to initial values
         setContributor(initialContributorState);
 
         // Close the modal
         handleClose();
+        onAdded?.();
       } catch (error: any) {
         const detailedError =
           error && error.message
@@ -200,35 +161,18 @@ const AddContributorModal: React.FC<AddContributorModalProps> = ({
                 Last Name
               </label>
               <input
-                id="lastName"
-                placeholder=""
-                value={contributor.lastName}
-                className="border-gray-400 text-black focus:ring-gray-500 w-full rounded-md border p-2 text-sm focus:outline-none focus:ring-2"
-                onChange={(e) => handleInputChange("lastName", e.target.value)}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="organization"
-                className="text-black mb-1 block text-sm font-medium"
-              >
-                Organization
-              </label>
-              <Select
-                placeholder="Select an Organization"
-                values={organizations.map((org) => ({
-                  value: org.id,
-                  label: org.name,
-                }))}
-                width="95%"
-                onSelect={(value) => handleInputChange("organizationId", value)}
-              />
-            </div>
-            <div className="flex justify-between space-x-4 pt-8">
-              <Button
-                className="border-gray-400 text-black hover:bg-gray-100 rounded-md border px-6 py-2 text-sm"
-                onClick={handleClose}
-              >
+            id="lastName"
+            placeholder=""
+            value={contributor.lastName}
+            className="border-gray-400 text-black focus:ring-gray-500 w-full rounded-md border p-2 text-sm focus:outline-none focus:ring-2"
+            onChange={(e) => handleInputChange("lastName", e.target.value)}
+          />
+        </div>
+        <div className="flex justify-between space-x-4 pt-8">
+          <Button
+            className="border-gray-400 text-black hover:bg-gray-100 rounded-md border px-6 py-2 text-sm"
+            onClick={handleClose}
+          >
                 Cancel
               </Button>
               <Button
