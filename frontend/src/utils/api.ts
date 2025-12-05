@@ -1,5 +1,6 @@
 import { SERVER_URL } from "@/utils/constants";
 import auth from "@/utils/firebase-client";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 interface ApiResponse extends Response {
   data: any;
@@ -76,26 +77,61 @@ const handleRequest = async (
   headers?: { [key: string]: string },
   body?: object
 ): Promise<ApiResponse> => {
-  // Handle auth
-  let authHeader = {};
-  try {
-    const token = await auth.currentUser?.getIdToken();
-    authHeader = { Authorization: `Bearer ${token}` };
-  } catch {}
-
-  // Handle request
-  const options = {
-    method: method,
-    headers: { ...authHeader, ...headers },
-    body: JSON.stringify(body),
+  // Wait for Firebase user to be ready (useful on page refresh).
+  const waitForUser = async (): Promise<User | null> => {
+    if (auth.currentUser) return auth.currentUser;
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        unsubscribe();
+        resolve(null);
+      }, 1500);
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        clearTimeout(timeout);
+        unsubscribe();
+        resolve(user);
+      });
+    });
   };
-  const response = await fetch(SERVER_URL + url, options);
 
-  // Handle response
-  const content = response.headers.get("Content-Type");
-  const data = content?.includes("application/json")
-    ? await response.json()
-    : await response.blob();
+  const getToken = async (forceRefresh: boolean) => {
+    try {
+      const user = auth.currentUser ?? (await waitForUser());
+      if (!user) return null;
+      return await user.getIdToken(forceRefresh);
+    } catch {
+      return null;
+    }
+  };
+
+  const makeRequest = async (forceRefreshToken: boolean) => {
+    // Build auth header
+    let authHeader = {};
+    const token = await getToken(forceRefreshToken);
+    if (token) {
+      authHeader = { Authorization: `Bearer ${token}` };
+    }
+
+    const options = {
+      method: method,
+      headers: { ...authHeader, ...headers },
+      body: JSON.stringify(body),
+    };
+    const response = await fetch(SERVER_URL + url, options);
+    const content = response.headers.get("Content-Type");
+    const data = content?.includes("application/json")
+      ? await response.json()
+      : await response.blob();
+    return { response, data };
+  };
+
+  // first attempt (use cached token)
+  let { response, data } = await makeRequest(false);
+
+  // If token is invalid or expired, retry once with a fresh token
+  if (response.status === 401) {
+    ({ response, data } = await makeRequest(true));
+  }
+
   if (response.ok) {
     return Promise.resolve({ ...response, data });
   } else {

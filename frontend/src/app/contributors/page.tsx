@@ -11,6 +11,7 @@ import SearchBar from "@/components/molecules/Searchbar"; // Import the SearchBa
 
 const ContributorsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [refreshToken, setRefreshToken] = useState(0);
 
   const handleSearch = (query: string) => {
     console.log("Searching for:", query);
@@ -26,7 +27,7 @@ const ContributorsPage = () => {
             <SearchBar onSearch={handleSearch} width="50%" />
           </div>
 
-          <AddContributorModal>
+          <AddContributorModal onAdded={() => setRefreshToken((v) => v + 1)}>
             <Button
               variant="primary"
               style={{
@@ -57,7 +58,10 @@ const ContributorsPage = () => {
           </Button>
         </div>
 
-        <ContributorsTable searchQuery={searchQuery} />
+        <ContributorsTable
+          searchQuery={searchQuery}
+          refreshToken={refreshToken}
+        />
       </div>
     </DashboardTemplate>
   );
