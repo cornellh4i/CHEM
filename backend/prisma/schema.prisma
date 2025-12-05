@@ -88,6 +88,7 @@ model Fund {
   purpose        String?
   contributors   Contributor[]
   transactions   Transaction[]
+  rate           Float?
   units          Float?
   amount         Float
   createdAt      DateTime      @default(now())

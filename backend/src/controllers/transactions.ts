@@ -158,17 +158,6 @@ const createTransaction = async (
       throw new Error("Fund not found.");
     }
 
-    // Validate contributor exists (required)
-    const contributor = await prisma.contributor.findUnique({
-      where: { id: transactionData.contributorId },
-    });
-    if (
-      !contributor ||
-      contributor.organizationId !== transactionData.organizationId
-    ) {
-      throw new Error(
-        "Contributor not found or does not belong to the given organization."
-      );
     // Calculate units if fund is unitized (has a rate)
     let calculatedUnits: number | undefined = undefined;
     if (fund.rate && fund.rate > 0) {
@@ -187,19 +176,17 @@ const createTransaction = async (
       throw new Error(validationError);
     }
 
-    // Validate contributor exists
-    if (transactionData.contributorId) {
-      const contributor = await prisma.contributor.findUnique({
-        where: { id: transactionData.contributorId },
-      });
-      if (
-        !contributor ||
-        contributor.organizationId !== transactionData.organizationId
-      ) {
-        throw new Error(
-          "Contributor not found or does not belong to the given organization."
-        );
-      }
+    // Validate contributor exists (required)
+    const contributor = await prisma.contributor.findUnique({
+      where: { id: transactionData.contributorId },
+    });
+    if (
+      !contributor ||
+      contributor.organizationId !== transactionData.organizationId
+    ) {
+      throw new Error(
+        "Contributor not found or does not belong to the given organization."
+      );
     }
     // Validate transaction type
     if (
@@ -210,24 +197,10 @@ const createTransaction = async (
       throw new Error(`Invalid transaction type: ${transactionData.type}`);
     }
 
-    const unitsDelta =
-      typeof transactionData.units === "number"
-        ? transactionData.units
-        : undefined;
-    const signedUnits =
-      unitsDelta !== undefined
-        ? transactionData.type === "DONATION" ||
-          transactionData.type === "INVESTMENT"
-          ? unitsDelta
-          : -unitsDelta
-        : undefined;
-    const fundUnitsAfter =
-      signedUnits !== undefined ? (fund.units ?? 0) + signedUnits : undefined;
-
     const validData: Prisma.TransactionCreateInput = {
       organization: { connect: { id: transactionData.organizationId } },
-      fund: { connect: { id: transactionData.fundId } },
       contributor: { connect: { id: transactionData.contributorId } },
+      fund: { connect: { id: transactionData.fundId } },
       type: transactionData.type as TransactionType,
       date: new Date(transactionData.date),
       amount: transactionData.amount,
@@ -235,10 +208,10 @@ const createTransaction = async (
       description: transactionData.description || undefined,
     };
 
-    const transaction = await prisma.$transaction(async (tx) => {
-      const created = await tx.transaction.create({
-        data: validData,
-      });
+    // Create transaction
+    const transaction = await prisma.transaction.create({
+      data: validData,
+    });
 
     // Determine whether to add or subtract the amount/units based on type
     const amountUpdate =
@@ -257,28 +230,13 @@ const createTransaction = async (
           : { decrement: calculatedUnits }
         : undefined; // Don't update if units aren't calculated (non-unitized fund)
 
-      // Update organization totals
-      await tx.organization.update({
-        where: { id: transactionData.organizationId },
-        data: {
-          amount: amountUpdate,
-          ...(signedUnits !== undefined && {
-            units: { increment: signedUnits },
-          }),
-        },
-      });
-
-      // Update fund totals and ensure contributor is linked to fund for counts
-      await tx.fund.update({
-        where: { id: transactionData.fundId },
-        data: {
-          amount: amountUpdate,
-          ...(fundUnitsAfter !== undefined && { units: fundUnitsAfter }),
-          contributors: { connect: { id: transactionData.contributorId } },
-        },
-      });
-
-      return created;
+    // Update the organization's amount and units
+    await prisma.organization.update({
+      where: { id: transactionData.organizationId },
+      data: {
+        amount: amountUpdate,
+        units: unitsUpdate,
+      },
     });
 
     // Update the fund's amount and units
@@ -534,7 +492,6 @@ async function getContributorTransactions(
 }
 
 // TODO: Get a specific funds transactions
-
 export default {
   createTransaction,
   deleteTransaction,

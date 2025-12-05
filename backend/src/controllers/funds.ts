@@ -1,5 +1,11 @@
 import prisma from "../utils/client";
-import { Fund, FundType, Prisma, Transaction, Contributor } from "@prisma/client";
+import {
+  Fund,
+  FundType,
+  Prisma,
+  Transaction,
+  Contributor,
+} from "@prisma/client";
 
 type FundWithCounts = Fund & {
   _count: { contributors: number; transactions: number };
@@ -15,10 +21,10 @@ const getFunds = async (
     const where: Prisma.FundWhereInput = {
       type: filters?.type,
       restriction: filters?.restriction,
-      organizationId: filters?.organizationId
+      organizationId: filters?.organizationId,
     };
 
-    // Retrieves paginated funds with optional filters and sorting, 
+    // Retrieves paginated funds with optional filters and sorting,
     // including related record counts (contributors, transactions) for each fund.
     const [funds, total] = await prisma.$transaction([
       prisma.fund.findMany({
@@ -35,6 +41,7 @@ const getFunds = async (
           restriction: true,
           purpose: true,
           units: true,
+          rate: true,
           amount: true,
           createdAt: true,
           updatedAt: true,
@@ -72,6 +79,7 @@ const getFundById = async (id: string): Promise<FundWithCounts | null> => {
         restriction: true,
         purpose: true,
         units: true,
+        rate: true,
         amount: true,
         createdAt: true,
         updatedAt: true,
