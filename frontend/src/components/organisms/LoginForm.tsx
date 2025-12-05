@@ -55,7 +55,9 @@ const LoginForm = () => {
     setLoading(true);
     try {
       // Firebase sign-in to obtain ID token
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+      const idToken = await userCredential.user.getIdToken();
+      await api.post("/auth/session", { idToken });
 
       // Validate user exists in DB and fetch profile
       await api.get("/auth/login");

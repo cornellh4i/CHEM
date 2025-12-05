@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState, useEffect, useMemo } from "react";
 import { SimpleTable, Column } from "@/components/molecules/SimpleTable";
+import api from "@/utils/api";
 
 type TransactionType = "DONATION" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE";
 
@@ -53,8 +54,6 @@ interface ContributorsTableProps {
   refreshToken?: number; // bump this value to force a refetch
 }
 
-const API_URL = "http://localhost:8000";
-
 const ContributorsTable: React.FC<ContributorsTableProps> = ({
   searchQuery = "", // Default to empty string if not provided
   refreshToken = 0,
@@ -73,14 +72,8 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/contributors`);
-
-      if (!response.ok) {
-        const statusText = response.statusText || "Unknown error";
-        throw new Error(`HTTP error! Status: ${response.status} ${statusText}`);
-      }
-
-      const data = await response.json();
+      const response = await api.get("/contributors");
+      const data = response.data;
       console.log("Fetched", data);
 
       if (data && data.contributors) {
@@ -112,7 +105,8 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
 
         // Sort contributors by date in descending order before setting the state
         const sortedData: TableData[] = mappedData.sort(
-          (a: TableData, b: TableData) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          (a: TableData, b: TableData) =>
+            new Date(b.date).getTime() - new Date(a.date).getTime()
         );
 
         setContributors(sortedData); // Update state with sorted data
@@ -129,33 +123,33 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
   // normalize the query, and if present, build a combined text string per row
   // (date, name, fund, amount, status, id) and keep rows that contain the query.
   const filteredContributors = useMemo(() => {
-   const q = (searchQuery ?? "").trim().toLowerCase();
-   if (!q) return contributors;
+    const q = (searchQuery ?? "").trim().toLowerCase();
+    if (!q) return contributors;
 
-   const rowText = (r: TableData) => {
-     const amountStr =
-       r.amount === null || r.amount === undefined
-         ? "no transactions found"
-         : (() => {
-             const sign = r.amount < 0 ? "-" : "+";
-             const amt = new Intl.NumberFormat("en-US", {
-               style: "currency",
-               currency: "USD",
-             }).format(Math.abs(r.amount));
-             return `${sign}${amt}`;
-           })();
+    const rowText = (r: TableData) => {
+      const amountStr =
+        r.amount === null || r.amount === undefined
+          ? "no transactions found"
+          : (() => {
+              const sign = r.amount < 0 ? "-" : "+";
+              const amt = new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+              }).format(Math.abs(r.amount));
+              return `${sign}${amt}`;
+            })();
 
-     return [
-       r.date,
-       r.contributor,
-       amountStr,
-       r.hasTransactions ? "has transactions" : "no transactions",
-       r.id,
-    ]
+      return [
+        r.date,
+        r.contributor,
+        amountStr,
+        r.hasTransactions ? "has transactions" : "no transactions",
+        r.id,
+      ]
         .join(" ")
         .toLowerCase();
     };
- 
+
     return contributors.filter((r) => rowText(r).includes(q));
   }, [contributors, searchQuery]);
 
@@ -179,7 +173,7 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
       sortable: true,
       headerClassName: "text-right",
       className: "text-right font-medium",
-      Cell: (value, rowData) => {
+      Cell: (value) => {
         if (value === null) {
           return <span className="text-gray-500">No Transactions Found</span>;
         }

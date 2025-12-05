@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import api from "@/utils/api";
 
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
@@ -56,11 +57,8 @@ export function BarGraph() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(
-          "http://localhost:8000/transactions?type=DONATION"
-        );
-        const json = await res.json();
-        const transactions = json.transactions;
+        const res = await api.get("/transactions?type=DONATION");
+        const transactions = res.data.transactions;
 
         const now = new Date();
         const cutoff = new Date();

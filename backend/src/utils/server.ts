@@ -15,7 +15,10 @@ const app = express();
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerFile));
 
 // Middleware to allow cross-origin requests
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  credentials: true
+}));
 
 // Middleware to parse JSON bodies
 app.use(express.json());

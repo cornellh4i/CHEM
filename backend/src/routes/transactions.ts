@@ -4,6 +4,8 @@ import { ErrorMessage } from "../utils/types";
 import { TransactionType } from "@prisma/client";
 import { notify } from "../utils/helpers";
 import transactions from "../controllers/transactions";
+import auth from "../middleware/auth";
+import prisma from "../utils/client";
 
 const transactionRouter = Router();
 
@@ -11,17 +13,31 @@ const transactionRouter = Router();
  * GET /transactions Supports query parameters for filtering by:
  *
  * - Type (e.g. DONATION, WITHDRAWAL, etc)
- * - OrganizationId
- * - FundId
  * - StartDate and endDate (for date range filtering) Also supports sorting by
  *   date or amount and pagination (skip, take).
+ * - Automatically filters by logged-in user's organization
  */
-transactionRouter.get("/", async (req, res) => {
+transactionRouter.get("/", auth, async (req, res) => {
   try {
+    if (!(req as any).auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Get user's organizationId from database
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
     const filters = {
       type: req.query.type as string | undefined,
-      organizationId: req.query.organizationId as string | undefined,
-      fundId: req.query.organizationId as string | undefined,
+      organizationId: user.organizationId, // Use logged-in user's organizationId
+      fundId: req.query.fundId as string | undefined,
       startDate: req.query.startDate as string | undefined,
       endDate: req.query.endDate as string | undefined,
     };

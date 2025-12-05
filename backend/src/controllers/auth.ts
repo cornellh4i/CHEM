@@ -128,11 +128,39 @@ export const logout = async (req: Request, res: Response) => {
   const { uid } = req.auth;
   try {
     await admin.auth().revokeRefreshTokens(uid);
+    // clear session cookie during logout
+    res.clearCookie("session");
     return res
       .status(200)
       .json({ success: true, message: "Logged out (tokens revoked)" });
   } catch (e: any) {
     const status = e?.status ?? 500;
     return res.status(status).json({ error: e?.message ?? "Logout failed" });
+  }
+};
+
+export const session = async (req: Request, res: Response) => {
+  const { idToken } = req.body;
+  if (!idToken) return res.status(400).json({ error: "idToken is required" });
+
+  try {
+    // verify the ID token
+    await admin.auth().verifyIdToken(idToken);
+
+    // create session cookie
+    const expiresIn = 5 * 24 * 60 * 60 * 1000; // in 5 days
+    const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
+
+    // set cookie as HttpOnly
+    res.cookie("session", sessionCookie, {
+      maxAge: expiresIn,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax"
+    });
+
+    return res.status(200).json({ success: true });
+  } catch (e: any) {
+    return res.status(401).json({ error: e?.message ?? "Invalid ID token" });
   }
 };
