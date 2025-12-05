@@ -142,11 +142,6 @@ const createTransaction = async (
   transactionData: Omit<Transaction, "id" | "createdAt" | "updatedAt">
 ): Promise<Transaction> => {
   try {
-    const validationError = ensureValidTransaction(transactionData);
-    if (validationError) {
-      throw new Error(validationError);
-    }
-
     // Validate organization exists
     const organization = await prisma.organization.findUnique({
       where: { id: transactionData.organizationId },
@@ -155,12 +150,30 @@ const createTransaction = async (
       throw new Error("Organization not found.");
     }
 
-    // Validate fund exists
+    // Validate fund exists and calculate units BEFORE validation
     const fund = await prisma.fund.findUnique({
       where: { id: transactionData.fundId },
     });
     if (!fund) {
       throw new Error("Fund not found.");
+    }
+
+    // Calculate units if fund is unitized (has a rate)
+    let calculatedUnits: number | undefined = undefined;
+    if (fund.rate && fund.rate > 0) {
+      calculatedUnits = Number((transactionData.amount / fund.rate).toFixed(2));
+    }
+
+    // Add calculated units to transaction data for validation
+    const dataWithUnits = {
+      ...transactionData,
+      units: calculatedUnits,
+    };
+
+    // Now validate with complete data including calculated units
+    const validationError = ensureValidTransaction(dataWithUnits);
+    if (validationError) {
+      throw new Error(validationError);
     }
 
     // Validate contributor exists
@@ -193,7 +206,7 @@ const createTransaction = async (
       type: transactionData.type as TransactionType,
       date: new Date(transactionData.date),
       amount: transactionData.amount,
-      units: transactionData.units || undefined,
+      units: calculatedUnits, // Use calculated units based on fund rate
       description: transactionData.description || undefined,
     };
 
@@ -212,16 +225,25 @@ const createTransaction = async (
         : { decrement: transactionData.amount };
 
     const unitsUpdate =
-      transactionData.units !== undefined
+      calculatedUnits !== undefined
         ? transactionData.type === "DONATION" ||
           transactionData.type === "INVESTMENT"
-          ? { increment: transactionData.amount }
-          : { decrement: transactionData.amount }
-        : undefined; // Don't update if units aren't found
+          ? { increment: calculatedUnits }
+          : { decrement: calculatedUnits }
+        : undefined; // Don't update if units aren't calculated (non-unitized fund)
 
     // Update the organization's amount and units
     await prisma.organization.update({
       where: { id: transactionData.organizationId },
+      data: {
+        amount: amountUpdate,
+        units: unitsUpdate,
+      },
+    });
+
+    // Update the fund's amount and units
+    await prisma.fund.update({
+      where: { id: transactionData.fundId },
       data: {
         amount: amountUpdate,
         units: unitsUpdate,
