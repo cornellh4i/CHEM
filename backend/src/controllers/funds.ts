@@ -129,7 +129,8 @@ const createFund = async (
       type: data.type,
       restriction: data.restriction ?? undefined,
       purpose: data.purpose ?? undefined, // NEW
-      units: data.units ?? undefined,
+      units: 0,
+      rate: data.rate ?? undefined,
       amount: data.amount ?? 0,
     };
 
