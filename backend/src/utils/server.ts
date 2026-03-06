@@ -12,7 +12,7 @@ import authRouter from "../routes/auth";
 const app = express();
 
 // Swagger endpoint
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerFile));
+app.use("/api-docs", swaggerUI.serve as any, swaggerUI.setup(swaggerFile) as any);
 
 // Middleware to allow cross-origin requests
 app.use(cors({
@@ -39,7 +39,7 @@ app.get("/", (req, res) => {
 
 // Default route for undefined endpoints
 // #swagger.ignore = true
-app.get("*", (req, res) => {
+app.get("*splat", (req, res) => {
   res
     .status(404)
     .json({ error: "You have reached a route not defined in this API" });
