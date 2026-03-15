@@ -1,13 +1,16 @@
 "use client";
 import React, { useState } from "react";
 import { Button, Input } from "@/components";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-// import router from "next/router";
+import auth from "@/utils/firebase-client";
+import api from "@/utils/api";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const SignupFormCard = () => {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -31,8 +34,9 @@ const SignupFormCard = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleNext = (e: React.FormEvent) => {
+  const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
 
     const requiredFieldsByStep: { [key: number]: string[] } = {
       1: ["email", "password"],
@@ -44,7 +48,7 @@ const SignupFormCard = () => {
     const requiredFields = requiredFieldsByStep[step];
     for (let field of requiredFields) {
       if (!formData[field as keyof typeof formData]) {
-        alert("Please fill in all required fields.");
+        setErrorMsg("Please fill in all required fields.");
         return;
       }
     }
@@ -54,14 +58,45 @@ const SignupFormCard = () => {
       !formData.usedSimilarProduct &&
       step === 4
     ) {
-      alert("Please specify the product you've used.");
+      setErrorMsg("Please specify the product you've used.");
       return;
     }
 
     if (step < 4) {
       setStep((prev) => prev + 1);
     } else {
-      console.log("Form submitted:", formData);
+      // Final step — create Firebase user then call backend signup
+      setLoading(true);
+      try {
+        // Create Firebase account
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          formData.email,
+          formData.password
+        );
+
+        // Get ID token and create session
+        const idToken = await userCredential.user.getIdToken();
+        await api.post("/auth/session", { idToken });
+
+        // Create user + org in database
+        await api.post("/auth/signup", {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          role: "USER",
+          organizationName: formData.workType || "My Organization",
+        });
+
+        router.push("/dashboard");
+      } catch (err: any) {
+        const msg =
+          err?.data?.error ||
+          err?.message ||
+          "Signup failed. Please try again.";
+        setErrorMsg(msg);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -84,6 +119,10 @@ const SignupFormCard = () => {
           {step === 4 && "Set up your demographic"}
         </div>
       </div>
+
+      {errorMsg && (
+        <p className="mb-4 text-sm text-red-500">{errorMsg}</p>
+      )}
 
       <form onSubmit={handleNext}>
         {/* STEP 1 - Email/Password */}
@@ -369,10 +408,11 @@ const SignupFormCard = () => {
                 </Button>
                 <Button
                   type="submit"
+                  disabled={loading}
                   className="text-white focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mb-2 me-2 w-fit rounded-lg border px-5 py-3 text-sm font-normal hover:bg-[#2b537e] focus:outline-none focus:ring-4"
                   style={{ backgroundColor: "#3E6DA6" }}
                 >
-                  Create your workspace
+                  {loading ? "Creating..." : "Create your workspace"}
                 </Button>
               </div>
             </div>
