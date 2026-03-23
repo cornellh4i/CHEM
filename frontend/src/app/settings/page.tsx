@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import DashboardTemplate from '@/components/templates/DashboardTemplate';
 import Input from '@/components/atoms/Input';
 import auth from '@/utils/firebase-client';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+import api from '@/utils/api';
 const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
 
 type CurrentUser = {
@@ -18,6 +20,15 @@ type CurrentUser = {
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<'funds' | 'account'>('account');
   const [user, setUser] = useState<CurrentUser | null>(null);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout', {});
+    } catch {}
+    await signOut(auth);
+    router.push('/auth/login');
+  };
 
   // Load current user from backend using Firebase auth state
   useEffect(() => {
@@ -179,6 +190,14 @@ export default function SettingsPage() {
               </p>
               <button className="border px-4 py-2 rounded">
                 Set Up Two-Factor Authentication
+              </button>
+            </section>
+
+            {/* Logout */}
+            <section>
+              <h2 className="text-lg font-semibold mb-2">Account</h2>
+              <button onClick={handleLogout} className="border px-4 py-2 rounded">
+                Log out
               </button>
             </section>
           </div>

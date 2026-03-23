@@ -4,6 +4,10 @@ import React, { useState } from "react";
 import Button from "../atoms/Button";
 import { useMediaQuery } from "@mui/material";
 import { Info as InfoIcon } from "@mui/icons-material";
+import { signOut } from "firebase/auth";
+import auth from "@/utils/firebase-client";
+import api from "@/utils/api";
+import { useRouter } from "next/navigation";
 
 type FormData = {
   firstName: string;
@@ -15,6 +19,16 @@ type FormData = {
 
 const ProfilePage = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout", {});
+    } catch {}
+    await signOut(auth);
+    router.push("/auth/login");
+  };
+
   const [formData, setFormData] = useState<FormData>({
     firstName: "Janice",
     lastName: "Smith",
@@ -196,6 +210,31 @@ const ProfilePage = () => {
               Reset your password
             </Button>
           </div>
+        </div>
+
+        {/* Logout */}
+        <div>
+          <h2
+            style={{
+              fontSize: "1.25rem",
+              fontWeight: "bold",
+              marginBottom: "1rem",
+            }}
+          >
+            Account
+          </h2>
+          <Button
+            onClick={handleLogout}
+            style={{
+              width: "auto",
+              fontSize: "1rem",
+              whiteSpace: "nowrap",
+              padding: "10px",
+            }}
+            variant="secondary"
+          >
+            Log out
+          </Button>
         </div>
       </form>
     </div>
