@@ -14,6 +14,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import Toast from "@/components/atoms/Toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import api from "@/utils/api";
 
 import {
   Dialog,
@@ -48,64 +49,31 @@ type Contributor = {
   organizationId: string;
 };
 
-type Organization = {
+type Fund = {
   id: string;
   name: string;
 };
+
 const getContributors = async (): Promise<Contributor[]> => {
   try {
-    const response = await fetch("http://localhost:8000/contributors", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      // Attempt to extract the error message from the response
-      const errorData = await response.json();
-    }
-
-    // Parse the JSON response to retrieve the list of contributor objects
-    const responseData = await response.json();
-    if (responseData && Array.isArray(responseData.contributors)) {
-      return responseData.contributors;
-    } else if (Array.isArray(responseData)) {
-      // If the response is already an array, return it directly
-      return responseData;
-    } else {
-      return []; // Return empty array as fallback
-    }
+    const res = await api.get("/contributors");
+    const data = res.data;
+    if (data && Array.isArray(data.contributors)) return data.contributors;
+    if (Array.isArray(data)) return data;
+    return [];
   } catch (error: any) {
     console.error("Error fetching contributors:", error);
     throw error;
   }
 };
-const getOrganizations = async (): Promise<Organization[]> => {
+
+const getFunds = async (): Promise<Fund[]> => {
   try {
-    const response = await fetch("http://localhost:8000/organizations", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      // Attempt to extract the error message from the response
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to fetch organizations");
-    }
-
-    // Parse the JSON response to retrieve the list of contributor objects
-    const responseData = await response.json();
-    if (responseData && Array.isArray(responseData.organizations)) {
-      return responseData.organizations;
-    } else if (Array.isArray(responseData)) {
-      // If the response is already an array, return it directly
-      return responseData;
-    } else {
-      return []; // Return empty array as fallback
-    }
+    const res = await api.get("/funds");
+    const data = res.data;
+    if (data && Array.isArray(data.funds)) return data.funds;
+    if (Array.isArray(data)) return data;
+    return [];
   } catch (error: any) {
     throw error;
   }
@@ -115,7 +83,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [contributors, setContributors] = useState<Contributor[]>([]);
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [funds, setFunds] = useState<Fund[]>([]);
 
   // Initial transaction state
   const initialTransactionState: TransactionData = {
@@ -148,17 +116,17 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
       }
     };
 
-    const fetchOrganizations = async () => {
+    const fetchFunds = async () => {
       try {
-        const data = await getOrganizations();
-        setOrganizations(data);
+        const data = await getFunds();
+        setFunds(data);
       } catch (err: any) {
-        showError("Failed to load organizations.");
+        showError("Failed to load funds.");
       }
     };
 
     fetchContributors();
-    fetchOrganizations();
+    fetchFunds();
   }, []);
 
   // Handle input changes
@@ -224,53 +192,31 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
       return;
     }
     if (validateForm()) {
-      console.log(transaction.fund);
+      const selectedContributor = contributors.find(
+        (c) => c.id === transaction.contributor
+      );
       const transactionPayload = {
-        organizationId: transaction.fund,
+        organizationId: selectedContributor?.organizationId,
         contributorId: transaction.contributor,
+        fundId: transaction.fund,
         type: transaction.type,
-        date: transaction.date, // format the date as needed
+        date: transaction.date,
         units: unitValue,
         amount: amountValue,
         description: transaction.description || "No description",
-        fund: transaction.fund,
       };
 
       try {
-        const response = await fetch("http://localhost:8000/transactions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(transactionPayload),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          showError(errorData.error || "Failed to create transaction");
-          return;
-        }
-
-        const newTransaction = await response.json();
-        console.log("Transaction successfully created:", newTransaction);
-
-        // Reset the transaction state to initial values
+        await api.post("/transactions", transactionPayload);
         setTransaction(initialTransactionState);
-
-        // Close the modal
         handleClose();
       } catch (error: any) {
-        const detailedError =
-          error && error.message
+        showError(
+          error?.message
             ? `Transaction creation failed. Details: ${error.message}`
-            : "Transaction creation failed with an unknown error.";
-        showError(detailedError);
+            : "Transaction creation failed with an unknown error."
+        );
       }
-
-      setTransaction(initialTransactionState);
-
-      // Close the modal
-      handleClose();
     }
   };
 
@@ -312,9 +258,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ children }) => {
             <div className="mt-[32px] text-[22px]">Fund</div>
             <Select
               placeholder="Select a Fund"
-              values={organizations.map((organization) => ({
-                value: organization.id,
-                label: organization.name,
+              values={funds.map((fund) => ({
+                value: fund.id,
+                label: fund.name,
               }))}
               width="95%"
               onSelect={(value) => handleInputChange("fund", value)}
