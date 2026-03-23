@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import Input from "@/components/atoms/Input";
 import Button from "@/components/atoms/Button";
 import { ScrollArea } from "@/components/ui/scroll";
@@ -20,7 +20,16 @@ type AddFundModalProps = { children: ReactNode };
 
 const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [userOrgId, setUserOrgId] = useState<string | null>(null);
   const [name, setName] = useState("");
+
+  useEffect(() => {
+    api.get("/auth/login").then((res) => {
+      const user = res.data?.user;
+      const orgId = user?.organizationId || user?.organization?.id;
+      if (orgId) setUserOrgId(orgId);
+    }).catch((err) => console.error("Failed to load user org", err));
+  }, []);
   const [type, setType] = useState<"donation" | "endowment">("donation");
   const [restriction, setRestriction] = useState<"restricted" | "unrestricted">(
     "restricted"
@@ -62,7 +71,7 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
       name: name.trim(),
       type: type.toUpperCase(), // server expects FundType (e.g., ENDOWMENT or DONATION)
       description: description.trim(),
-      organizationId: "techcorp-id", // TODO: replace with real org id
+      organizationId: userOrgId ?? "",
       units: 0,
     };
 
