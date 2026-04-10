@@ -1,15 +1,15 @@
 "use client";
 
+import { Suspense, useRef, useState, useEffect } from "react";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import TransactionsTable from "@/components/molecules/TransactionsTable";
-import { useRef, useState, useEffect } from "react";
 import SearchBar from "@/components/molecules/Searchbar";
 import AddIcon from "@mui/icons-material/Add";
 import DownloadIcon from "@mui/icons-material/Download";
 import Button from "@/components/atoms/Button";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const ActivitiesPage = () => {
+function ActivitiesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,10 +18,10 @@ const ActivitiesPage = () => {
   useEffect(() => {
     setRefreshKey((k) => k + 1);
   }, [searchParams]);
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -53,7 +53,7 @@ const ActivitiesPage = () => {
             </Button>
 
             {dropdownOpen && (
-              <div className="bg-white absolute right-0 top-full z-50 min-w-[160px] overflow-hidden rounded-lg border border-gray-200 shadow-lg">
+              <div className="bg-white absolute right-0 bottom-full mb-1 z-50 min-w-[160px] overflow-hidden rounded-lg border border-gray-200 shadow-lg">
                 <button
                   className="hover:bg-gray-50 w-full px-4 py-3 text-left text-sm"
                   onClick={() => { setDropdownOpen(false); router.push("/activity/add-multiple"); }}
@@ -86,6 +86,12 @@ const ActivitiesPage = () => {
       </div>
     </DashboardTemplate>
   );
-};
+}
 
-export default ActivitiesPage;
+export default function ActivitiesPage() {
+  return (
+    <Suspense>
+      <ActivitiesContent />
+    </Suspense>
+  );
+}
