@@ -53,7 +53,7 @@ function ActivitiesContent() {
             </Button>
 
             {dropdownOpen && (
-              <div className="bg-white absolute right-0 bottom-full mb-1 z-50 min-w-[160px] overflow-hidden rounded-lg border border-gray-200 shadow-lg">
+              <div className="bg-white absolute right-0 top-full mt-1 z-50 min-w-[160px] overflow-hidden rounded-lg border border-gray-200 shadow-lg">
                 <button
                   className="hover:bg-gray-50 w-full px-4 py-3 text-left text-sm"
                   onClick={() => { setDropdownOpen(false); router.push("/activity/add-multiple"); }}
