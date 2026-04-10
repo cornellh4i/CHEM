@@ -3,7 +3,6 @@ import controller from "../controllers/transactions";
 import { ErrorMessage } from "../utils/types";
 import { TransactionType } from "@prisma/client";
 import { notify } from "../utils/helpers";
-import transactions from "../controllers/transactions";
 import auth from "../middleware/auth";
 import prisma from "../utils/client";
 
@@ -111,6 +110,45 @@ transactionRouter.put("/:id", async (req, res) => {
         error instanceof Error ? error.message : "Failed to update transaction",
     };
     res.status(400).json(errorResponse);
+  }
+});
+
+// POST /transactions/bulk — create multiple transactions at once
+transactionRouter.post("/bulk", auth, async (req, res) => {
+  try {
+    if (!(req as any).auth) return res.status(401).json({ error: "Unauthorized" });
+
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
+
+    const { transactions: txList } = req.body;
+    if (!Array.isArray(txList) || txList.length === 0) {
+      return res.status(400).json({ error: "transactions array is required" });
+    }
+
+    const results = [];
+    const errors = [];
+    for (let i = 0; i < txList.length; i++) {
+      try {
+        const tx = { ...txList[i], organizationId: user.organizationId };
+        const created = await controller.createTransaction(tx);
+        results.push(created);
+      } catch (err: any) {
+        errors.push({ index: i, error: err.message });
+      }
+    }
+
+    if (errors.length > 0) {
+      return res.status(207).json({ created: results, errors });
+    }
+    return res.status(201).json({ created: results });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: error instanceof Error ? error.message : "Failed to bulk create transactions" });
   }
 });
 

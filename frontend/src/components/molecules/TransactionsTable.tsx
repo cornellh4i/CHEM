@@ -100,7 +100,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 : `--`,
               contributorId: transaction.contributorId || undefined,
               fund:
-                transaction.organization?.name || fundName || "Unknown Fund",
+                (transaction as any).fund?.name || fundName || transaction.organization?.name || "Unknown Fund",
               fundId: transaction.organizationId || undefined,
               type: formatTransactionType(transaction.type),
               units: transaction.units || undefined,
@@ -213,14 +213,24 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       },
     ];
 
-    // Add units column only for transactions table, positioned before Amount
-    // Since Amount is the last column (index 4), we insert Units at position 4
     if (tableType === "transactions") {
       baseColumns.splice(4, 0, {
         header: "Units",
         accessor: "units",
         dataType: "number",
         sortable: true,
+      });
+      baseColumns.splice(4, 0, {
+        header: "Documents",
+        accessor: "documentLink",
+        dataType: "string",
+        sortable: false,
+        Cell: (value) =>
+          value ? (
+            <a href={value} target="_blank" rel="noopener noreferrer" className="text-sm underline">
+              Open documents ↗
+            </a>
+          ) : null,
       });
     }
 

@@ -89,6 +89,7 @@ async function getTransactions(
       include: {
         organization: true,
         contributor: true,
+        fund: true,
       },
     }),
     prisma.transaction.count({ where }),
