@@ -60,16 +60,25 @@ contributorRouter.get("/", auth, async (req, res) => {
 });
 
 // GET a single contributor by ID
-contributorRouter.get("/:id", async (req, res) => {
+contributorRouter.get("/:id", auth, async (req, res) => {
   try {
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
+
     const { id } = req.params;
     const contributor = await controller.getContributorById(id);
 
-    if (contributor) {
-      res.status(200).json(contributor);
-    } else {
-      res.status(404).json({ error: "Contributor not found" });
+    if (!contributor) {
+      return res.status(404).json({ error: "Contributor not found" });
     }
+    if (contributor.organizationId !== user.organizationId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    res.status(200).json(contributor);
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
@@ -81,9 +90,16 @@ contributorRouter.get("/:id", async (req, res) => {
 });
 
 // POST a new contributor
-contributorRouter.post("/", async (req, res) => {
+contributorRouter.post("/", auth, async (req, res) => {
   try {
-    const contributorData = req.body;
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
+
+    const contributorData = { ...req.body, organizationId: user.organizationId };
 
     if (!contributorData.firstName || !contributorData.lastName) {
       return res.status(400).json({
@@ -104,15 +120,27 @@ contributorRouter.post("/", async (req, res) => {
 });
 
 // PUT (update) an existing contributor
-contributorRouter.put("/:id", async (req, res) => {
+contributorRouter.put("/:id", auth, async (req, res) => {
   const id = req.params.id;
-  const contributorData = req.body;
 
   try {
-    const updatedContributor = await controller.updateContributor(
-      id,
-      contributorData
-    );
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
+
+    const existing = await controller.getContributorById(id);
+    if (!existing) {
+      return res.status(404).json({ error: "Contributor not found" });
+    }
+    if (existing.organizationId !== user.organizationId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    const { organizationId: _stripped, ...contributorData } = req.body;
+    const updatedContributor = await controller.updateContributor(id, contributorData);
     res.status(200).json(updatedContributor);
   } catch (error) {
     console.error(error);
@@ -125,9 +153,24 @@ contributorRouter.put("/:id", async (req, res) => {
 });
 
 // DELETE a contributor
-contributorRouter.delete("/:id", async (req, res) => {
+contributorRouter.delete("/:id", auth, async (req, res) => {
   try {
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
+
     const { id } = req.params;
+    const existing = await controller.getContributorById(id);
+    if (!existing) {
+      return res.status(404).json({ error: "Contributor not found" });
+    }
+    if (existing.organizationId !== user.organizationId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const deletedContributor = await controller.deleteContributor(id);
     res.status(200).json(deletedContributor);
   } catch (error) {
@@ -141,8 +184,23 @@ contributorRouter.delete("/:id", async (req, res) => {
 });
 
 // get all transactions of contributor
-contributorRouter.get("/:id/transactions", async (req, res) => {
+contributorRouter.get("/:id/transactions", auth, async (req, res) => {
   try {
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
+
+    const existing = await controller.getContributorById(req.params.id);
+    if (!existing) {
+      return res.status(404).json({ error: "Contributor not found" });
+    }
+    if (existing.organizationId !== user.organizationId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const transactions = await orgController.getOrganizationTransactions(
       req.params.id
     );
