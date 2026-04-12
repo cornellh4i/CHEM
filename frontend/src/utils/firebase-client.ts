@@ -1,9 +1,8 @@
 "use client";
 
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
-/** Firebase config */
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -14,10 +13,14 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-/** Firebase app */
-const app = initializeApp(firebaseConfig);
+const app =
+  typeof window !== "undefined"
+    ? getApps().length
+      ? getApp()
+      : initializeApp(firebaseConfig)
+    : null;
 
-/** Auth instance associated with the created Firebase App */
-const auth = getAuth(app);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const auth = app ? getAuth(app) : (null as any);
 
 export default auth;
