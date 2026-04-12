@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState } from "react";
 import * as React from "react";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";

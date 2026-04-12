@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState } from 'react';
 import DashboardTemplate from '@/components/templates/DashboardTemplate';
 import auth from '@/utils/firebase-client';

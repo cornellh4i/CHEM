@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { Suspense, useRef, useState, useEffect } from "react";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import TransactionsTable from "@/components/molecules/TransactionsTable";

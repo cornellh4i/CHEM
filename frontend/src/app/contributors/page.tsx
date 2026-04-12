@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState } from "react";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import ContributorsTable from "@/components/molecules/ContributorsTable";

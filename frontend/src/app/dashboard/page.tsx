@@ -1,4 +1,6 @@
 "use client";
+
+export const dynamic = "force-dynamic";
 import React, { useEffect, useState } from "react";
 import api from "@/utils/api";
 import TransactionsTable from "@/components/molecules/TransactionsTable";

@@ -1,4 +1,6 @@
 "use client";
+
+export const dynamic = "force-dynamic";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import React, { useEffect, useState } from "react";
 import Switch from '@mui/material/Switch';
