@@ -69,11 +69,11 @@ export default function FundsCardTable({
       const response = await api.get(`/funds`);
 
       // Normalize backend shape to expected structure
-      const inner = Array.isArray(response.data.funds)
-        ? response.data.funds
-        : Array.isArray(response.data.funds?.funds)
+      const inner = Array.isArray(response.data.funds?.funds)
         ? response.data.funds.funds
-       : [];
+        : Array.isArray(response.data.funds)
+        ? response.data.funds
+        : [];
 
      if (inner.length > 0) {
         const mappedFunds: FundCardProps[] = inner.map(
