@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Button, Input } from "@/components";
+import { Button, Input, Toast } from "@/components";
 import { useRouter } from "next/navigation";
 import auth from "@/utils/firebase-client";
 import api from "@/utils/api";
@@ -11,6 +11,8 @@ const SignupFormCard = () => {
   const [step, setStep] = useState(1);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showEmptyFieldsPopup, setShowEmptyFieldsPopup] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: boolean }>({});
 
   const [formData, setFormData] = useState({
     email: "",
@@ -32,6 +34,9 @@ const SignupFormCard = () => {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: false }));
+    }
   };
 
   const handleNext = async (e: React.FormEvent) => {
@@ -46,11 +51,21 @@ const SignupFormCard = () => {
     };
 
     const requiredFields = requiredFieldsByStep[step];
+    const newFieldErrors: { [key: string]: boolean } = {};
     for (let field of requiredFields) {
       if (!formData[field as keyof typeof formData]) {
-        setErrorMsg("Please fill in all required fields.");
-        return;
+        newFieldErrors[field] = true;
       }
+    }
+
+    if (step === 1 && formData.password && formData.password.length < 6) {
+      newFieldErrors["password"] = true;
+    }
+
+    if (Object.keys(newFieldErrors).length > 0) {
+      setFieldErrors(newFieldErrors);
+      setShowEmptyFieldsPopup(true);
+      return;
     }
 
     if (
@@ -58,9 +73,13 @@ const SignupFormCard = () => {
       !formData.usedSimilarProduct &&
       step === 4
     ) {
-      setErrorMsg("Please specify the product you've used.");
+      setFieldErrors({ usedSimilarProduct: true });
+      setShowEmptyFieldsPopup(true);
       return;
     }
+
+    setFieldErrors({});
+    setShowEmptyFieldsPopup(false);
 
     if (step < 4) {
       setStep((prev) => prev + 1);
@@ -106,6 +125,14 @@ const SignupFormCard = () => {
 
   return (
     <div className="bg-white dark:bg-gray-800 w-[500px] rounded-lg p-6 shadow">
+      <Toast
+        open={showEmptyFieldsPopup}
+        onClose={() => setShowEmptyFieldsPopup(false)}
+        variant="error"
+      >
+        Please fill in all required fields.
+      </Toast>
+
       <div className="mb-8 text-center">
         <img
           src="/logo.png"
@@ -124,7 +151,7 @@ const SignupFormCard = () => {
         <p className="mb-4 text-sm text-red-500">{errorMsg}</p>
       )}
 
-      <form onSubmit={handleNext}>
+      <form onSubmit={handleNext} noValidate>
         {/* STEP 1 - Email/Password */}
         {step === 1 && (
           <>
@@ -137,6 +164,7 @@ const SignupFormCard = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                error={fieldErrors.email ? "required field" : undefined}
               />
             </div>
             <div className="mb-6">
@@ -148,6 +176,7 @@ const SignupFormCard = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
+                error={fieldErrors.password ? (formData.password.length < 6 && formData.password.length > 0 ? "Password must be at least 6 characters" : "required field") : undefined}
               />
             </div>
             <div className="mb-2">
@@ -193,6 +222,7 @@ const SignupFormCard = () => {
               onChange={handleChange}
               required
               className="border-gray-300 mb-4 w-full rounded-lg border p-2"
+              error={fieldErrors.firstName ? "required field" : undefined}
             />
             <Input
               label="Last name"
@@ -201,6 +231,7 @@ const SignupFormCard = () => {
               onChange={handleChange}
               required
               className="border-gray-300 mb-4 w-full rounded-lg border p-2"
+              error={fieldErrors.lastName ? "required field" : undefined}
             />
             <Input
               label="Email"
@@ -210,6 +241,7 @@ const SignupFormCard = () => {
               onChange={handleChange}
               required
               className="border-gray-300 mb-4 w-full rounded-lg border p-2"
+              error={fieldErrors.email ? "required field" : undefined}
             />
             <Input
               label="Phone number"
@@ -218,6 +250,7 @@ const SignupFormCard = () => {
               onChange={handleChange}
               required
               className="border-gray-300 mb-6 w-full rounded-lg border p-2"
+              error={fieldErrors.phone ? "required field" : undefined}
             />
 
             <div className="flex items-center justify-between">
@@ -250,13 +283,14 @@ const SignupFormCard = () => {
               value={formData.workType}
               onChange={handleChange}
               required
-              className="border-gray-100 mb-4 w-full rounded-lg border p-2"
+              className={`border-gray-100 mb-1 w-full rounded-lg border p-2 ${fieldErrors.workType ? "border-red-500" : ""}`}
             >
               <option value="">Select</option>
               <option value="Nonprofit">Nonprofit</option>
               <option value="Startup">Startup</option>
               <option value="Enterprise">Enterprise</option>
             </select>
+            {fieldErrors.workType && <p className="mb-4 text-xs" style={{ color: "#dc2626" }}>required field</p>}
 
             <label className="text-gray-700 mb-1 block text-sm font-medium">
               What is your company size?
@@ -266,13 +300,14 @@ const SignupFormCard = () => {
               value={formData.companySize}
               onChange={handleChange}
               required
-              className="border-gray-100 mb-4 w-full rounded-lg border p-2"
+              className={`border-gray-100 mb-1 w-full rounded-lg border p-2 ${fieldErrors.companySize ? "border-red-500" : ""}`}
             >
               <option value="">Select</option>
               <option value="1">1</option>
               <option value="2-50">2-50</option>
               <option value="50+">50+</option>
             </select>
+            {fieldErrors.companySize && <p className="mb-4 text-xs" style={{ color: "#dc2626" }}>required field</p>}
 
             <label className="text-gray-700 mb-1 block text-sm font-medium">
               What is your role?
@@ -282,13 +317,14 @@ const SignupFormCard = () => {
               value={formData.role}
               onChange={handleChange}
               required
-              className="border-gray-100 mb-6 w-full rounded-lg border p-2"
+              className={`border-gray-100 mb-1 w-full rounded-lg border p-2 ${fieldErrors.role ? "border-red-500" : ""}`}
             >
               <option value="">Select</option>
               <option value="Admin">Admin</option>
               <option value="User">User</option>
               <option value="Manager">Manager</option>
             </select>
+            {fieldErrors.role && <p className="mb-6 text-xs" style={{ color: "#dc2626" }}>required field</p>}
 
             <div className="flex items-center justify-between">
               <span className="text-gray-500 dark:text-gray-400 text-sm">
@@ -329,7 +365,7 @@ const SignupFormCard = () => {
               value={formData.usagePlan}
               onChange={handleChange}
               required
-              className="border-gray-100 mb-4 w-full rounded-lg border p-2"
+              className={`border-gray-100 mb-1 w-full rounded-lg border p-2 ${fieldErrors.usagePlan ? "border-red-500" : ""}`}
             >
               <option value="">Choose an option</option>
               <option value="Work">Work</option>
@@ -337,6 +373,7 @@ const SignupFormCard = () => {
               <option value="Organization">Organization</option>
               <option value="Team">Other</option>
             </select>
+            {fieldErrors.usagePlan && <p className="mb-4 text-xs" style={{ color: "#dc2626" }}>required field</p>}
 
             <label className="text-gray-700 mb-1 block text-sm font-medium">
               How did you hear about our product?
@@ -346,7 +383,7 @@ const SignupFormCard = () => {
               value={formData.referralSource}
               onChange={handleChange}
               required
-              className="border-gray-100 mb-4 w-full rounded-lg border p-2"
+              className={`border-gray-100 mb-1 w-full rounded-lg border p-2 ${fieldErrors.referralSource ? "border-red-500" : ""}`}
             >
               <option value="">Choose an option</option>
               <option value="Hack4Impact">Hack4Impact</option>
@@ -354,11 +391,12 @@ const SignupFormCard = () => {
               <option value="Friend/Colleague">Friends</option>
               <option value="Other">Other</option>
             </select>
+            {fieldErrors.referralSource && <p className="mb-4 text-xs" style={{ color: "#dc2626" }}>required field</p>}
 
             <label className="text-gray-700 mb-2 block text-sm font-medium">
               Have you used a similar product before?
             </label>
-            <div className="mb-4 flex gap-6">
+            <div className="mb-1 flex gap-6">
               <label className="flex items-center gap-2">
                 <input
                   type="radio"
@@ -382,6 +420,7 @@ const SignupFormCard = () => {
                 No
               </label>
             </div>
+            {fieldErrors.usedSimilar && <p className="mb-4 text-xs" style={{ color: "#dc2626" }}>required field</p>}
 
             {formData.usedSimilar === "Yes" && (
               <Input
@@ -391,6 +430,7 @@ const SignupFormCard = () => {
                 onChange={handleChange}
                 required
                 className="border-gray-300 mb-6 w-full rounded-lg border p-2"
+                error={fieldErrors.usedSimilarProduct ? "required field" : undefined}
               />
             )}
 
