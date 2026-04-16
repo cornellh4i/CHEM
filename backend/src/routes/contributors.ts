@@ -1,22 +1,28 @@
 import { Router } from "express";
 import controller from "../controllers/contributors";
 import { ErrorMessage } from "../utils/types";
-import express from "express";
 import orgController from "../controllers/organizations";
 import auth from "../middleware/auth";
 import prisma from "../utils/client";
+import admin from "firebase-admin";
 
 const contributorRouter = Router();
+
+declare module "express-serve-static-core" {
+  interface Request {
+    auth?: admin.auth.DecodedIdToken;
+  }
+}
 
 // GET all contributors - filtered by logged-in user's organization
 contributorRouter.get("/", auth, async (req, res) => {
   try {
-    if (!(req as any).auth) {
+    if (!req.auth) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
     // Get user's organizationId from database
-    const firebaseUid = (req as any).auth.uid;
+    const firebaseUid = req.auth.uid;
     const user = await prisma.user.findUnique({
       where: { firebaseUid },
       select: { organizationId: true },
@@ -83,8 +89,11 @@ contributorRouter.get("/:id", async (req, res) => {
 // POST a new contributor
 contributorRouter.post("/", async (req, res) => {
   try {
-    const contributorData = req.body;
+    if (!req.auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
 
+    const contributorData = req.body;
     if (!contributorData.firstName || !contributorData.lastName) {
       return res.status(400).json({
         error: "First name, last name are required",
@@ -105,6 +114,10 @@ contributorRouter.post("/", async (req, res) => {
 
 // PUT (update) an existing contributor
 contributorRouter.put("/:id", async (req, res) => {
+  if (!req.auth) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   const id = req.params.id;
   const contributorData = req.body;
 
@@ -127,6 +140,10 @@ contributorRouter.put("/:id", async (req, res) => {
 // DELETE a contributor
 contributorRouter.delete("/:id", async (req, res) => {
   try {
+    if (!req.auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
     const { id } = req.params;
     const deletedContributor = await controller.deleteContributor(id);
     res.status(200).json(deletedContributor);
@@ -146,7 +163,7 @@ contributorRouter.get("/:id/transactions", async (req, res) => {
     const transactions = await orgController.getOrganizationTransactions(
       req.params.id
     );
-    res.json(transactions);
+    res.status(200).json(transactions);
   } catch (error) {
     res.status(500).json({
       message: error instanceof Error ? error.message : "Unknown error",

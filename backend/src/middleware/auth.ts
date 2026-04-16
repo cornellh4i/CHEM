@@ -7,9 +7,10 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
 
   if (sessionCookie) {
     try {
-      const decodedToken = await admin.auth().verifySessionCookie(sessionCookie, true);
+      const decodedToken = await admin
+        .auth()
+        .verifySessionCookie(sessionCookie, true);
       (req as any).auth = decodedToken;
-      (req as any).user = decodedToken;
       return next();
     } catch (error) {
       // Session cookie invalid, try Bearer token
@@ -29,7 +30,6 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
     (req as any).auth = decodedToken;
-    (req as any).user = decodedToken;
     return next();
   } catch (error) {
     return res.status(401).json({ error: "Invalid Token" });

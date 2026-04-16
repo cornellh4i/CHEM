@@ -6,6 +6,13 @@ import { notify } from "../utils/helpers";
 import transactions from "../controllers/transactions";
 import auth from "../middleware/auth";
 import prisma from "../utils/client";
+import admin from "firebase-admin";
+
+declare module "express-serve-static-core" {
+  interface Request {
+    auth?: admin.auth.DecodedIdToken;
+  }
+}
 
 const transactionRouter = Router();
 
@@ -19,12 +26,12 @@ const transactionRouter = Router();
  */
 transactionRouter.get("/", auth, async (req, res) => {
   try {
-    if (!(req as any).auth) {
+    if (!req.auth) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
     // Get user's organizationId from database
-    const firebaseUid = (req as any).auth.uid;
+    const firebaseUid = req.auth.uid;
     const user = await prisma.user.findUnique({
       where: { firebaseUid },
       select: { organizationId: true },
@@ -73,6 +80,10 @@ transactionRouter.get("/", auth, async (req, res) => {
 /** GET /transactions/:id Retrieves a single transaction by its ID. */
 transactionRouter.get("/:id", async (req, res) => {
   try {
+    if (!req.auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
     const { id } = req.params;
     const transaction = await controller.getTransactionById(id);
 
@@ -97,6 +108,10 @@ transactionRouter.get("/:id", async (req, res) => {
  */
 transactionRouter.put("/:id", async (req, res) => {
   try {
+    if (!req.auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
     const { id } = req.params;
     const updateData = req.body;
     const updatedTransaction = await controller.updateTransaction(
@@ -117,6 +132,10 @@ transactionRouter.put("/:id", async (req, res) => {
 // POST /transactions route
 transactionRouter.post("/", async (req, res) => {
   try {
+    if (!req.auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
     const transactionData = req.body;
 
     // Basic validation (units and description are optional)
@@ -149,6 +168,10 @@ transactionRouter.post("/", async (req, res) => {
 // DELETE /transactions/:id route
 transactionRouter.delete("/:id", async (req, res) => {
   try {
+    if (!req.auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
     const id = req.params.id;
     const deletedTransaction = await controller.deleteTransaction(id);
     res.status(200).json(deletedTransaction);
