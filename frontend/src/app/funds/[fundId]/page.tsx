@@ -1,8 +1,13 @@
 "use client";
-import React, { useEffect, useState, use } from "react";
+
+export const dynamic = "force-dynamic";
+
+import React, { useEffect, useState, useMemo, use } from "react";
 import FundTemplate from "@/components/templates/FundTemplate";
 import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 import TransactionsTable from "@/components/molecules/TransactionsTable";
+import AddTransactionModal from "@/components/molecules/AddTransactionModal";
+import AddContributorModal from "@/components/molecules/AddContributorModal";
 import api from "@/utils/api";
 
 interface FundData {
@@ -28,30 +33,54 @@ interface Contributor {
 
 const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
   const { fundId } = use(params);
-  const [activeTab, setActiveTab] = useState<
-    "summary" | "transactions" | "contributors"
-  >("summary");
+  const [activeTab, setActiveTab] = useState<"summary" | "contributors">("summary");
 
   const [fundData, setFundData] = useState<FundData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [contributorsData, setContributors] = useState<Contributor[]>([]);
+  const [oneYearEarnings, setOneYearEarnings] = useState<number>(0);
+  const [contributorTotals, setContributorTotals] = useState<Record<string, number>>({});
+  const [contributorSearch, setContributorSearch] = useState("");
+  const [contributorRefresh, setContributorRefresh] = useState(0);
 
   useEffect(() => {
     const fetchFund = async () => {
       try {
         setLoading(true);
-        const [fundResponse, contributorsResponse] = await Promise.all([
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+        const [fundResponse, contributorsResponse, txResponse] = await Promise.all([
           api.get(`/funds/${fundId}`),
           api.get(`/funds/${fundId}/contributors`),
+          api.get(`/funds/${fundId}/transactions`),
         ]);
-    
-        const fundData = fundResponse.data;
-        const contributorsData = contributorsResponse.data;
-        
-        setFundData(fundData);
-        setContributors(contributorsData.contributors || []);
 
+        setFundData(fundResponse.data);
+        setContributors(contributorsResponse.data.contributors || []);
+
+        const txList: any[] = txResponse.data.transactions || [];
+
+        // 1-year earnings
+        const earnings = txList
+          .filter((t) =>
+            (t.type === "DONATION" || t.type === "INVESTMENT") &&
+            new Date(t.date) >= oneYearAgo
+          )
+          .reduce((sum, t) => sum + t.amount, 0);
+        setOneYearEarnings(earnings);
+
+        // total contributions per contributor for this fund
+        const totals: Record<string, number> = {};
+        txList
+          .filter((t) => t.type === "DONATION" || t.type === "INVESTMENT")
+          .forEach((t) => {
+            if (t.contributorId) {
+              totals[t.contributorId] = (totals[t.contributorId] || 0) + t.amount;
+            }
+          });
+        setContributorTotals(totals);
       } catch (err) {
         setError(err instanceof Error ? err.message : "unknown error");
       } finally {
@@ -60,15 +89,23 @@ const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
     };
 
     fetchFund();
-  }, [fundId]);
+  }, [fundId, contributorRefresh]);
+
+  const filteredContributors = useMemo(() => {
+    const q = contributorSearch.trim().toLowerCase();
+    if (!q) return contributorsData;
+    return contributorsData.filter((c) =>
+      `${c.firstName} ${c.lastName}`.toLowerCase().includes(q)
+    );
+  }, [contributorsData, contributorSearch]);
 
   if (loading) return <div>loading fund data</div>;
   if (error) return <div>error: {error}</div>;
   if (!fundData) return <div>error: fund not found</div>;
 
-  // Summary tab content
   const summary = (
     <div className="space-y-8">
+      {/* Graph card */}
       <div className="rounded-xl border px-6 py-4 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <div>
@@ -77,61 +114,106 @@ const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
               ${fundData.amount.toLocaleString()}
             </div>
           </div>
-          {/* Static date range for now */}
-          <div className="text-gray-600 text-sm">{fundData.createdAt}</div>
         </div>
-        <ContributionsGraph />
+        <ContributionsGraph fundId={fundId} />
         <div className="text-gray-700 mt-4 flex gap-12 text-sm">
           <div>
-            <div className="text-green-600 text-lg font-semibold">+3.21%</div>
-            <div className="text-xs">1-Year Return</div>
+            {(() => {
+              const startBalance = fundData.amount - oneYearEarnings;
+              const base = startBalance > 0 ? startBalance : (fundData.amount > 0 ? fundData.amount : null);
+              const pct = base !== null && oneYearEarnings !== 0 ? (oneYearEarnings / base) * 100 : null;
+              return (
+                <>
+                  <div className={`text-lg font-semibold ${pct !== null && pct >= 0 ? "text-green-600" : "text-red-500"}`}>
+                    {pct !== null ? `${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%` : "—"}
+                  </div>
+                  <div className="text-xs">1-Year Return</div>
+                </>
+              );
+            })()}
           </div>
           <div>
-            <div className="text-lg font-semibold">$18,344</div>
+            <div className="text-lg font-semibold">
+              ${oneYearEarnings.toLocaleString()}
+            </div>
             <div className="text-xs">1-Year Earnings</div>
           </div>
         </div>
       </div>
-    </div>
-  );
 
-  // Transactions tab content
-  const transactions = (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-medium">All transactions</h2>
-        <button className="bg-blue-600 text-white hover:bg-blue-700 rounded-md px-4 py-2 text-sm">
-          + Add a new transaction
-        </button>
+      {/* Transactions below graph */}
+      <div>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-2xl font-bold">All transactions</h2>
+          <AddTransactionModal>
+            <button
+              className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium"
+              style={{ backgroundColor: "#3E6DA6", color: "white" }}
+            >
+              + Add a new transaction
+            </button>
+          </AddTransactionModal>
+        </div>
+        <TransactionsTable
+          tableType="transactions"
+          fundId={fundId}
+          fundName={fundData.name}
+        />
       </div>
-      <TransactionsTable
-        tableType="transactions"
-        fundId={fundId}
-        fundName={fundData.name}
-      />
     </div>
   );
 
-  // Contributors tab content
   const contributors = (
     <div className="space-y-4">
-      <input
-        type="text"
-        placeholder="Search"
-        className="w-full rounded-md border px-4 py-2 text-sm"
-      />
-      <div className="space-y-2">
-        {contributorsData.map((contributor) => (
-          <div
-            key={contributor.id}
-            className="text-gray-800 flex justify-between border-b pb-2 text-sm"
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">All Contributors</h2>
+        <AddContributorModal onAdded={() => setContributorRefresh((r) => r + 1)}>
+          <button
+            className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium"
+            style={{ backgroundColor: "#3E6DA6", color: "white" }}
           >
-            <span>
-              {contributor.firstName} {contributor.lastName}
-            </span>
-            <span className="font-medium">{contributor.email || "N/A"}</span>
-          </div>
-        ))}
+            + Add new contributor
+          </button>
+        </AddContributorModal>
+      </div>
+
+      {/* Search */}
+      <div className="flex items-center gap-2 rounded-md border px-3 py-2">
+        <svg className="text-gray-400 h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Search"
+          value={contributorSearch}
+          onChange={(e) => setContributorSearch(e.target.value)}
+          className="w-full text-sm outline-none"
+        />
+      </div>
+
+      {/* Table */}
+      <div>
+        <div className="mb-2 flex justify-between px-2 text-sm font-semibold">
+          <span>Date</span>
+          <span>Total contributions</span>
+        </div>
+        <div className="divide-y">
+          {filteredContributors.length === 0 ? (
+            <div className="text-gray-400 py-6 text-center text-sm">No contributors found</div>
+          ) : (
+            filteredContributors.map((contributor) => (
+              <div key={contributor.id} className="flex items-center justify-between px-2 py-3 text-sm">
+                <span className="font-medium">{contributor.firstName} {contributor.lastName}</span>
+                <span className="text-gray-700">
+                  {contributorTotals[contributor.id] != null
+                    ? `$${contributorTotals[contributor.id].toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                    : "—"}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
@@ -140,8 +222,8 @@ const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
     <FundTemplate
       fundName={fundData.name}
       fundDescription={fundData.description}
+      fundType={fundData.type === "ENDOWMENT" ? "Endowment" : "Donation"}
       summary={summary}
-      transactions={transactions}
       contributors={contributors}
       activeTab={activeTab}
       onTabChange={setActiveTab}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import FundCard from "./FundCard";
 
 // connected api
@@ -38,23 +38,48 @@ interface FundCardProps {
   description: string;
 }
 
+type FundFilterType = "all" | "Endowment" | "Donation";
+type FundFilterRestriction = "all" | "Restricted" | "Unrestricted";
+type FundSortBy = "name-asc" | "name-desc" | "amount-asc" | "amount-desc" | "newest" | "oldest";
+
 export default function FundsCardTable({
   searchQuery,
+  filterType = "all",
+  filterRestriction = "all",
+  sortBy = "newest",
 }: {
   searchQuery: string;
+  filterType?: FundFilterType;
+  filterRestriction?: FundFilterRestriction;
+  sortBy?: FundSortBy;
 }) {
   const [funds, setFunds] = useState<FundCardProps[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-
-  // Checks if there's a search term. If yes, only keep funds whose names include it (ignoring case).
-  // If not, show all funds.
-  const filteredFunds = searchQuery
-    ? funds.filter((fund) =>
-        (fund.name ?? "").toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : funds;
+  let filteredFunds = funds;
+  if (searchQuery) {
+    filteredFunds = filteredFunds.filter((f) =>
+      (f.name ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+  if (filterType !== "all") {
+    filteredFunds = filteredFunds.filter((f) =>
+      filterType === "Endowment" ? f.isEndowment : !f.isEndowment
+    );
+  }
+  if (filterRestriction !== "all") {
+    filteredFunds = filteredFunds.filter((f) =>
+      filterRestriction === "Restricted" ? f.isRestricted : !f.isRestricted
+    );
+  }
+  filteredFunds = [...filteredFunds].sort((a, b) => {
+    if (sortBy === "name-asc") return a.name.localeCompare(b.name);
+    if (sortBy === "name-desc") return b.name.localeCompare(a.name);
+    if (sortBy === "amount-asc") return a.amount - b.amount;
+    if (sortBy === "amount-desc") return b.amount - a.amount;
+    return 0; // newest/oldest handled by fetch order
+  });
 
   useEffect(() => {
     fetchFunds();

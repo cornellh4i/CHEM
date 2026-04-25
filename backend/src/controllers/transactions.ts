@@ -452,7 +452,7 @@ async function getContributorTransactions(
 
   if (filters.organizationId) {
     where.organizationId = filters.organizationId;
-    const organization = await prisma.contributor.findUnique({
+    const organization = await prisma.organization.findUnique({
       where: { id: filters.organizationId },
       select: { id: true },
     });

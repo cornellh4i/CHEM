@@ -4,9 +4,7 @@ import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   ChartConfig,
@@ -43,22 +41,20 @@ interface Transaction {
 }
 
 
-const fetchTransactions = async () => {
+const fetchTransactions = async (fundId?: string) => {
   try {
-    const response = await api.get(`/transactions`);
+    const url = fundId ? `/funds/${fundId}/transactions` : `/transactions`;
+    const response = await api.get(url);
     const data = response.data;
-    if (!data.transactions) return [];
-
-    const lastMonthDate = new Date();
-    lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
+    const txList: Transaction[] = data.transactions ?? [];
+    if (txList.length === 0) return [];
 
     let cumulativeAmount = 0;
 
-    return (data.transactions as Transaction[])
+    return (txList as Transaction[])
       .filter(
         (t) =>
-          (t.type === "DONATION" || t.type === "INVESTMENT") &&
-          new Date(t.date) >= lastMonthDate
+          t.type === "DONATION" || t.type === "INVESTMENT"
       )
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .map((transaction: { amount: number; date: string | number | Date }) => {
@@ -86,18 +82,20 @@ const formatDate = (date: Date) => {
   });
 };
 
-export function ContributionsGraph() {
+interface ContributionsGraphProps {
+  fundId?: string;
+}
+
+export function ContributionsGraph({ fundId }: ContributionsGraphProps) {
   const [chartData, setChartData] = React.useState<{ month: string; date: Date; desktop: number }[]>([]);
-  const [totalAmount, setTotalAmount] = React.useState(0);
   const [xAxisTicks, setXAxisTicks] = React.useState<number[]>([]);
   const [formattedTicks, setFormattedTicks] = React.useState<Record<number, string>>({});
 
   React.useEffect(() => {
-    fetchTransactions().then((data) => {
+    fetchTransactions(fundId).then((data) => {
       if (data.length === 0) return;
 
       setChartData(data);
-      setTotalAmount(data.length > 0 ? data[data.length - 1].desktop : 0);
 
       // Generate 5 evenly spaced dates between the earliest and latest data point
       const firstDate = data[0].date.getTime();
@@ -141,12 +139,7 @@ export function ContributionsGraph() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Overall Contributions</CardTitle>
-        <CardDescription>
-          ${totalAmount ? totalAmount.toLocaleString() : "0"}
-        </CardDescription>
-      </CardHeader>
+      <CardHeader></CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="aspect-auto h-[400px]">
           <LineChart

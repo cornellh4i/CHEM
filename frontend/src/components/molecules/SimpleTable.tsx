@@ -26,16 +26,17 @@ export type Column<T> = {
 
 // Define the props for the SimpleTable component
 type SimpleTableProps<T> = {
-  data: T[]; // Array of data objects to display
-  columns: Column<T>[]; // Configuration of table columns
-  pageSize: number; // Number of rows per page
+  data: T[];
+  columns: Column<T>[];
+  pageSize: number;
+  onRowClick?: (row: T) => void;
 };
 
-// Reusable table component with sorting and pagination
 export function SimpleTable<T extends Record<string, any>>({
   data,
   columns,
   pageSize,
+  onRowClick,
 }: SimpleTableProps<T>) {
   // State for current page, sorting column, and sort order
   const [currentPage, setCurrentPage] = useState(1);
@@ -150,7 +151,11 @@ export function SimpleTable<T extends Record<string, any>>({
           {/* Render table rows */}
           {paginatedData.length ? (
             paginatedData.map((row, rowIndex) => (
-              <TableRow key={rowIndex}>
+              <TableRow
+                key={rowIndex}
+                onClick={() => onRowClick?.(row)}
+                className={onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
+              >
                 {columns.map((column, colIndex) => {
                   const cellValue = row[column.accessor as keyof T];
                   return (
