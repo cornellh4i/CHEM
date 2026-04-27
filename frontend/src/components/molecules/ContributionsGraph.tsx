@@ -90,12 +90,14 @@ export function ContributionsGraph({ fundId }: ContributionsGraphProps) {
   const [chartData, setChartData] = React.useState<{ month: string; date: Date; desktop: number }[]>([]);
   const [xAxisTicks, setXAxisTicks] = React.useState<number[]>([]);
   const [formattedTicks, setFormattedTicks] = React.useState<Record<number, string>>({});
+  const [total, setTotal] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     fetchTransactions(fundId).then((data) => {
       if (data.length === 0) return;
 
       setChartData(data);
+      setTotal(data[data.length - 1].desktop);
 
       // Generate 5 evenly spaced dates between the earliest and latest data point
       const firstDate = data[0].date.getTime();
@@ -139,7 +141,16 @@ export function ContributionsGraph({ fundId }: ContributionsGraphProps) {
 
   return (
     <Card>
-      <CardHeader></CardHeader>
+      <CardHeader>
+        {total !== null && (
+          <div>
+            <div className="text-sm text-gray-500">Overall Contributions</div>
+            <div className="text-3xl font-bold">
+              {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(total)}
+            </div>
+          </div>
+        )}
+      </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="aspect-auto h-[400px]">
           <LineChart
