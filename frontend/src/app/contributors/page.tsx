@@ -100,8 +100,8 @@ function EmailTab() {
       {/* Templates */}
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">Templates</h2>
-          <button className="flex items-center gap-1 text-sm text-blue-300 hover:underline">
+          <h2 className="text-xl font-bold">Templates</h2>
+          <button className="flex items-center gap-1 text-sm text-blue-500 hover:underline">
             See more →
           </button>
         </div>
@@ -120,7 +120,7 @@ function EmailTab() {
 
       {/* Send an Email */}
       <div>
-        <h2 className="mb-4 text-xl font-bold text-white">Send an Email</h2>
+        <h2 className="mb-4 text-xl font-bold">Send an Email</h2>
         <div className="flex gap-4 items-start">
 
           {/* Left: top contributors */}
