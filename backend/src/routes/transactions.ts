@@ -82,6 +82,12 @@ transactionRouter.get("/:id", auth, async (req, res) => {
     if (!req.auth) {
       return res.status(401).json({ error: "Unauthorized" });
     }
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
 
     const { id } = req.params;
     const transaction = await controller.getTransactionById(id);
@@ -112,6 +118,13 @@ transactionRouter.put("/:id", auth, async (req, res) => {
     if (!req.auth) {
       return res.status(401).json({ error: "Unauthorized" });
     }
+
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
 
     const { id } = req.params;
     const existing = await controller.getTransactionById(id);
@@ -174,14 +187,12 @@ transactionRouter.post("/bulk", auth, async (req, res) => {
     return res.status(201).json({ created: results });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to bulk create transactions",
-      });
+    return res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to bulk create transactions",
+    });
   }
 });
 
@@ -226,6 +237,12 @@ transactionRouter.delete("/:id", auth, async (req, res) => {
     if (!req.auth) {
       return res.status(401).json({ error: "Unauthorized" });
     }
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
 
     const id = req.params.id;
     const existing = await controller.getTransactionById(id);
