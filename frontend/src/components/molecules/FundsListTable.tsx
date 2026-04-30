@@ -64,10 +64,10 @@ export default function FundsCardTable({
       const response = await api.get(`/funds`);
       const data = response.data;
 
-      const fundsPayload = Array.isArray(data?.funds)
-        ? data.funds
-        : Array.isArray(data?.funds?.funds)
+      const fundsPayload = Array.isArray(data?.funds?.funds)
         ? data.funds.funds
+        : Array.isArray(data?.funds)
+        ? data.funds
         : [];
 
       const mappedFunds: Fund[] = fundsPayload.map((apiFund: ApiFund) => ({

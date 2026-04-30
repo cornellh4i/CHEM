@@ -3,283 +3,191 @@ import { PrismaClient, Role, FundType, TransactionType } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create Organizations
-  const afransOrg = await prisma.organization.upsert({
-    where: { id: "afrans-org" },
+  // Organization
+  const org = await prisma.organization.upsert({
+    where: { id: "carl-test-org" },
     update: {},
     create: {
-      id: "afrans-org",
-      name: "Afran's Org",
-      description: "Organization for Afran",
+      id: "carl-test-org",
+      name: "Carl's Test Foundation",
+      description: "Test organization for development",
     },
   });
 
-  const mohamedsOrg = await prisma.organization.upsert({
-    where: { id: "mohameds-org" },
-    update: {},
-    create: {
-      id: "mohameds-org",
-      name: "Mohamed's Org",
-      description: "Organization for Mohamed",
-    },
-  });
-
-  // Create Users (already exist in Firestore; this is for Postgres)
-  const afranUser = await prisma.user.upsert({
-    where: { email: "test1@gmail.com" },
+  // Users
+  await prisma.user.upsert({
+    where: { email: "carlhu2@gmail.com" },
     update: {
-      firebaseUid: "q2B8EUw6v9RqeKnbO0uLTGYEYcP2",
-      organizationId: afransOrg.id,
-      firstName: "Afran",
-      lastName: "Ahmed",
-      role: Role.USER,
+      firebaseUid: "H2Jy5D6hzzVxobKA1kS3waIlZNv2",
+      organizationId: org.id,
+      firstName: "Carl",
+      lastName: "Hu",
+      role: Role.ADMIN,
     },
     create: {
-      firebaseUid: "q2B8EUw6v9RqeKnbO0uLTGYEYcP2",
-      email: "test1@gmail.com",
-      firstName: "Afran",
-      lastName: "Ahmed",
-      role: Role.USER,
-      organizationId: afransOrg.id,
+      firebaseUid: "H2Jy5D6hzzVxobKA1kS3waIlZNv2",
+      email: "carlhu2@gmail.com",
+      firstName: "Carl",
+      lastName: "Hu",
+      role: Role.ADMIN,
+      organizationId: org.id,
     },
   });
 
-  const mohamedUser = await prisma.user.upsert({
-    where: { email: "test2@gmail.com" }, // keeping provided address as-is
+  await prisma.user.upsert({
+    where: { email: "testing123@gmail.com" },
     update: {
-      firebaseUid: "h1Vd3k44QDfwiqwoelqVleb6xit1",
-      organizationId: mohamedsOrg.id,
-      firstName: "Mohamed",
-      lastName: "Kane",
+      firebaseUid: "clYXSbY9LrVFhJHnH4mayqxQmYF2",
+      organizationId: org.id,
+      firstName: "Test",
+      lastName: "User",
       role: Role.USER,
     },
     create: {
-      firebaseUid: "h1Vd3k44QDfwiqwoelqVleb6xit1",
-      email: "test2@gmail.com",
-      firstName: "Mohamed",
-      lastName: "Kane",
+      firebaseUid: "clYXSbY9LrVFhJHnH4mayqxQmYF2",
+      email: "testing123@gmail.com",
+      firstName: "Test",
+      lastName: "User",
       role: Role.USER,
-      organizationId: mohamedsOrg.id,
+      organizationId: org.id,
     },
   });
 
-  // Create Contributors (one per org for transactions)
-  const afranSeedContributor = await prisma.contributor.create({
+  // Contributors
+  const alice = await prisma.contributor.create({
     data: {
-      firstName: "Seed",
-      lastName: "Contributor",
-      organization: { connect: { id: afransOrg.id } },
+      firstName: "Alice",
+      lastName: "Johnson",
+      organization: { connect: { id: org.id } },
     },
   });
 
-  const mohamedSeedContributor = await prisma.contributor.create({
+  const bob = await prisma.contributor.create({
     data: {
-      firstName: "Seed",
-      lastName: "Contributor",
-      organization: { connect: { id: mohamedsOrg.id } },
+      firstName: "Bob",
+      lastName: "Smith",
+      organization: { connect: { id: org.id } },
     },
   });
 
-  // === Funds for Afran's Org ===
-  // 1) Donation fund
-  const afransFoodFund = await prisma.fund.create({
+  const carol = await prisma.contributor.create({
     data: {
-      name: "afrans-food-fund",
-      description: "Food fund (donation) for Afran's Org",
-      organizationId: afransOrg.id,
-      type: FundType.DONATION, // ← donation
-      restriction: false, // unrestricted donation
-      amount: 0,
-      units: 0,
-      contributors: {
-        connect: [{ id: afranSeedContributor.id }],
-      },
+      firstName: "Carol",
+      lastName: "Williams",
+      organization: { connect: { id: org.id } },
     },
   });
 
-  // 2) Restricted ENDOWMENT (requires purpose)
-  const afransHackFund = await prisma.fund.create({
+  const david = await prisma.contributor.create({
     data: {
-      name: "afrans-hack-fund",
-      description: "Hack fund (restricted endowment) for Afran's Org",
-      organizationId: afransOrg.id,
-      type: FundType.ENDOWMENT, // ← endowment
-      restriction: true, // ← restricted endowment
-      purpose: "Restricted to hackathon-related expenses only.",
-      amount: 0,
-      units: 0,
-      contributors: {
-        connect: [{ id: afranSeedContributor.id }],
-      },
+      firstName: "David",
+      lastName: "Lee",
+      organization: { connect: { id: org.id } },
     },
   });
 
-  // === Funds for Mohamed's Org ===
-  // 3) Unrestricted ENDOWMENT (no purpose required)
-  const mohamedsFoodFund = await prisma.fund.create({
+  // Funds
+  const generalFund = await prisma.fund.create({
     data: {
-      name: "mohameds-food-fund",
-      description: "Food fund (unrestricted endowment) for Mohamed's Org",
-      organizationId: mohamedsOrg.id,
-      type: FundType.ENDOWMENT, // ← endowment
-      restriction: false, // ← unrestricted endowment
-      // purpose omitted for unrestricted
-      amount: 0,
-      units: 0,
-      contributors: {
-        connect: [{ id: mohamedSeedContributor.id }],
-      },
-    },
-  });
-
-  // 4) Donation fund
-  const mohamedsHackFund = await prisma.fund.create({
-    data: {
-      name: "mohameds-hack-fund",
-      description: "Hack fund (donation) for Mohamed's Org",
-      organizationId: mohamedsOrg.id,
-      type: FundType.DONATION, // ← donation
+      name: "General Scholarship Fund",
+      description: "Unrestricted donations for general scholarships",
+      organizationId: org.id,
+      type: FundType.DONATION,
       restriction: false,
       amount: 0,
       units: 0,
-      contributors: {
-        connect: [{ id: mohamedSeedContributor.id }],
-      },
+      contributors: { connect: [{ id: alice.id }, { id: bob.id }, { id: carol.id }] },
     },
   });
 
-  // Create Transactions (a couple per fund)
-  // Afran's Org
-  await prisma.transaction.create({
+  const endowmentFund = await prisma.fund.create({
     data: {
-      organizationId: afransOrg.id,
-      fundId: afransFoodFund.id,
-      contributorId: afranSeedContributor.id,
-      type: TransactionType.DONATION,
-      date: new Date(),
-      amount: 750,
-      description: "Initial donation to afrans-food-fund",
-    },
-  });
-  await prisma.transaction.create({
-    data: {
-      organizationId: afransOrg.id,
-      fundId: afransFoodFund.id,
-      contributorId: afranSeedContributor.id,
-      type: TransactionType.EXPENSE,
-      date: new Date(),
-      amount: 200,
-      description: "Food purchases",
+      name: "Endowment Growth Fund",
+      description: "Long-term endowment for capital growth",
+      organizationId: org.id,
+      type: FundType.ENDOWMENT,
+      restriction: true,
+      purpose: "Restricted to long-term capital investment only.",
+      rate: 0.05,
+      amount: 0,
+      units: 0,
+      contributors: { connect: [{ id: alice.id }, { id: david.id }] },
     },
   });
 
-  await prisma.transaction.create({
+  const techFund = await prisma.fund.create({
     data: {
-      organizationId: afransOrg.id,
-      fundId: afransHackFund.id,
-      contributorId: afranSeedContributor.id,
-      type: TransactionType.DONATION,
-      date: new Date(),
-      amount: 1200,
-      description: "Restricted endowment gift for hack fund",
-    },
-  });
-  await prisma.transaction.create({
-    data: {
-      organizationId: afransOrg.id,
-      fundId: afransHackFund.id,
-      contributorId: afranSeedContributor.id,
-      type: TransactionType.INVESTMENT,
-      date: new Date(),
-      amount: 500,
-      description: "Endowment investment allocation",
+      name: "Technology Initiative Fund",
+      description: "Funding for tech programs and infrastructure",
+      organizationId: org.id,
+      type: FundType.DONATION,
+      restriction: false,
+      amount: 0,
+      units: 0,
+      contributors: { connect: [{ id: bob.id }, { id: carol.id }, { id: david.id }] },
     },
   });
 
-  // Mohamed's Org
-  await prisma.transaction.create({
+  const researchFund = await prisma.fund.create({
     data: {
-      organizationId: mohamedsOrg.id,
-      fundId: mohamedsFoodFund.id,
-      contributorId: mohamedSeedContributor.id,
-      type: TransactionType.DONATION,
-      date: new Date(),
-      amount: 600,
-      description: "Initial endowment gift (unrestricted)",
-    },
-  });
-  await prisma.transaction.create({
-    data: {
-      organizationId: mohamedsOrg.id,
-      fundId: mohamedsFoodFund.id,
-      contributorId: mohamedSeedContributor.id,
-      type: TransactionType.WITHDRAWAL,
-      date: new Date(),
-      amount: 150,
-      description: "General program withdrawal",
+      name: "Research Endowment",
+      description: "Restricted endowment for academic research",
+      organizationId: org.id,
+      type: FundType.ENDOWMENT,
+      restriction: true,
+      purpose: "Restricted to faculty and student research projects.",
+      rate: 0.04,
+      amount: 0,
+      units: 0,
+      contributors: { connect: [{ id: carol.id }, { id: david.id }] },
     },
   });
 
-  await prisma.transaction.create({
-    data: {
-      organizationId: mohamedsOrg.id,
-      fundId: mohamedsHackFund.id,
-      contributorId: mohamedSeedContributor.id,
-      type: TransactionType.DONATION,
-      date: new Date(),
-      amount: 900,
-      description: "Donation for hack activities",
-    },
-  });
-  await prisma.transaction.create({
-    data: {
-      organizationId: mohamedsOrg.id,
-      fundId: mohamedsHackFund.id,
-      contributorId: mohamedSeedContributor.id,
-      type: TransactionType.EXPENSE,
-      date: new Date(),
-      amount: 300,
-      description: "Hardware + snacks",
-    },
-  });
+  // Transactions — spread over the past 6 months
+  const d = (monthsAgo: number, day: number) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - monthsAgo);
+    date.setDate(day);
+    return date;
+  };
 
-  await prisma.fund.update({
-    where: { id: afransFoodFund.id },
-    data: { amount: 550, units: 0 },
-  });
-  await prisma.fund.update({
-    where: { id: afransHackFund.id },
-    data: { amount: 1700, units: 0 },
-  });
-  await prisma.fund.update({
-    where: { id: mohamedsFoodFund.id },
-    data: { amount: 450, units: 0 },
-  });
-  await prisma.fund.update({
-    where: { id: mohamedsHackFund.id },
-    data: { amount: 600, units: 0 },
-  });
+  // General Fund transactions
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: generalFund.id, contributorId: alice.id, type: TransactionType.DONATION, date: d(5, 3), amount: 2000, description: "Annual scholarship donation" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: generalFund.id, contributorId: bob.id, type: TransactionType.DONATION, date: d(4, 15), amount: 1500, description: "Spring donation" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: generalFund.id, contributorId: carol.id, type: TransactionType.DONATION, date: d(3, 8), amount: 3000, description: "Major gift" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: generalFund.id, contributorId: alice.id, type: TransactionType.EXPENSE, date: d(2, 20), amount: 800, description: "Scholarship disbursement Q1" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: generalFund.id, contributorId: bob.id, type: TransactionType.WITHDRAWAL, date: d(1, 10), amount: 500, description: "Program operating costs" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: generalFund.id, contributorId: carol.id, type: TransactionType.DONATION, date: d(0, 5), amount: 1000, description: "Recent donation" } });
 
-  await prisma.organization.update({
-    where: { id: afransOrg.id },
-    data: { amount: 2250, units: 0 },
-  });
-  await prisma.organization.update({
-    where: { id: mohamedsOrg.id },
-    data: { amount: 1050, units: 0 },
-  });
+  // Endowment Fund transactions
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: endowmentFund.id, contributorId: alice.id, type: TransactionType.DONATION, date: d(5, 10), amount: 5000, description: "Founding endowment gift" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: endowmentFund.id, contributorId: david.id, type: TransactionType.DONATION, date: d(4, 2), amount: 10000, description: "Major endowment contribution" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: endowmentFund.id, contributorId: alice.id, type: TransactionType.INVESTMENT, date: d(3, 18), amount: 3000, description: "Quarterly investment allocation" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: endowmentFund.id, contributorId: david.id, type: TransactionType.INVESTMENT, date: d(1, 22), amount: 2000, description: "Reinvestment of returns" } });
 
-  console.log({
-    organizations: { afransOrg, mohamedsOrg },
-    users: { afranUser, mohamedUser },
-    contributors: { afranSeedContributor, mohamedSeedContributor },
-    funds: {
-      afransFoodFund,
-      afransHackFund,
-      mohamedsFoodFund,
-      mohamedsHackFund,
-    },
-  });
+  // Tech Fund transactions
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: techFund.id, contributorId: bob.id, type: TransactionType.DONATION, date: d(5, 1), amount: 1200, description: "Tech infrastructure donation" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: techFund.id, contributorId: carol.id, type: TransactionType.DONATION, date: d(4, 12), amount: 800, description: "Software licensing support" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: techFund.id, contributorId: david.id, type: TransactionType.DONATION, date: d(3, 25), amount: 2500, description: "Hardware grant" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: techFund.id, contributorId: bob.id, type: TransactionType.EXPENSE, date: d(2, 7), amount: 600, description: "Server costs Q2" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: techFund.id, contributorId: carol.id, type: TransactionType.EXPENSE, date: d(0, 14), amount: 400, description: "Software subscriptions" } });
+
+  // Research Fund transactions
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: researchFund.id, contributorId: carol.id, type: TransactionType.DONATION, date: d(5, 20), amount: 4000, description: "Research endowment seed gift" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: researchFund.id, contributorId: david.id, type: TransactionType.DONATION, date: d(4, 8), amount: 6000, description: "Faculty research grant" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: researchFund.id, contributorId: carol.id, type: TransactionType.INVESTMENT, date: d(2, 14), amount: 1500, description: "Endowment investment" } });
+  await prisma.transaction.create({ data: { organizationId: org.id, fundId: researchFund.id, contributorId: david.id, type: TransactionType.WITHDRAWAL, date: d(1, 3), amount: 700, description: "Student stipend disbursement" } });
+
+  // Update fund balances
+  await prisma.fund.update({ where: { id: generalFund.id }, data: { amount: 6200 } });
+  await prisma.fund.update({ where: { id: endowmentFund.id }, data: { amount: 20000, units: 400 } });
+  await prisma.fund.update({ where: { id: techFund.id }, data: { amount: 3500 } });
+  await prisma.fund.update({ where: { id: researchFund.id }, data: { amount: 10800, units: 270 } });
+
+  // Update org total
+  await prisma.organization.update({ where: { id: org.id }, data: { amount: 40500 } });
+
+  console.log("Seed complete: Carl's Test Foundation with 4 contributors, 4 funds, 19 transactions");
 }
 
 main()

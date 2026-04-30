@@ -113,8 +113,8 @@ const Select = ({
           style={{
             position: "absolute",
             top: "100%",
-            left: "70%",
-            width: width ? `calc(${width} * 0.3)` : "30%",
+            left: "0",
+            width: "100%",
             backgroundColor: "#f5f5f5",
             borderRadius: "8px",
             overflowY: "auto",

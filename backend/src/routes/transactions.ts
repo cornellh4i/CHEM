@@ -3,7 +3,6 @@ import controller from "../controllers/transactions";
 import { ErrorMessage } from "../utils/types";
 import { TransactionType } from "@prisma/client";
 import { notify } from "../utils/helpers";
-import transactions from "../controllers/transactions";
 import auth from "../middleware/auth";
 import prisma from "../utils/client";
 import admin from "firebase-admin";
@@ -78,7 +77,7 @@ transactionRouter.get("/", auth, async (req, res) => {
 });
 
 /** GET /transactions/:id Retrieves a single transaction by its ID. */
-transactionRouter.get("/:id", async (req, res) => {
+transactionRouter.get("/:id", auth, async (req, res) => {
   try {
     if (!req.auth) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -87,11 +86,13 @@ transactionRouter.get("/:id", async (req, res) => {
     const { id } = req.params;
     const transaction = await controller.getTransactionById(id);
 
-    if (transaction) {
-      res.status(200).json(transaction);
-    } else {
-      res.status(404).json({ error: "Transaction not found" });
+    if (!transaction) {
+      return res.status(404).json({ error: "Transaction not found" });
     }
+    if (transaction.organizationId !== user.organizationId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    res.status(200).json(transaction);
   } catch (error) {
     console.error(error);
     const errorResponse: ErrorMessage = {
@@ -106,14 +107,22 @@ transactionRouter.get("/:id", async (req, res) => {
  * PUT /transactions/:id Updates an existing transaction with the data provided
  * in the request body.
  */
-transactionRouter.put("/:id", async (req, res) => {
+transactionRouter.put("/:id", auth, async (req, res) => {
   try {
     if (!req.auth) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
     const { id } = req.params;
-    const updateData = req.body;
+    const existing = await controller.getTransactionById(id);
+    if (!existing) {
+      return res.status(404).json({ error: "Transaction not found" });
+    }
+    if (existing.organizationId !== user.organizationId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    const { organizationId: _stripped, ...updateData } = req.body;
     const updatedTransaction = await controller.updateTransaction(
       id,
       updateData
@@ -129,8 +138,55 @@ transactionRouter.put("/:id", async (req, res) => {
   }
 });
 
+// POST /transactions/bulk — create multiple transactions at once
+transactionRouter.post("/bulk", auth, async (req, res) => {
+  try {
+    if (!(req as any).auth)
+      return res.status(401).json({ error: "Unauthorized" });
+
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
+
+    const { transactions: txList } = req.body;
+    if (!Array.isArray(txList) || txList.length === 0) {
+      return res.status(400).json({ error: "transactions array is required" });
+    }
+
+    const results = [];
+    const errors = [];
+    for (let i = 0; i < txList.length; i++) {
+      try {
+        const tx = { ...txList[i], organizationId: user.organizationId };
+        const created = await controller.createTransaction(tx);
+        results.push(created);
+      } catch (err: any) {
+        errors.push({ index: i, error: err.message });
+      }
+    }
+
+    if (errors.length > 0) {
+      return res.status(207).json({ created: results, errors });
+    }
+    return res.status(201).json({ created: results });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to bulk create transactions",
+      });
+  }
+});
+
 // POST /transactions route
-transactionRouter.post("/", async (req, res) => {
+transactionRouter.post("/", auth, async (req, res) => {
   try {
     if (!req.auth) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -140,7 +196,6 @@ transactionRouter.post("/", async (req, res) => {
 
     // Basic validation (units and description are optional)
     if (
-      !transactionData.organizationId ||
       !transactionData.contributorId ||
       !transactionData.fundId ||
       !transactionData.type ||
@@ -149,7 +204,7 @@ transactionRouter.post("/", async (req, res) => {
     ) {
       return res.status(400).json({
         error:
-          "Transaction organization ID, contributor ID, fund ID, type, date, and amount are required",
+          "Transaction contributor ID, fund ID, type, date, and amount are required",
       });
     }
 
@@ -166,13 +221,21 @@ transactionRouter.post("/", async (req, res) => {
 });
 
 // DELETE /transactions/:id route
-transactionRouter.delete("/:id", async (req, res) => {
+transactionRouter.delete("/:id", auth, async (req, res) => {
   try {
     if (!req.auth) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
     const id = req.params.id;
+    const existing = await controller.getTransactionById(id);
+    if (!existing) {
+      return res.status(404).json({ error: "Transaction not found" });
+    }
+    if (existing.organizationId !== user.organizationId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const deletedTransaction = await controller.deleteTransaction(id);
     res.status(200).json(deletedTransaction);
     notify(`/transactions/${id}`);
@@ -186,11 +249,21 @@ transactionRouter.delete("/:id", async (req, res) => {
   }
 });
 
-/* GET /transactions/:id/organizations route. Retrieves all transactions of an 
+/* GET /transactions/:id/organizations route. Retrieves all transactions of an
 organization with organizationId [id] */
-transactionRouter.get("/organizations/:id", async (req, res) => {
+transactionRouter.get("/organizations/:id", auth, async (req, res) => {
   try {
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
+
     const { id } = req.params;
+    if (id !== user.organizationId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
 
     const filters = {
       type: req.query.type as TransactionType | undefined,
@@ -245,12 +318,30 @@ transactionRouter.get("/organizations/:id", async (req, res) => {
 
 /* GET /transactions/contributors/:id route. Retrieves all transactions of
 a contributor with contributorId [id] */
-transactionRouter.get("/contributors/:id", async (req, res) => {
+transactionRouter.get("/contributors/:id", auth, async (req, res) => {
   try {
+    const firebaseUid = (req as any).auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
+
     const { id } = req.params;
+    const contributor = await prisma.contributor.findUnique({
+      where: { id },
+      select: { organizationId: true },
+    });
+    if (!contributor) {
+      return res.status(404).json({ error: "Contributor not found" });
+    }
+    if (contributor.organizationId !== user.organizationId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const filters = {
       type: req.query.type as string | undefined,
-      organizationId: req.query.organizationId as string | undefined,
+      organizationId: user.organizationId,
       startDate: req.query.startDate as string | undefined,
       endDate: req.query.endDate as string | undefined,
     };
