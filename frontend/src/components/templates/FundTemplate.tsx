@@ -1,5 +1,5 @@
 "use client";
-import React, { ReactNode, useState } from "react";
+import { ReactNode, useState } from "react";
 import Sidebar from "@/components/molecules/Sidebar";
 import { IconButton, useMediaQuery } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -9,19 +9,21 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 interface FundsTemplateProps {
   fundName: string;
   fundDescription: string;
+  fundType?: string;
   summary: ReactNode;
-  transactions: ReactNode;
   contributors: ReactNode;
-  activeTab: "summary" | "transactions" | "contributors";
-  onTabChange: (tab: "summary" | "transactions" | "contributors") => void;
+  settings: ReactNode;
+  activeTab: "summary" | "contributors" | "settings";
+  onTabChange: (tab: "summary" | "contributors" | "settings") => void;
 }
 
 const FundTemplate = ({
   fundName,
   fundDescription,
+  fundType,
   summary,
-  transactions,
   contributors,
+  settings,
   activeTab,
   onTabChange,
 }: FundsTemplateProps) => {
@@ -29,16 +31,12 @@ const FundTemplate = ({
   const isMobile = useMediaQuery("(max-width: 768px)");
   const router = useRouter();
 
-  const handleToggleSidebar = () => {
-    setCollapsed(!collapsed);
-  };
-
   return (
     <div className="dark:bg-gray-900 dark:text-gray-300 flex min-h-screen">
       <Sidebar
         collapsed={collapsed}
-        handleToggleSidebar={handleToggleSidebar}
-        user={null} // no user context here; sidebar will show "Profile"
+        handleToggleSidebar={() => setCollapsed(!collapsed)}
+        user={null}
       />
 
       <div
@@ -52,36 +50,43 @@ const FundTemplate = ({
       >
         {/* Back button */}
         <button
-          className="text-blue-600 mb-4 text-sm"
+          className="text-gray-500 mb-6 flex items-center gap-1 text-sm hover:text-gray-700"
           onClick={() => router.back()}
         >
-          <ArrowBackIcon
-            className="relative top-[-1px] mr-1"
-            fontSize="small"
-          />
+          <ArrowBackIcon fontSize="small" />
           Back to All Funds
         </button>
 
-        {/* Fund title and description */}
-        <h1 className="mb-1 text-3xl font-semibold">{fundName}</h1>
-        <p className="text-gray-600 mb-6 max-w-3xl">{fundDescription}
+        {/* Fund title */}
+        <h1 className="mb-2 text-4xl font-bold">{fundName}</h1>
+
+        {/* Fund description */}
+        <p className="text-gray-600 mb-4 max-w-3xl text-sm leading-relaxed">
+          {fundDescription}
         </p>
 
+        {/* Badges */}
+        {fundType && (
+          <div className="mb-6 flex gap-2">
+            <span className="border-gray-300 text-gray-600 rounded border px-3 py-1 text-xs">
+              {fundType}
+            </span>
+          </div>
+        )}
+
         {/* Tabs */}
-        <div className="mb-6 flex space-x-6 border-b">
-          {["summary", "transactions", "contributors"].map((tab) => (
+        <div className="mb-6 flex space-x-8 border-b">
+          {(["summary", "contributors", "settings"] as const).map((tab) => (
             <button
               key={tab}
-              className={`pb-2 capitalize ${
-              activeTab === tab
-                  ? "border-blue-600 border-b-2 font-semibold"
-                  : "text-gray-500"
+              className={`pb-3 text-base capitalize transition-colors ${
+                activeTab === tab
+                  ? "border-b-2 border-black font-semibold text-black"
+                  : "text-gray-400 hover:text-gray-600"
               }`}
-              onClick={() =>
-                onTabChange(tab as "summary" | "transactions" | "contributors")
-              }
+              onClick={() => onTabChange(tab)}
             >
-              {tab}
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
         </div>
@@ -89,20 +94,15 @@ const FundTemplate = ({
         {/* Content */}
         <div>
           {activeTab === "summary" && summary}
-          {activeTab === "transactions" && transactions}
           {activeTab === "contributors" && contributors}
+          {activeTab === "settings" && settings}
         </div>
       </div>
 
       {isMobile && (
         <IconButton
-          onClick={handleToggleSidebar}
-          style={{
-            position: "fixed",
-            top: 16,
-            left: 16,
-            zIndex: 1000,
-          }}
+          onClick={() => setCollapsed(!collapsed)}
+          style={{ position: "fixed", top: 16, left: 16, zIndex: 1000 }}
         >
           <MenuIcon />
         </IconButton>

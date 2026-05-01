@@ -240,12 +240,13 @@ const createTransaction = async (
       },
     });
 
-    // Update the fund's amount and units
+    // Update the fund's amount and units, and link contributor to fund
     await prisma.fund.update({
       where: { id: transactionData.fundId },
       data: {
         amount: amountUpdate,
         units: unitsUpdate,
+        contributors: { connect: { id: transactionData.contributorId } },
       },
     });
 
@@ -452,7 +453,7 @@ async function getContributorTransactions(
 
   if (filters.organizationId) {
     where.organizationId = filters.organizationId;
-    const organization = await prisma.contributor.findUnique({
+    const organization = await prisma.organization.findUnique({
       where: { id: filters.organizationId },
       select: { id: true },
     });

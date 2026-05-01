@@ -1,17 +1,13 @@
 "use client";
 
 import React, { ReactNode, useState, useEffect } from "react";
-import Input from "@/components/atoms/Input";
-import Button from "@/components/atoms/Button";
-import { ScrollArea } from "@/components/ui/scroll";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import api from "@/utils/api";
@@ -22,6 +18,12 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [userOrgId, setUserOrgId] = useState<string | null>(null);
   const [name, setName] = useState("");
+  const [type, setType] = useState<"donation" | "endowment">("donation");
+  const [restriction, setRestriction] = useState<"restricted" | "unrestricted">("restricted");
+  const [description, setDescription] = useState("");
+  const [purpose, setPurpose] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     api.get("/auth/login").then((res) => {
@@ -30,30 +32,18 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
       if (orgId) setUserOrgId(orgId);
     }).catch((err) => console.error("Failed to load user org", err));
   }, []);
-  const [type, setType] = useState<"donation" | "endowment">("donation");
-  const [restriction, setRestriction] = useState<"restricted" | "unrestricted">(
-    "restricted"
-  );
-  const [description, setDescription] = useState("");
-  const [purpose, setPurpose] = useState(""); // NEW
-  const [submitting, setSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleCancel = () => {
     setIsOpen(false);
     setErrorMsg(null);
     setSubmitting(false);
-    // optional: reset fields on cancel
-    // setName(""); setType("donation"); setRestriction("restricted"); setDescription(""); setPurpose("");
   };
 
-  const isRestrictedEndowment =
-    type === "endowment" && restriction === "restricted";
+  const isRestrictedEndowment = type === "endowment" && restriction === "restricted";
 
   const handleAdd = async () => {
     setErrorMsg(null);
 
-    // Frontend required-field checks
     if (!name.trim()) return setErrorMsg("Name is required.");
     if (!type) return setErrorMsg("Type is required.");
     if (isRestrictedEndowment && !purpose.trim())
@@ -69,7 +59,7 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
       units: number;
     } = {
       name: name.trim(),
-      type: type.toUpperCase(), // server expects FundType (e.g., ENDOWMENT or DONATION)
+      type: type.toUpperCase(),
       description: description.trim(),
       organizationId: userOrgId ?? "",
       units: 0,
@@ -99,136 +89,126 @@ const AddFundModal: React.FC<AddFundModalProps> = ({ children }) => {
       <DialogTrigger asChild onClick={() => setIsOpen(true)}>
         {children}
       </DialogTrigger>
-      <DialogContent className="h-auto w-[700px] rounded-[40px] px-[80px] pb-[40px] pt-[60px]">
-        <ScrollArea className="h-full w-full">
-          <DialogHeader>
-            <DialogTitle className="mb-[32px] text-[28px]">
-              Add Fund
-            </DialogTitle>
-          </DialogHeader>
+      <DialogContent className="w-[480px] rounded-2xl p-8">
+        <VisuallyHidden.Root>
+          <DialogTitle>Add fund</DialogTitle>
+        </VisuallyHidden.Root>
 
-          {/* Name */}
-          <div className="mb-6">
-            <Label htmlFor="name" className="mb-2 block text-lg">
-              Name
-            </Label>
-            <Input
-              id="name"
-              placeholder="Add a name"
-              value={name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setName(e.target.value)
-              }
+        {/* Title */}
+        <h2 className="mb-6 text-2xl font-bold">Add fund</h2>
+
+        {/* Name */}
+        <div className="mb-5">
+          <label className="mb-1 block text-sm font-medium">
+            Name<span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-400"
+          />
+        </div>
+
+        {/* Type */}
+        <div className="mb-5">
+          <label className="mb-2 block text-sm font-medium">
+            Type<span className="text-red-500">*</span>
+          </label>
+          <RadioGroup
+            value={type}
+            onValueChange={(v) => setType(v as "donation" | "endowment")}
+            className="flex flex-col gap-2"
+          >
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="donation" id="donation" />
+              <Label htmlFor="donation" className="text-sm font-normal">Donation</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="endowment" id="endowment" />
+              <Label htmlFor="endowment" className="text-sm font-normal">Endowment</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        {/* Restriction — always shown */}
+        <div className="mb-5">
+          <label className="mb-2 block text-sm font-medium">
+            Restriction<span className="text-red-500">*</span>
+          </label>
+          <RadioGroup
+            value={restriction}
+            onValueChange={(v) => setRestriction(v as "restricted" | "unrestricted")}
+            className="flex flex-col gap-2"
+          >
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="restricted" id="restricted" />
+              <Label htmlFor="restricted" className="text-sm font-normal">Restricted</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="unrestricted" id="unrestricted" />
+              <Label htmlFor="unrestricted" className="text-sm font-normal">Unrestricted</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        {/* Purpose — only for restricted endowments */}
+        {isRestrictedEndowment && (
+          <div className="mb-5">
+            <label className="mb-1 block text-sm font-medium">
+              Purpose<span className="text-red-500">*</span>
+            </label>
+            <textarea
+              placeholder="Describe the restriction purpose"
+              value={purpose}
+              onChange={(e) => setPurpose(e.target.value)}
+              rows={3}
+              className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-400"
             />
           </div>
+        )}
 
-          {/* Type */}
-          <div className="mb-6">
-            <Label className="mb-2 block text-lg">Type</Label>
-            <RadioGroup
-              value={type}
-              onValueChange={(v) => setType(v as "donation" | "endowment")}
-              className="flex flex-col gap-2"
-            >
-              <div className="flex items-center gap-2">
-                <RadioGroupItem value="donation" id="donation" />
-                <Label htmlFor="donation">Donation</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <RadioGroupItem value="endowment" id="endowment" />
-                <Label htmlFor="endowment">Endowment</Label>
-              </div>
-            </RadioGroup>
+        {/* Description */}
+        <div className="mb-6">
+          <div className="mb-1 flex items-center justify-between">
+            <label className="text-sm font-medium">Description</label>
+            <span className="text-xs text-gray-400">Optional</span>
           </div>
+          <textarea
+            placeholder="Add a description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-400"
+          />
+        </div>
 
-          {/* Restriction (only for endowment) */}
-          {type === "endowment" && (
-            <div className="mb-6">
-              <Label className="mb-2 block text-lg">Restriction</Label>
-              <RadioGroup
-                value={restriction}
-                onValueChange={(v) =>
-                  setRestriction(v as "restricted" | "unrestricted")
-                }
-                className="flex flex-col gap-2"
-              >
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="restricted" id="restricted" />
-                  <Label htmlFor="restricted">Restricted</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="unrestricted" id="unrestricted" />
-                  <Label htmlFor="unrestricted">Unrestricted</Label>
-                </div>
-              </RadioGroup>
-            </div>
-          )}
+        {/* Error */}
+        {errorMsg && (
+          <div className="mb-4 text-sm text-red-600">{errorMsg}</div>
+        )}
 
-          {/* Purpose (required when restricted endowment) */}
-          {isRestrictedEndowment && (
-            <div className="mb-6">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="purpose" className="text-lg">
-                  Purpose
-                </Label>
-                <span className="text-red-500 text-sm">Required</span>
-              </div>
-              <Input
-                id="purpose"
-                placeholder="Describe the restriction purpose"
-                value={purpose}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setPurpose(e.target.value)
-                }
-                className="border-gray-300 h-32 w-full resize-none rounded-lg border-[1px] px-4 py-2 text-left"
-                as="textarea"
-              />
-            </div>
-          )}
-
-          {/* Description (optional) */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="description" className="text-lg">
-                Description
-              </Label>
-              <span className="text-gray-300 text-sm">Optional</span>
-            </div>
-            <Input
-              id="description"
-              placeholder="Add a Description"
-              value={description}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setDescription(e.target.value)
-              }
-              className="border-gray-300 h-32 w-full resize-none rounded-lg border-[1px] px-4 py-2 text-left"
-              as="textarea"
-            />
-          </div>
-
-          {/* Error */}
-          {errorMsg && (
-            <div className="text-red-600 mb-4 text-sm">{errorMsg}</div>
-          )}
-
-          {/* Footer */}
-          <DialogFooter className="mt-8 flex items-center justify-between">
-            <Button
-              variant="secondary"
-              onClick={handleCancel}
-              disabled={submitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              style={{ backgroundColor: "black", color: "white" }}
-              onClick={handleAdd}
-              disabled={submitting}
-            >
-              {submitting ? "Adding..." : "Add"}
-            </Button>
-          </DialogFooter>
-        </ScrollArea>
+        {/* Footer */}
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={handleCancel}
+            disabled={submitting}
+            className="text-sm underline text-gray-600 hover:text-gray-800"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={submitting}
+            className="rounded-full px-6 py-2 text-sm font-medium text-white"
+            style={{ backgroundColor: "#3E6DA6" }}
+          >
+            {submitting ? "Adding..." : "Add"}
+          </button>
+        </div>
       </DialogContent>
     </Dialog>
   );

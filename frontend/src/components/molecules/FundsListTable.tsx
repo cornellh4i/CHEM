@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Bookmark } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import api from "@/utils/api";
 
@@ -34,23 +33,46 @@ type Fund = {
   amount: number;
 };
 
-export default function FundsCardTable({
+type FundFilterType = "all" | "Endowment" | "Donation";
+type FundFilterRestriction = "all" | "Restricted" | "Unrestricted";
+type FundSortBy = "name-asc" | "name-desc" | "amount-asc" | "amount-desc" | "newest" | "oldest";
+
+export default function FundsListTable({
   searchQuery,
+  filterType = "all",
+  filterRestriction = "all",
+  sortBy = "newest",
 }: {
   searchQuery: string;
+  filterType?: FundFilterType;
+  filterRestriction?: FundFilterRestriction;
+  sortBy?: FundSortBy;
 }) {
   const [funds, setFunds] = useState<Fund[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filter funds by name (case-insensitive). If there's no search text, show all funds.
   const router = useRouter();
 
-  const filteredFunds = searchQuery
-    ? funds.filter((fund) =>
-        (fund.name ?? "").toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : funds;
+  let filteredFunds = funds;
+  if (searchQuery) {
+    filteredFunds = filteredFunds.filter((f) =>
+      (f.name ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+  if (filterType !== "all") {
+    filteredFunds = filteredFunds.filter((f) => f.type === filterType);
+  }
+  if (filterRestriction !== "all") {
+    filteredFunds = filteredFunds.filter((f) => f.restriction === filterRestriction);
+  }
+  filteredFunds = [...filteredFunds].sort((a, b) => {
+    if (sortBy === "name-asc") return a.name.localeCompare(b.name);
+    if (sortBy === "name-desc") return b.name.localeCompare(a.name);
+    if (sortBy === "amount-asc") return a.amount - b.amount;
+    if (sortBy === "amount-desc") return b.amount - a.amount;
+    return 0;
+  });
 
   useEffect(() => {
     fetchFunds();
