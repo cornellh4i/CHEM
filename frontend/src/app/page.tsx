@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 const Home = () => {
   const router = useRouter();
   useEffect(() => {
-    router.replace("/login");
+    router.replace("/landing");
   }, [router]);
   return null;
 };
