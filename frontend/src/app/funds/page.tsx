@@ -74,7 +74,7 @@ const FundsPage = () => {
     <DashboardTemplate>
       <div className="flex flex-col justify-items-center">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-3xl">All Funds</h1>
+          <h1 className="text-3xl font-bold">Funds</h1>
           <div className="flex gap-x-4">
 <AddFundModal>
               <Button
@@ -145,6 +145,7 @@ const FundsPage = () => {
       {/* Filter portal */}
       {filterDropdown.open && filterDropdown.rect && createPortal(
         <div
+          onMouseDown={(e) => e.stopPropagation()}
           style={{
             position: "fixed",
             top: filterDropdown.rect.bottom + 8,
@@ -188,6 +189,7 @@ const FundsPage = () => {
       {/* Sort portal */}
       {sortDropdown.open && sortDropdown.rect && createPortal(
         <div
+          onMouseDown={(e) => e.stopPropagation()}
           style={{
             position: "fixed",
             top: sortDropdown.rect.bottom + 8,

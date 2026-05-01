@@ -12,8 +12,9 @@ interface FundsTemplateProps {
   fundType?: string;
   summary: ReactNode;
   contributors: ReactNode;
-  activeTab: "summary" | "contributors";
-  onTabChange: (tab: "summary" | "contributors") => void;
+  settings: ReactNode;
+  activeTab: "summary" | "contributors" | "settings";
+  onTabChange: (tab: "summary" | "contributors" | "settings") => void;
 }
 
 const FundTemplate = ({
@@ -22,6 +23,7 @@ const FundTemplate = ({
   fundType,
   summary,
   contributors,
+  settings,
   activeTab,
   onTabChange,
 }: FundsTemplateProps) => {
@@ -72,9 +74,9 @@ const FundTemplate = ({
           </div>
         )}
 
-        {/* Tabs — only Summary and Contributors */}
+        {/* Tabs */}
         <div className="mb-6 flex space-x-8 border-b">
-          {(["summary", "contributors"] as const).map((tab) => (
+          {(["summary", "contributors", "settings"] as const).map((tab) => (
             <button
               key={tab}
               className={`pb-3 text-base capitalize transition-colors ${
@@ -93,6 +95,7 @@ const FundTemplate = ({
         <div>
           {activeTab === "summary" && summary}
           {activeTab === "contributors" && contributors}
+          {activeTab === "settings" && settings}
         </div>
       </div>
 

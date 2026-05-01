@@ -41,6 +41,7 @@ interface TableData {
   fund: string;
   amount: number | null;
   hasTransactions: boolean;
+  transactionTypes: TransactionType[];
 }
 
 export type ContributorSortBy =
@@ -48,10 +49,13 @@ export type ContributorSortBy =
   | "name-asc" | "name-desc"
   | "amount-desc" | "amount-asc";
 
+export type ContributorFilterBy = "all" | "DONATION" | "INVESTMENT" | "WITHDRAWAL" | "EXPENSE" | "no-transactions";
+
 interface ContributorsTableProps {
   searchQuery?: string;
   refreshToken?: number;
   sortBy?: ContributorSortBy;
+  filterBy?: ContributorFilterBy;
 }
 
 function ThreeDotsMenu({ contributorId: _contributorId }: { contributorId: string }) {
@@ -102,6 +106,7 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
   searchQuery = "",
   refreshToken = 0,
   sortBy = "date-desc",
+  filterBy = "all",
 }) => {
   const PAGE_SIZE = 5;
   const router = useRouter();
@@ -150,6 +155,7 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
             fund: fundName,
             amount: formattedAmount,
             hasTransactions,
+            transactionTypes: contributor.transactions.map((t) => t.type),
           };
         });
 
@@ -166,6 +172,12 @@ const ContributorsTable: React.FC<ContributorsTableProps> = ({
   const filteredContributors = useMemo(() => {
     const q = (searchQuery ?? "").trim().toLowerCase();
     let result = contributors;
+
+    if (filterBy === "no-transactions") {
+      result = result.filter((r) => !r.hasTransactions);
+    } else if (filterBy !== "all") {
+      result = result.filter((r) => r.transactionTypes.includes(filterBy as TransactionType));
+    }
 
     if (q) {
       result = result.filter((r) =>

@@ -43,19 +43,25 @@ interface TableData {
   documentLink?: string;
 }
 
+export type TransactionFilterType = "all" | "DONATION" | "WITHDRAWAL" | "INVESTMENT" | "EXPENSE";
+export type TransactionSortBy = "date-desc" | "date-asc" | "amount-desc" | "amount-asc" | "contributor-asc" | "contributor-desc";
+
 interface TransactionsTableProps {
   tableType: "transactions" | "contributions";
-  searchQuery?: string; // New prop to filter by organization name
-  fundId?: string; // Optional fundId to fetch transactions for a specific fund
-  fundName?: string; // Optional fund name to display when organization is missing
+  searchQuery?: string;
+  fundId?: string;
+  fundName?: string;
+  filterType?: TransactionFilterType;
+  sortBy?: TransactionSortBy;
 }
-
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
   tableType,
-  searchQuery = "", // Default to empty string if not provided
+  searchQuery = "",
   fundId,
   fundName,
+  filterType = "all",
+  sortBy,
 }) => {
   const PAGE_SIZE = 5;
   const [transactions, setTransactions] = useState<TableData[]>([]);
@@ -135,38 +141,28 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   // If the query is empty, return all transactions without filtering.
   const filteredTransactions = useMemo(() => {
     const q = (searchQuery ?? "").trim().toLowerCase();
-    if (!q) {
-      return transactions;
-    }
-    // Builds a single lowercase string containing all key fields of a table row,
-    // allowing flexible "search by anything" text matching across all attributes.
     const rowText = (t: TableData) =>
-      [
-        t.date,
-        t.contributor ?? "",
-        t.fund ?? "",
-        t.type ?? "",
-        t.units?.toString() ?? "",
-        (() => {
-          const sign = t.amount < 0 ? "-" : "+";
-          const amt = new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-          }).format(Math.abs(t.amount));
-          return `${sign}${amt}`;
-        })(),
-        t.restriction ?? "",
-        t.documentLink ?? "",
-        t.id,
-      ]
-        .join("")
-        .toLowerCase();
+      [t.date, t.contributor ?? "", t.fund ?? "", t.type ?? "", t.units?.toString() ?? "", t.restriction ?? "", t.documentLink ?? "", t.id]
+        .join("").toLowerCase();
 
-    // Case-insensitive search for organization names (fund) containing the query string
-    return transactions.filter((transaction) =>
-      rowText(transaction).includes(q)
-    );
-  }, [transactions, searchQuery]);
+    let result = transactions
+      .filter((t) => filterType === "all" || t.type.toUpperCase() === filterType)
+      .filter((t) => !q || rowText(t).includes(q));
+
+    if (sortBy) {
+      result = [...result].sort((a, b) => {
+        if (sortBy === "date-desc") return new Date(b.date).getTime() - new Date(a.date).getTime();
+        if (sortBy === "date-asc") return new Date(a.date).getTime() - new Date(b.date).getTime();
+        if (sortBy === "amount-desc") return Math.abs(b.amount) - Math.abs(a.amount);
+        if (sortBy === "amount-asc") return Math.abs(a.amount) - Math.abs(b.amount);
+        if (sortBy === "contributor-asc") return (a.contributor ?? "").localeCompare(b.contributor ?? "");
+        if (sortBy === "contributor-desc") return (b.contributor ?? "").localeCompare(a.contributor ?? "");
+        return 0;
+      });
+    }
+
+    return result;
+  }, [transactions, searchQuery, filterType, sortBy]);
 
   const getColumns = (): Column<TableData>[] => {
     const baseColumns: Column<TableData>[] = [

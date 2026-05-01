@@ -2,12 +2,10 @@
 
 export const dynamic = "force-dynamic";
 
-import React, { useEffect, useState, useMemo, use } from "react";
+import React, { useEffect, useState, use } from "react";
 import FundTemplate from "@/components/templates/FundTemplate";
 import ContributionsGraph from "@/components/molecules/ContributionsGraph";
 import TransactionsTable from "@/components/molecules/TransactionsTable";
-import AddTransactionModal from "@/components/molecules/AddTransactionModal";
-import AddContributorModal from "@/components/molecules/AddContributorModal";
 import api from "@/utils/api";
 
 interface FundData {
@@ -33,7 +31,7 @@ interface Contributor {
 
 const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
   const { fundId } = use(params);
-  const [activeTab, setActiveTab] = useState<"summary" | "contributors">("summary");
+  const [activeTab, setActiveTab] = useState<"summary" | "contributors" | "settings">("summary");
 
   const [fundData, setFundData] = useState<FundData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,8 +39,17 @@ const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
   const [contributorsData, setContributors] = useState<Contributor[]>([]);
   const [oneYearEarnings, setOneYearEarnings] = useState<number>(0);
   const [contributorTotals, setContributorTotals] = useState<Record<string, number>>({});
-  const [contributorSearch, setContributorSearch] = useState("");
-  const [contributorRefresh, setContributorRefresh] = useState(0);
+  const [settingsForm, setSettingsForm] = useState<{
+    name: string;
+    description: string;
+    type: "ENDOWMENT" | "DONATION";
+    restriction: boolean;
+    purpose: string;
+    rate: string;
+  } | null>(null);
+  const [settingsSaving, setSettingsSaving] = useState(false);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
+  const [settingsSuccess, setSettingsSuccess] = useState(false);
 
   useEffect(() => {
     const fetchFund = async () => {
@@ -89,15 +96,47 @@ const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
     };
 
     fetchFund();
-  }, [fundId, contributorRefresh]);
+  }, [fundId]);
 
-  const filteredContributors = useMemo(() => {
-    const q = contributorSearch.trim().toLowerCase();
-    if (!q) return contributorsData;
-    return contributorsData.filter((c) =>
-      `${c.firstName} ${c.lastName}`.toLowerCase().includes(q)
-    );
-  }, [contributorsData, contributorSearch]);
+  // Sync settings form when fund data loads
+  useEffect(() => {
+    if (!fundData) return;
+    setSettingsForm({
+      name: fundData.name,
+      description: fundData.description,
+      type: fundData.type,
+      restriction: fundData.restriction ?? false,
+      purpose: fundData.purpose ?? "",
+      rate: fundData.units && fundData.amount ? String((fundData.amount / fundData.units).toFixed(4)) : "",
+    });
+  }, [fundData]);
+
+  const handleSettingsSave = async () => {
+    if (!settingsForm) return;
+    setSettingsSaving(true);
+    setSettingsError(null);
+    setSettingsSuccess(false);
+    try {
+      const payload: Record<string, any> = {
+        name: settingsForm.name.trim(),
+        description: settingsForm.description.trim(),
+        type: settingsForm.type,
+        restriction: settingsForm.restriction,
+        purpose: settingsForm.restriction ? settingsForm.purpose.trim() : null,
+        rate: settingsForm.rate !== "" ? parseFloat(settingsForm.rate) : null,
+      };
+      const res = await api.put(`/funds/${fundId}`, payload);
+      setFundData((prev) => prev ? { ...prev, ...res.data } : prev);
+      setSettingsSuccess(true);
+      setTimeout(() => setSettingsSuccess(false), 3000);
+    } catch (err) {
+      setSettingsError(err instanceof Error ? err.message : "Failed to save");
+    } finally {
+      setSettingsSaving(false);
+    }
+  };
+
+  const filteredContributors = contributorsData;
 
   if (loading) return <div>loading fund data</div>;
   if (error) return <div>error: {error}</div>;
@@ -107,14 +146,6 @@ const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
     <div className="space-y-8">
       {/* Graph card */}
       <div className="rounded-xl border px-6 py-4 shadow-sm">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <div className="text-gray-500 text-sm">Account Balance</div>
-            <div className="text-3xl font-bold">
-              ${fundData.amount.toLocaleString()}
-            </div>
-          </div>
-        </div>
         <ContributionsGraph fundId={fundId} />
         <div className="text-gray-700 mt-4 flex gap-12 text-sm">
           <div>
@@ -143,17 +174,7 @@ const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
 
       {/* Transactions below graph */}
       <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">All transactions</h2>
-          <AddTransactionModal>
-            <button
-              className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium"
-              style={{ backgroundColor: "#3E6DA6", color: "white" }}
-            >
-              + Add a new transaction
-            </button>
-          </AddTransactionModal>
-        </div>
+        <h2 className="mb-4 text-2xl font-bold">All transactions</h2>
         <TransactionsTable
           tableType="transactions"
           fundId={fundId}
@@ -168,34 +189,12 @@ const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">All Contributors</h2>
-        <AddContributorModal onAdded={() => setContributorRefresh((r) => r + 1)}>
-          <button
-            className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium"
-            style={{ backgroundColor: "#3E6DA6", color: "white" }}
-          >
-            + Add new contributor
-          </button>
-        </AddContributorModal>
-      </div>
-
-      {/* Search */}
-      <div className="flex items-center gap-2 rounded-md border px-3 py-2">
-        <svg className="text-gray-400 h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-        </svg>
-        <input
-          type="text"
-          placeholder="Search"
-          value={contributorSearch}
-          onChange={(e) => setContributorSearch(e.target.value)}
-          className="w-full text-sm outline-none"
-        />
       </div>
 
       {/* Table */}
       <div>
         <div className="mb-2 flex justify-between px-2 text-sm font-semibold">
-          <span>Date</span>
+          <span>Name</span>
           <span>Total contributions</span>
         </div>
         <div className="divide-y">
@@ -218,6 +217,120 @@ const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
     </div>
   );
 
+  const settings = settingsForm ? (
+    <div className="max-w-xl space-y-6">
+      <h2 className="text-xl font-bold">Fund Settings</h2>
+
+      {/* Name */}
+      <div>
+        <label className="mb-1.5 block text-sm font-semibold text-gray-700">Fund Name</label>
+        <input
+          type="text"
+          value={settingsForm.name}
+          onChange={(e) => setSettingsForm((f) => f && { ...f, name: e.target.value })}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-gray-400"
+        />
+      </div>
+
+      {/* Description */}
+      <div>
+        <label className="mb-1.5 block text-sm font-semibold text-gray-700">Description</label>
+        <textarea
+          value={settingsForm.description}
+          onChange={(e) => setSettingsForm((f) => f && { ...f, description: e.target.value })}
+          rows={3}
+          className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-gray-400"
+        />
+      </div>
+
+      {/* Type */}
+      <div>
+        <label className="mb-1.5 block text-sm font-semibold text-gray-700">Fund Type</label>
+        <select
+          value={settingsForm.type}
+          onChange={(e) => setSettingsForm((f) => f && { ...f, type: e.target.value as "ENDOWMENT" | "DONATION" })}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-gray-400"
+        >
+          <option value="ENDOWMENT">Endowment</option>
+          <option value="DONATION">Donation</option>
+        </select>
+      </div>
+
+      {/* Restriction */}
+      <div>
+        <label className="mb-1.5 block text-sm font-semibold text-gray-700">Restriction</label>
+        <div className="flex gap-4">
+          {[{ label: "Restricted", value: true }, { label: "Unrestricted", value: false }].map(({ label, value }) => (
+            <label key={label} className="flex cursor-pointer items-center gap-2 text-sm">
+              <input
+                type="radio"
+                checked={settingsForm.restriction === value}
+                onChange={() => setSettingsForm((f) => f && { ...f, restriction: value })}
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Purpose — only if restricted */}
+      {settingsForm.restriction && (
+        <div>
+          <label className="mb-1.5 block text-sm font-semibold text-gray-700">Purpose</label>
+          <input
+            type="text"
+            value={settingsForm.purpose}
+            onChange={(e) => setSettingsForm((f) => f && { ...f, purpose: e.target.value })}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-gray-400"
+          />
+        </div>
+      )}
+
+      {/* Unit rate */}
+      <div>
+        <label className="mb-1.5 block text-sm font-semibold text-gray-700">Unit Rate ($ per unit)</label>
+        <input
+          type="number"
+          min="0"
+          step="0.0001"
+          placeholder="Leave blank for non-unitized"
+          value={settingsForm.rate}
+          onChange={(e) => setSettingsForm((f) => f && { ...f, rate: e.target.value })}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-gray-400"
+        />
+      </div>
+
+      {/* Feedback */}
+      {settingsError && <p className="text-sm text-red-500">{settingsError}</p>}
+      {settingsSuccess && <p className="text-sm text-green-600">Changes saved.</p>}
+
+      {/* Actions */}
+      <div className="flex gap-3 pt-2">
+        <button
+          onClick={handleSettingsSave}
+          disabled={settingsSaving}
+          className="rounded-lg px-6 py-2 text-sm font-medium text-white disabled:opacity-60"
+          style={{ backgroundColor: "#3E6DA6" }}
+        >
+          {settingsSaving ? "Saving…" : "Save Changes"}
+        </button>
+        <button
+          onClick={() => setSettingsForm({
+            name: fundData.name,
+            description: fundData.description,
+            type: fundData.type,
+            restriction: fundData.restriction ?? false,
+            purpose: fundData.purpose ?? "",
+            rate: fundData.units && fundData.amount ? String((fundData.amount / fundData.units).toFixed(4)) : "",
+          })}
+          className="rounded-lg border border-gray-300 px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Discard
+        </button>
+      </div>
+    </div>
+  ) : null;
+
   return (
     <FundTemplate
       fundName={fundData.name}
@@ -225,6 +338,7 @@ const FundPage = ({ params }: { params: Promise<{ fundId: string }> }) => {
       fundType={fundData.type === "ENDOWMENT" ? "Endowment" : "Donation"}
       summary={summary}
       contributors={contributors}
+      settings={settings}
       activeTab={activeTab}
       onTabChange={setActiveTab}
     />
