@@ -108,8 +108,6 @@ const ProfilePage = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <ProfileField label="First Name" value={user?.firstName ?? ""} />
                   <ProfileField label="Last Name" value={user?.lastName ?? ""} />
-                  <ProfileField label="Date of Birth" value="Not set" />
-                  <ProfileField label="Phone Number" value="Not set" />
                 </div>
               </div>
             </div>

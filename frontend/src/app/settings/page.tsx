@@ -20,10 +20,9 @@ type CurrentUser = {
 };
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<'funds' | 'account'>('account');
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phoneNumber: '' });
+  const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '' });
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -49,7 +48,7 @@ export default function SettingsPage() {
         if (!res.ok) { console.error('Failed to fetch user in settings', res.status); return; }
         const data = await res.json();
         setUser(data.user);
-        setFormData({ firstName: data.user.firstName ?? '', lastName: data.user.lastName ?? '', email: data.user.email ?? '', phoneNumber: '' });
+        setFormData({ firstName: data.user.firstName ?? '', lastName: data.user.lastName ?? '', email: data.user.email ?? '' });
       } catch (err) {
         console.error('Error loading user in settings', err);
       }
@@ -85,7 +84,7 @@ export default function SettingsPage() {
   };
 
   const handleCancel = () => {
-    if (user) setFormData({ firstName: user.firstName, lastName: user.lastName, email: user.email, phoneNumber: '' });
+    if (user) setFormData({ firstName: user.firstName, lastName: user.lastName, email: user.email });
     setSaveError(null);
     setSaveSuccess(false);
     setEditing(false);
@@ -96,28 +95,9 @@ export default function SettingsPage() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
-        {/* Tabs */}
-        <div className="flex space-x-8 border-b">
-          <button
-            onClick={() => setActiveTab('funds')}
-            className={`pb-2 ${activeTab === 'funds' ? 'border-b-2 border-black font-medium' : 'text-gray-500'}`}
-          >
-            Fund Settings
-          </button>
-          <button
-            onClick={() => setActiveTab('account')}
-            className={`pb-2 ${activeTab === 'account' ? 'border-b-2 border-black font-medium' : 'text-gray-500'}`}
-          >
-            Account Settings
-          </button>
-        </div>
-
         {/* Content */}
         <div className="mt-8">
-          {activeTab === 'funds' ? (
-            <p className="text-gray-500">Fund Settings will go here.</p>
-          ) : (
-            <div className="space-y-10">
+          <div className="space-y-10">
 
               {/* Your Profile */}
               <section>
@@ -182,14 +162,6 @@ export default function SettingsPage() {
                       <p className="text-sm font-medium">{user?.email ?? '—'}</p>
                     )}
                   </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">Phone Number</label>
-                    {editing ? (
-                      <input name="phoneNumber" type="tel" value={formData.phoneNumber} onChange={handleChange} placeholder="+1 888-888-7777" className="border border-gray-300 rounded px-3 py-2 text-sm w-full" />
-                    ) : (
-                      <p className="text-sm font-medium">{formData.phoneNumber || '—'}</p>
-                    )}
-                  </div>
                 </div>
               </section>
 
@@ -221,8 +193,7 @@ export default function SettingsPage() {
                 </button>
               </section>
 
-            </div>
-          )}
+          </div>
         </div>
       </main>
     </DashboardTemplate>
