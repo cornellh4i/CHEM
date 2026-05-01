@@ -159,6 +159,9 @@ export const session = async (req: Request, res: Response) => {
       sameSite: "lax"
     });
 
+    console.log("Bearer token (Firebase ID token):", idToken);
+
+
     return res.status(200).json({ success: true });
   } catch (e: any) {
     return res.status(401).json({ error: e?.message ?? "Invalid ID token" });

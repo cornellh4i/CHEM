@@ -5,6 +5,13 @@ import { TransactionType } from "@prisma/client";
 import { notify } from "../utils/helpers";
 import auth from "../middleware/auth";
 import prisma from "../utils/client";
+import admin from "firebase-admin";
+
+declare module "express-serve-static-core" {
+  interface Request {
+    auth?: admin.auth.DecodedIdToken;
+  }
+}
 
 const transactionRouter = Router();
 
@@ -18,12 +25,12 @@ const transactionRouter = Router();
  */
 transactionRouter.get("/", auth, async (req, res) => {
   try {
-    if (!(req as any).auth) {
+    if (!req.auth) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
     // Get user's organizationId from database
-    const firebaseUid = (req as any).auth.uid;
+    const firebaseUid = req.auth.uid;
     const user = await prisma.user.findUnique({
       where: { firebaseUid },
       select: { organizationId: true },
@@ -72,6 +79,9 @@ transactionRouter.get("/", auth, async (req, res) => {
 /** GET /transactions/:id Retrieves a single transaction by its ID. */
 transactionRouter.get("/:id", auth, async (req, res) => {
   try {
+    if (!req.auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
     const firebaseUid = (req as any).auth.uid;
     const user = await prisma.user.findUnique({
       where: { firebaseUid },
@@ -105,6 +115,10 @@ transactionRouter.get("/:id", auth, async (req, res) => {
  */
 transactionRouter.put("/:id", auth, async (req, res) => {
   try {
+    if (!req.auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
     const firebaseUid = (req as any).auth.uid;
     const user = await prisma.user.findUnique({
       where: { firebaseUid },
@@ -122,7 +136,10 @@ transactionRouter.put("/:id", auth, async (req, res) => {
     }
 
     const { organizationId: _stripped, ...updateData } = req.body;
-    const updatedTransaction = await controller.updateTransaction(id, updateData);
+    const updatedTransaction = await controller.updateTransaction(
+      id,
+      updateData
+    );
     res.status(200).json(updatedTransaction);
   } catch (error) {
     console.error(error);
@@ -137,7 +154,8 @@ transactionRouter.put("/:id", auth, async (req, res) => {
 // POST /transactions/bulk — create multiple transactions at once
 transactionRouter.post("/bulk", auth, async (req, res) => {
   try {
-    if (!(req as any).auth) return res.status(401).json({ error: "Unauthorized" });
+    if (!(req as any).auth)
+      return res.status(401).json({ error: "Unauthorized" });
 
     const firebaseUid = (req as any).auth.uid;
     const user = await prisma.user.findUnique({
@@ -169,21 +187,23 @@ transactionRouter.post("/bulk", auth, async (req, res) => {
     return res.status(201).json({ created: results });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: error instanceof Error ? error.message : "Failed to bulk create transactions" });
+    return res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to bulk create transactions",
+    });
   }
 });
 
 // POST /transactions route
 transactionRouter.post("/", auth, async (req, res) => {
   try {
-    const firebaseUid = (req as any).auth.uid;
-    const user = await prisma.user.findUnique({
-      where: { firebaseUid },
-      select: { organizationId: true },
-    });
-    if (!user) return res.status(401).json({ error: "User not found" });
+    if (!req.auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
 
-    const transactionData = { ...req.body, organizationId: user.organizationId };
+    const transactionData = req.body;
 
     // Basic validation (units and description are optional)
     if (
@@ -214,6 +234,9 @@ transactionRouter.post("/", auth, async (req, res) => {
 // DELETE /transactions/:id route
 transactionRouter.delete("/:id", auth, async (req, res) => {
   try {
+    if (!req.auth) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
     const firebaseUid = (req as any).auth.uid;
     const user = await prisma.user.findUnique({
       where: { firebaseUid },
