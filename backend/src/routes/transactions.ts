@@ -203,7 +203,14 @@ transactionRouter.post("/", auth, async (req, res) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const transactionData = req.body;
+    const firebaseUid = req.auth.uid;
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      select: { organizationId: true },
+    });
+    if (!user) return res.status(401).json({ error: "User not found" });
+
+    const transactionData = { ...req.body, organizationId: user.organizationId };
 
     // Basic validation (units and description are optional)
     if (
